@@ -11,44 +11,34 @@
 #include <string>
 #include <boost/asio.hpp>
 #include "server.hh"
-#include "reply.hh"
-
-using namespace http::server;
 
 struct TestHandler : public RequestHandler {
 	using RequestHandler::RequestHandler;
 
-	void handleRequest(Request& req, reply& rep) override {
-		std::cout << "it's me" << std::endl;
+	void handleRequest(RequestPtr req, ResponsePtr rep) override {
+		std::cout << "it's TestHander::handleRequest" << std::endl;
+		std::cout << "method: " << req->getMethod() << std::endl;
+		std::cout << "uri: " << req->getUri() << std::endl;
+		std::cout << "version: " << req->getVersion() << std::endl;
+		for(auto&& h : req->headerMap())
+			std::cout << h.name << ": " << h.value << std::endl;
+		std::string body;
+		std::cout << req->in().rdbuf();
+		std::cout << std::endl;
 	}
 };
 
-int main(int argc, char* argv[])
+int 
+main(int argc, char* argv[])
 {
-  try
-  {
-    // Check command line arguments.
-    if (argc != 3)
-    {
-      std::cerr << "Usage: http_server <address> <port>\n";
-      std::cerr << "  For IPv4, try:\n";
-      std::cerr << "    receiver 0.0.0.0 80\n";
-      std::cerr << "  For IPv6, try:\n";
-      std::cerr << "    receiver 0::0 80\n";
-      return 1;
-    }
+	try {
+		boost::asio::io_service io_service;
+		Server server(io_service, "8888");
+		server.addHandler("/test", RequestHandlerPtr(new TestHandler(&server)));
+		server.run();
+	} catch(std::exception& e) {
+		std::cerr << "exception: " << e.what() << "\n";
+	}
 
-    // Initialise the server.
-    http::server::Server s(argv[1], argv[2]);
-    s.addHandler("/test", RequestHandlerPtr(new TestHandler(&s)));
-
-    // Run the server until stopped.
-    s.run();
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "exception: " << e.what() << "\n";
-  }
-
-  return 0;
+	return 0;
 }

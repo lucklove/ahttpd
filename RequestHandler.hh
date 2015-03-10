@@ -1,23 +1,13 @@
-// RequestHandler.hpp
-// ~~~~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
-//
-
-#ifndef HTTP_REQUEST_HANDLER_HPP
-#define HTTP_REQUEST_HANDLER_HPP
+#pragma once
 
 #include <string>
 #include <memory>
 #include <vector>
 
-namespace http {
-namespace server {
+#include "request.hh"
+#include "response.hh"
 
-struct reply;
+struct Response;
 struct Request;
 class Server;
 class RequestHandler;
@@ -33,9 +23,9 @@ public:
 
   explicit RequestHandler(Server *server);
 
-  /// Handle a request and produce a reply.
-  virtual void handleRequest(Request& req, reply& rep);
-  bool deliverRequest(Request& req, reply& rep);
+  /// Handle a request and produce a response.
+  virtual void handleRequest(RequestPtr req, ResponsePtr rep);
+  bool deliverRequest(RequestPtr req, ResponsePtr rep);
   void addSubHandler(const std::string& path, RequestHandlerPtr handler) {
 	sub_handlers_.push_back(std::make_tuple(path, handler));
   }
@@ -49,8 +39,3 @@ private:
   static bool url_decode(const std::string& in, std::string& out);
 
 };
-
-} // namespace server
-} // namespace http
-
-#endif // HTTP_REQUEST_HANDLER_HPP

@@ -1,33 +1,36 @@
-// request.hpp
-// ~~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
-//
-
-#ifndef HTTP_REQUEST_HPP
-#define HTTP_REQUEST_HPP
+#pragma once
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <sstream>
+#include "package.hh"
 #include "header.hh"
 
-namespace http {
-namespace server {
+//#include "connection.hh"
 
 /// A request received from a client.
-struct Request
-{
-  std::string method;
-  std::string uri;
-  int http_version_major;
-  int http_version_minor;
-  std::vector<header> headers;
+
+//class Server;
+
+class Request : public Package, 
+	public std::enable_shared_from_this<Request> {
+public :
+	using Package::Package;
+	void deliverSelf();
+
+	std::string getUri() { return uri; }
+	std::string getMethod() { return method; }
+	std::string getVersion() { return version; }
+	
+	void setUri(const std::string& u) { uri = u; }
+	void setMethod(const std::string& m) { method = m; }
+	void setVersion(const std::string& v) { version = v; }
+
+private:
+	std::string method;
+	std::string uri;
+	std::string version;
 };
 
-} // namespace server
-} // namespace http
-
-#endif // HTTP_REQUEST_HPP
+using RequestPtr = std::shared_ptr<Request>;

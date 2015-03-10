@@ -1,14 +1,4 @@
-// Server.hpp
-// ~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
-//
-
-#ifndef HTTP_SERVER_HPP
-#define HTTP_SERVER_HPP
+#pragma once
 
 #include <boost/asio.hpp>
 #include <string>
@@ -16,10 +6,7 @@
 #include "ConnectionManager.hh"
 #include "RequestHandler.hh"
 #include "request.hh"
-#include "reply.hh"
-
-namespace http {
-namespace server {
+#include "response.hh"
 
 /// The top-level class of the HTTP Server.
 class Server {
@@ -29,7 +16,7 @@ public:
 
 	/// Construct the Server to listen on the specified TCP address and port, and
 	/// serve up files from the given directory.
-	explicit Server(const std::string& address, const std::string& port);
+	explicit Server(boost::asio::io_service& service, const std::string& port);
 
 	/// Run the Server's io_service loop.
 	void run();
@@ -38,9 +25,13 @@ public:
 		request_handler_.addSubHandler(path, handle);
 	}
 
-	void reDeliverRequest(Request& req, reply& rep) {
+	void deliverRequest(RequestPtr req, ResponsePtr rep) {
 		request_handler_.handleRequest(req, rep);
-	}	
+	}
+
+	boost::asio::io_service& service() {
+		return service_;
+	}
 private:
 
 	/// Perform an asynchronous accept operation.
@@ -50,7 +41,7 @@ private:
 	void do_await_stop();
 
 	/// The io_service used to perform asynchronous operations.
-	boost::asio::io_service io_service_;
+	boost::asio::io_service& service_;
 
 	/// The signal_set is used to register for process termination notifications.
 	boost::asio::signal_set signals_;
@@ -59,16 +50,12 @@ private:
 	boost::asio::ip::tcp::acceptor acceptor_;
 
 	/// The connection manager which owns all live connections.
-	ConnectionManager connection_manager_;
+//	ConnectionManager connection_manager_;
 
 	/// The next socket to be accepted.
 	boost::asio::ip::tcp::socket socket_;
 
 	/// The handler for all incoming requests.
 	RequestHandler request_handler_;
+
 };
-
-} // namespace Server
-} // namespace http
-
-#endif // HTTP_SERVER_HPP

@@ -1,25 +1,13 @@
-// RequestHandler.cpp
-// ~~~~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2014 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
-//
-
 #include "RequestHandler.hh"
 #include <fstream>
 #include <sstream>
 #include <string>
 #include "MimeTypes.hh"
-#include "reply.hh"
+#include "response.hh"
 #include "request.hh"
 #include "server.hh"
 
 #include <iostream>
-
-namespace http {
-namespace server {
 
 RequestHandler::RequestHandler(Server *server)
 	: server_(server)
@@ -27,31 +15,35 @@ RequestHandler::RequestHandler(Server *server)
 }
 
 void 
-RequestHandler::handleRequest(Request& req, reply& rep)
+RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
   	// Decode url to path.
 	std::string request_path;
  
-	if(!url_decode(req.uri, request_path)) {
- 		rep = reply::stock_reply(reply::bad_request);
+	if(!url_decode(req->getUri(), request_path)) {
+		/** TODO: BAD REQUEST */
+		req->connection()->stop();
     		return;
   	}
 
+	req->setUri(request_path);
+
   	if(!deliverRequest(req, rep)) {
-		rep = reply::stock_reply(reply::not_found);
+		/** TODO: BAD REQUEST */
+		req->connection()->stop();
 		return;
   	}
 }
 
 bool
-RequestHandler::deliverRequest(Request& req, reply& rep)
+RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 {
 	std::tuple<std::string, RequestHandlerPtr> best;
 	
 	for(auto handler : sub_handlers_) {
 		size_t cmp_size = std::get<0>(handler).size();
-		if(req.uri.size() >= cmp_size && 
-			req.uri.substr(0, cmp_size) == std::get<0>(handler))
+		if(req->getUri().size() >= cmp_size && 
+			req->getUri().substr(0, cmp_size) == std::get<0>(handler))
 			best = handler;	
 	}
 
@@ -89,6 +81,3 @@ RequestHandler::url_decode(const std::string& in, std::string& out)
   	}
   	return true;
 }
-
-} // namespace server
-} // namespace http
