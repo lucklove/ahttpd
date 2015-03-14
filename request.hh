@@ -17,6 +17,7 @@ class Request : public Package,
 	public std::enable_shared_from_this<Request> {
 public :
 	using Package::Package;
+	~Request() override;
 	void deliverSelf();
 
 	std::string getUri() { return uri; }

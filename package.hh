@@ -15,7 +15,7 @@ public:
 	Package(Server *server, ConnectionPtr connection) :
 		server_(server), connection_(connection) {}
 
-	virtual ~Package() {}
+	virtual ~Package() = 0;
 	std::istream& in() { return body; }
 	std::ostream& out() { return body; }
 	ConnectionPtr connection() { return connection_; }
@@ -42,6 +42,15 @@ public:
 	
 	std::vector<header_t>& headerMap() { return headers; }
 
+	size_t
+	contentLength()
+	{
+		auto cur = body.tellg();
+		body.seekg(0, std::ios_base::end);
+		auto res = body.tellg() - cur;
+		body.seekg(cur, std::ios_base::beg);
+		return res;
+	}
 protected:
 	Server *server_;
 

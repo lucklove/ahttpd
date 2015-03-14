@@ -3,7 +3,6 @@
 #include <boost/asio.hpp>
 #include <string>
 #include "connection.hh"
-#include "ConnectionManager.hh"
 #include "RequestHandler.hh"
 #include "request.hh"
 #include "response.hh"
@@ -32,6 +31,11 @@ public:
 	boost::asio::io_service& service() {
 		return service_;
 	}
+	
+	void post(const std::function<void(void)>& func) {
+		service_.post(func);
+	}
+
 private:
 
 	/// Perform an asynchronous accept operation.

@@ -6,28 +6,30 @@
 #include <utility>
 #include <boost/asio.hpp>
 #include "buffer.hh"
+#include <iostream>
 
 class ConnectionManager;
 class Server;
 
 /// Represents a single connection from a client.
 class Connection
-  : public std::enable_shared_from_this<Connection>
+	: public std::enable_shared_from_this<Connection>
 {
 private:
         template<typename _type>
         using result_of_t = typename std::result_of<_type>::type;
 
 public:
-  Connection(const Connection&) = delete;
-  Connection& operator=(const Connection&) = delete;
+	Connection(const Connection&) = delete;
+	Connection& operator=(const Connection&) = delete;
+	
+	~Connection() { std::cout << "connection 析构" << std::endl; }
+	/// Construct a connection with the given socket.
+	explicit Connection(boost::asio::ip::tcp::socket socket);
+	//ConnectionManager& manager, RequestHandler& handler, Server* server);
 
-  /// Construct a connection with the given socket.
-  explicit Connection(boost::asio::ip::tcp::socket socket);
-//      ConnectionManager& manager, RequestHandler& handler, Server* server);
-
-  /// Stop all asynchronous operations associated with the connection.
-  void stop();
+	/// Stop all asynchronous operations associated with the connection.
+	void stop();
 
 	buffer_t& buffer() { return buffer_; }
 	void async_read_until(const std::string& delim, 
@@ -37,6 +39,9 @@ public:
 		std::function<void(const boost::system::error_code &, size_t)> handler) {
 		boost::asio::async_read(socket_, buffer_, completion, handler);
 	}
+
+	void async_write(std::function<
+		void(const boost::system::error_code&, size_t)> handler);
 
 private:
   /// Perform an asynchronous read operation.

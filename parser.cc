@@ -18,8 +18,7 @@ to_size(const std::string& s)
 }
 
 void
-parse_headers(RequestPtr req, 
-	std::function<void(RequestPtr, bool)> handler)
+parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
 	std::cout << "parse headers" << std::endl;
 	req->connection()->async_read_until("\r\n\r\n",
@@ -28,8 +27,7 @@ parse_headers(RequestPtr req,
 				handler(req, false);
 				return;
 			}
-			std::regex r("([[:print:]]+): "
-				"([[:print:]]*)");
+			std::regex r("([[:print:]]+): ([[:print:]]*)");
 			std::smatch results;
 			std::istream in(&req->connection()->buffer());
 			std::string line;
@@ -37,8 +35,7 @@ parse_headers(RequestPtr req,
 				if(line == "\r")	/**< 头部最后的\r\n" */
 					break;
 				if(std::regex_search(line, results, r)) {
-					req->addHeader(
-						results.str(1), results.str(2));
+					req->addHeader(results.str(1), results.str(2));
 				} else {
 					assert(0);
 				}

@@ -1,16 +1,17 @@
-#include "request.hh"
 #include "response.hh"
+
 #include <iostream>
-#include <string>
-#include <cassert>
-#include "server.hh"
+#include <sstream>
 
 int
 main(int argc, char *argv[])
 {
-	Request t(static_cast<Server *>(nullptr), nullptr);
-	std::string line;
-	t.out() << "1\r\n";
-	t.in() >> line;
-	std::cout << line;
+	Response *rep = new Response(nullptr, nullptr);
+	rep->out() << "hello";
+	std::cout << "handle.................." << std::endl;
+	rep->out() << "it's TestHander::handleRequest" << std::endl;
+	rep->out() << "method: " << std::endl;
+	rep->out() << "uri: " << std::endl;
+	rep->out() << "version: " << std::endl;
+	std::cout << "--------------" << rep->contentLength() << std::endl;
 }

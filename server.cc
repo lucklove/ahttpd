@@ -58,7 +58,8 @@ Server::do_accept()
 				std::cout << "connection start" << std::endl;
 				ConnectionPtr conn = 
 					std::make_shared<Connection>(
-					std::move(socket_));
+						std::move(socket_)
+					);
 				RequestPtr req = 
 					std::make_shared<Request>(this, conn);
 				parseRequest(req, [](RequestPtr req, bool good) {
