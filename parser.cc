@@ -118,12 +118,6 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> h
 
 }
 
-void
-parse_response_first_line(RequestPtr req,
-	std::function<void(RequestPtr, bool)> handler)
-{
-}
-
 }
 
 void
@@ -150,9 +144,3 @@ parseRequest(RequestPtr req,
 	);	
 						
 }
-
-void
-parseResponse(RequestPtr req,
-	std::function<void(RequestPtr, bool)> handler)
-{
-}	

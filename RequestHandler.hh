@@ -7,8 +7,6 @@
 #include "request.hh"
 #include "response.hh"
 
-struct Response;
-struct Request;
 class Server;
 class RequestHandler;
 

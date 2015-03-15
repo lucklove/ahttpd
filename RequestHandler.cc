@@ -22,6 +22,7 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
  
 	if(!url_decode(req->getUri(), request_path)) {
 		/** TODO: BAD REQUEST */
+		std::cout << __FILE__ << __LINE__ << std::endl;
 		req->connection()->stop();
     		return;
   	}
@@ -29,8 +30,7 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 	req->setUri(request_path);
 
   	if(!deliverRequest(req, rep)) {
-		/** TODO: BAD REQUEST */
-		req->connection()->stop();
+		rep->setStatus(Response::not_found);		
 		return;
   	}
 }
@@ -47,9 +47,10 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 			best = handler;	
 	}
 
-	if(std::get<1>(best) == nullptr)
+	if(std::get<1>(best) == nullptr) {
+		std::cout << "uri = " << req->getUri() << std::endl;
 		return false;
-
+	}
 	std::get<1>(best)->handleRequest(req, rep);
 	return true;
 }

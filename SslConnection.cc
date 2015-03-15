@@ -54,9 +54,15 @@ SslConnection::async_write(std::function<
 	void(const boost::system::error_code&, size_t)> handler)
 {
 	boost::asio::async_write(socket_, buffer(), std::bind(
-		/** XXX:是否需要保证connection不过早析构? */
-		[handler](const boost::system::error_code& e, size_t n) {
+		[handler](const boost::system::error_code& e, 
+			size_t n, ConnectionPtr) {	/**< 为了不让connection过早析构 */
 			handler(e, n);
 		}, 
-		std::placeholders::_1, std::placeholders::_2));
+		std::placeholders::_1, std::placeholders::_2, shared_from_this()));
+}
+
+void
+SslConnection::async_handshake(std::function<void (boost::system::error_code const&)> handle)
+{
+	socket_.async_handshake(boost::asio::ssl::stream_base::server, handle);
 }

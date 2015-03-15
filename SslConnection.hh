@@ -38,6 +38,8 @@ public:
 		void(const boost::system::error_code&, size_t)> handler) override;
 
 	boost::asio::ip::tcp::socket& socket() { return socket_.next_layer(); }
+	void async_handshake(std::function<void(const boost::system::error_code& e)> handle);
+
 private:
 	ssl_socket_t socket_;
 	boost::asio::deadline_timer ssl_shutdown_timer_;

@@ -222,7 +222,7 @@ Response::flush()
 	
 	connection()->async_write([](const boost::system::error_code& e, size_t n) {
 			if(e) {
-				std::cout << "发送出错" << std::endl;
+				std::cout << "发送出错:" << e.message() << std::endl;
 				/** TODO:记录错误 */
 			} else {
 				std::cout << "发送了" << n << "字节" << std::endl;

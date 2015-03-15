@@ -35,9 +35,9 @@ generateId(size_t max_size)
 	
 Server::Server(boost::asio::io_service& service, 
 	const std::string& http_port, const std::string& https_port)
-	: service_(service), signals_(service), tcp_acceptor_(service), 
-	ssl_acceptor_(service),  ssl_context_(service, boost::asio::ssl::context::sslv23), 
-	socket_(service), request_handler_(this)
+	: service_(service), signals_(service),socket_(service), 
+	tcp_acceptor_(service), ssl_acceptor_(service), request_handler_(this),
+	ssl_context_(service, boost::asio::ssl::context::sslv23)
 {
   // Register to handle the signals that indicate when the server should exit.
   // It is safe to register for the same signal multiple times in a program,
@@ -60,13 +60,14 @@ Server::Server(boost::asio::io_service& service,
 		tcp_acceptor_.listen();
 		new_tcp_connection_.reset(new TcpConnection(service_));
 	}
+
 	if(https_port != "") {
 		int sslOptions = boost::asio::ssl::context::default_workarounds
 			| boost::asio::ssl::context::no_sslv2
 			| boost::asio::ssl::context::single_dh_use;
 		ssl_context_.set_options(sslOptions);
-		ssl_context_.set_verify_mode(boost::asio::ssl::context::verify_peer
-			| boost::asio::ssl::context::verify_fail_if_no_peer_cert);
+		ssl_context_.set_verify_mode(boost::asio::ssl::context::verify_none);
+//			| boost::asio::ssl::context::verify_fail_if_no_peer_cert);
 		ssl_context_.load_verify_file("server.csr");
 		ssl_context_.use_certificate_chain_file("server.crt");
 		ssl_context_.use_private_key_file("server.key",
@@ -84,6 +85,7 @@ Server::Server(boost::asio::io_service& service,
 		ssl_acceptor_.listen();
 		new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
 	}
+
 	startAccept();
 }
 
@@ -105,6 +107,7 @@ Server::handleTcpAccept(const boost::system::error_code& ec)
 				req->deliverSelf();
 			} else {
 				std::cout << "not good" << std::endl;
+				std::cout << __FILE__ << __LINE__ << std::endl;
 				req->connection()->stop();
 			}
 		});
@@ -122,20 +125,30 @@ Server::handleSslAccept(const boost::system::error_code& ec)
 {
 	if(!ec) {
 		std::cout << "ssl connection start" << std::endl;
-		RequestPtr req = std::make_shared<Request>(this, new_ssl_connection_);
-		parseRequest(req, [](RequestPtr req, bool good) {
-			if(good) {
-				std::cout << "deliverSelf" << std::endl;
-				req->deliverSelf();
+		new_ssl_connection_->async_handshake([this](
+			const boost::system::error_code& e) {
+			if(e) {
+				std::cout << "握手失败" << std::endl;
+				/** TODO:记录错误 */
 			} else {
-				std::cout << "not good" << std::endl;
-				req->connection()->stop();
+				RequestPtr req = std::make_shared<Request>(
+					this, new_ssl_connection_);
+				parseRequest(req, [](RequestPtr req, bool good) {
+					if(good) {
+						std::cout << "deliverSelf" << std::endl;
+						req->deliverSelf();
+					} else {
+						std::cout << "not good" << std::endl;
+						std::cout << __FILE__ << __LINE__ << std::endl;
+						req->connection()->stop();
+					}
+				});
 			}
+			new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
+			ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
+				std::bind(&Server::handleSslAccept, 
+					this, std::placeholders::_1));
 		});
-		new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
-		ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
-			std::bind(&Server::handleSslAccept, 
-				this, std::placeholders::_1));
 	} else {
 		/**< TODO:记录错误 */
 	}
@@ -164,6 +177,7 @@ Server::do_await_stop()
 	signals_.async_wait(
       		[this](boost::system::error_code /*ec*/, int /*signo*/) {
         		tcp_acceptor_.close();
+        		ssl_acceptor_.close();
 			std::cout << "关闭中..." << std::endl;
       		}
 	);

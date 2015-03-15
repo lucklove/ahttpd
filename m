@@ -1,10 +1,8 @@
-CXX = clang++
+CXX = g++
 
-RM = rm -r
+RM = rm -f
 
-CFLAGS = -Wall -std=c11
-
-CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -std=c++11 -Wall
 
 LDFLAGS = -lboost_system -lpthread -lssl -lcrypto
 
@@ -15,7 +13,7 @@ TEST_OBJS = main.o server.o connection.o request.o RequestHandler.o parser.o res
 
 all: test
 
-test: $(TEST_OBJS)
+test:
 	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJS)
 
 clean:
