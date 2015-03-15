@@ -76,7 +76,7 @@ parse_body(RequestPtr req,
 		}
 		req->connection()->async_read(boost::asio::transfer_exactly(need_read),
 			[=](const boost::system::error_code& err, size_t n) {
-				if(err || n != need_read) {
+				if(err || static_cast<int>(n) != need_read) {	/**< 避免警告 */
 					handler(req, false);
 					return;
 				}

@@ -1,8 +1,6 @@
-CXX = clang++
+CXX = g++
 
 RM = rm -r
-
-CFLAGS = -Wall -std=c11
 
 CXXFLAGS = -Wall -std=c++11
 

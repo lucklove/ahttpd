@@ -67,7 +67,6 @@ Server::Server(boost::asio::io_service& service,
 			| boost::asio::ssl::context::single_dh_use;
 		ssl_context_.set_options(sslOptions);
 		ssl_context_.set_verify_mode(boost::asio::ssl::context::verify_none);
-//			| boost::asio::ssl::context::verify_fail_if_no_peer_cert);
 		ssl_context_.load_verify_file("server.csr");
 		ssl_context_.use_certificate_chain_file("server.crt");
 		ssl_context_.use_private_key_file("server.key",
