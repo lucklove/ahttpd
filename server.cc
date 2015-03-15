@@ -1,9 +1,10 @@
 #include "server.hh"
 #include "parser.hh"
 #include "TcpConnection.hh"
+#include <thread>
+#include <vector>
 #include <csignal>
 #include <utility>
-#include <iostream>
 #include <random>
 #include <ctime>
 
@@ -30,19 +31,15 @@ Server::Server(boost::asio::io_service& service,
 	tcp_acceptor_(service), ssl_acceptor_(service), request_handler_(this),
 	ssl_context_(service, boost::asio::ssl::context::sslv23)
 {
-  // Register to handle the signals that indicate when the server should exit.
-  // It is safe to register for the same signal multiple times in a program,
-  // provided all registration for the specified signal is made through Asio.
 	signals_.add(SIGINT);
 	signals_.add(SIGTERM);
 #if defined(SIGQUIT)
 	signals_.add(SIGQUIT);
-#endif // defined(SIGQUIT)
+#endif
 
 	do_await_stop();
 
 	if(http_port != "") {
-		// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
 		boost::asio::ip::tcp::resolver resolver(service_);
 		boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve({"127.0.0.1", http_port});
 		tcp_acceptor_.open(endpoint.protocol());
@@ -80,24 +77,29 @@ Server::Server(boost::asio::io_service& service,
 }
 
 void 
-Server::run()
+Server::run(size_t thread_number)
 {
-  	service_.run();
+	if(!thread_number)
+		return;
+	std::vector<std::thread> threads;
+	for(size_t i = 0; i < thread_number; ++i) {
+		threads.push_back(std::thread([this] {
+			service_.run();
+		}));
+	}
+	for(auto&& th : threads)
+		th.join();
 }
 
 void 
 Server::handleTcpAccept(const boost::system::error_code& ec)
 {
 	if(!ec) {
-		std::cout << "tcp connection start" << std::endl;
 		RequestPtr req = std::make_shared<Request>(this, new_tcp_connection_);
 		parseRequest(req, [](RequestPtr req, bool good) {
 			if(good) {
-				std::cout << "deliverSelf" << std::endl;
 				req->deliverSelf();
 			} else {
-				std::cout << "not good" << std::endl;
-				std::cout << __FILE__ << __LINE__ << std::endl;
 				req->connection()->stop();
 			}
 		});
@@ -114,30 +116,22 @@ void
 Server::handleSslAccept(const boost::system::error_code& ec)
 {
 	if(!ec) {
-		std::cout << "ssl connection start" << std::endl;
-		new_ssl_connection_->async_handshake([this](
-			const boost::system::error_code& e) {
+		new_ssl_connection_->async_handshake([this](const boost::system::error_code& e) {
 			if(e) {
-				std::cout << "握手失败" << std::endl;
 				/** TODO:记录错误 */
 			} else {
-				RequestPtr req = std::make_shared<Request>(
-					this, new_ssl_connection_);
+				RequestPtr req = std::make_shared<Request>(this, new_ssl_connection_);
 				parseRequest(req, [](RequestPtr req, bool good) {
 					if(good) {
-						std::cout << "deliverSelf" << std::endl;
 						req->deliverSelf();
 					} else {
-						std::cout << "not good" << std::endl;
-						std::cout << __FILE__ << __LINE__ << std::endl;
 						req->connection()->stop();
 					}
 				});
 			}
 			new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
 			ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
-				std::bind(&Server::handleSslAccept, 
-					this, std::placeholders::_1));
+				std::bind(&Server::handleSslAccept, this, std::placeholders::_1));
 		});
 	} else {
 		/**< TODO:记录错误 */
@@ -148,27 +142,20 @@ void
 Server::startAccept()
 {
 	if(new_tcp_connection_) {
-		tcp_acceptor_.async_accept(
-			new_tcp_connection_->socket(),
-			std::bind(&Server::handleTcpAccept, 
-				this, std::placeholders::_1));
+		tcp_acceptor_.async_accept(new_tcp_connection_->socket(),
+			std::bind(&Server::handleTcpAccept, this, std::placeholders::_1));
 	}
 	if(new_ssl_connection_) {
-		ssl_acceptor_.async_accept(
-			new_ssl_connection_->socket(),
-			std::bind(&Server::handleSslAccept, 
-				this, std::placeholders::_1));
+		ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
+			std::bind(&Server::handleSslAccept, this, std::placeholders::_1));
 	}
 }	
 
 void 
 Server::do_await_stop()
 {
-	signals_.async_wait(
-      		[this](boost::system::error_code /*ec*/, int /*signo*/) {
-        		tcp_acceptor_.close();
-        		ssl_acceptor_.close();
-			std::cout << "关闭中..." << std::endl;
-      		}
-	);
+	signals_.async_wait([this](boost::system::error_code /*ec*/, int /*signo*/) {
+        	tcp_acceptor_.close();
+        	ssl_acceptor_.close();
+      	});
 }

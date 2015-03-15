@@ -17,12 +17,10 @@ class SslConnection : public Connection
 public:
 	using ssl_socket_t = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 
-	virtual ~SslConnection() { std::cout << "ssl connection 析构" << std::endl; }
-
 	explicit SslConnection(boost::asio::io_service& service, 
 		boost::asio::ssl::context& context)
   		: socket_(service, context), ssl_shutdown_timer_(service)
-	{ std::cout << "ssl connection start" << std::endl; }
+	{}
 
 	void stop() override;
 

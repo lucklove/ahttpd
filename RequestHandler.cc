@@ -1,13 +1,10 @@
 #include "RequestHandler.hh"
-#include <fstream>
-#include <sstream>
-#include <string>
-#include "MimeTypes.hh"
 #include "response.hh"
 #include "request.hh"
 #include "server.hh"
-
-#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 RequestHandler::RequestHandler(Server *server)
 	: server_(server)
@@ -22,7 +19,6 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
  
 	if(!url_decode(req->getUri(), request_path)) {
 		/** TODO: BAD REQUEST */
-		std::cout << __FILE__ << __LINE__ << std::endl;
 		req->connection()->stop();
     		return;
   	}
@@ -47,10 +43,9 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 			best = handler;	
 	}
 
-	if(std::get<1>(best) == nullptr) {
-		std::cout << "uri = " << req->getUri() << std::endl;
+	if(std::get<1>(best) == nullptr)
 		return false;
-	}
+
 	std::get<1>(best)->handleRequest(req, rep);
 	return true;
 }

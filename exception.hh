@@ -3,9 +3,6 @@
 #include <exception>
 #include <ostream>
 
-namespace http {
-namespace server {
-
 class Exception : public std::exception {
 private:
 	const char *const xm_pszFile;
@@ -47,9 +44,6 @@ operator<<(std::ostream& os, const Exception& e)
 	return os << "Exception in " << e.getFile() << " line: " 
 		<< e.getLine() << ":" << e.what();
 }
-
-}		/**< namespace server */
-}		/**< namespace http */
 
 #define DEBUG_THROW(etype_, ...)			\
 do {							\

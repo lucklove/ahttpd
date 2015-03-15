@@ -18,12 +18,12 @@ public:
 
 	/// Construct the Server to listen on the specified TCP address and port, and
 	/// serve up files from the given directory.
-	explicit Server(boost::asio::io_service& service, 
+	explicit Server(boost::asio::io_service& service,
 			const std::string& http_port = "",
 			const std::string& https_port = "");
 
 	/// Run the Server's io_service loop.
-	void run();
+	void run(size_t thread_number = 1);
 
 	void addHandler(const std::string& path, RequestHandlerPtr handle) {
 		request_handler_.addSubHandler(path, handle);
@@ -72,5 +72,6 @@ private:
 	boost::asio::ssl::context ssl_context_;
 
 	void handleTcpAccept(const boost::system::error_code& ec);
+
 	void handleSslAccept(const boost::system::error_code& ec);
 };

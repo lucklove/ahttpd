@@ -7,9 +7,6 @@
 #include "header.hh"
 #include "package.hh"
 
-//#include "connection.hh"
-
-/// A response to be sent to a client.
 class Response : public Package, 
 	public std::enable_shared_from_this<Response> {
 public:

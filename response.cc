@@ -1,7 +1,6 @@
 #include "response.hh"
 #include "server.hh"
 #include <string>
-#include <iostream>
 
 #define PARSE_STATUS(ststus)				\
 	switch (status) {				\
@@ -196,9 +195,7 @@ Response::flush()
 			out() << stock_replies::status_body(status_);
 		auto h = getHeader("Content-Length");
 		if(h.size() == 0) {
-			std::cout << "添加Content-Length:" << contentLength() << std::endl;
 			addHeader("Content-Length", to_string(contentLength()));
-	//		std::cout << in().rdbuf();
 		}
 		send_buf << status_strings::status_head(status_) << "\r\n";
 		for(auto&& h : headerMap())
@@ -213,10 +210,9 @@ Response::flush()
 	
 	connection()->async_write([](const boost::system::error_code& e, size_t n) {
 			if(e) {
-				std::cout << "发送出错:" << e.message() << std::endl;
 				/** TODO:记录错误 */
 			} else {
-				std::cout << "发送了" << n << "字节" << std::endl;
+				/** TODO:记录成功 */
 			}
 		}
 	);
@@ -225,5 +221,5 @@ Response::flush()
 /** FIXME: 不能保证noexcept */			
 Response::~Response() 
 {
-	flush();		
+	flush();
 }

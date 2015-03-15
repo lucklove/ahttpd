@@ -7,17 +7,11 @@
 #include "package.hh"
 #include "header.hh"
 
-//#include "connection.hh"
-
-/// A request received from a client.
-
-//class Server;
-
 class Request : public Package, 
 	public std::enable_shared_from_this<Request> {
 public :
 	using Package::Package;
-	~Request() override;
+	~Request() override {};
 	void deliverSelf();
 
 	std::string getUri() { return uri; }

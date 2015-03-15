@@ -7,17 +7,12 @@ struct TestHandler : public RequestHandler {
 	using RequestHandler::RequestHandler;
 
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
-		std::cout << "handle.................." << std::endl;
 		rep->out() << "it's TestHander::handleRequest" << std::endl;
 		rep->out() << "method: " << req->getMethod() << std::endl;
 		rep->out() << "uri: " << req->getUri() << std::endl;
 		rep->out() << "version: " << req->getVersion() << std::endl;
 		for(auto&& h : req->headerMap())
 			rep->out() << h.name << ": " << h.value << std::endl;
-	
-		std::cout << reinterpret_cast<long>(req->in().rdbuf());
-		std::cout << "--------------" << rep->contentLength() << std::endl;
-		std::cout << "--------------" << req->contentLength() << std::endl;
 	}
 };
 

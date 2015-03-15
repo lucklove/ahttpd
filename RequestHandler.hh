@@ -12,7 +12,6 @@ class RequestHandler;
 
 using RequestHandlerPtr = std::shared_ptr<RequestHandler>;
 
-/// The common handler for all incoming requests.
 class RequestHandler
 {
 public:
@@ -21,7 +20,6 @@ public:
 
   explicit RequestHandler(Server *server);
 
-  /// Handle a request and produce a response.
   virtual void handleRequest(RequestPtr req, ResponsePtr rep);
   bool deliverRequest(RequestPtr req, ResponsePtr rep);
   void addSubHandler(const std::string& path, RequestHandlerPtr handler) {
@@ -32,8 +30,6 @@ private:
   Server *server_;
 
   std::vector<std::tuple<const std::string, RequestHandlerPtr>> sub_handlers_;
-  /// Perform URL-decoding on a string. Returns false if the encoding was
-  /// invalid.
-  static bool url_decode(const std::string& in, std::string& out);
 
+  static bool url_decode(const std::string& in, std::string& out);
 };

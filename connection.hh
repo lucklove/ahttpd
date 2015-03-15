@@ -23,7 +23,8 @@ public:
 	Connection(const Connection&) = delete;
 	Connection& operator=(const Connection&) = delete;
 	Connection() = default;	
-	virtual ~Connection() = 0;
+
+	virtual ~Connection() {};
 
 	virtual void stop() = 0;
 

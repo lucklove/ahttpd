@@ -1,9 +1,7 @@
 #include "parser.hh"
 #include "server.hh"
 #include "buffer.hh"
-
 #include <regex>
-#include <iostream>
 #include <boost/asio.hpp>
 
 namespace {
@@ -20,7 +18,6 @@ to_size(const std::string& s)
 void
 parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
-	std::cout << "parse headers" << std::endl;
 	req->connection()->async_read_until("\r\n\r\n",
 		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
@@ -49,7 +46,6 @@ void
 parse_body(RequestPtr req,
 	std::function<void(RequestPtr, bool)> handler)
 {
-	std::cout << "parse body" << std::endl;
 	auto h = req->getHeader("Content-Length");
 	if(h.size() == 0) {
 		handler(req, true);
@@ -90,7 +86,6 @@ parse_body(RequestPtr req,
 void
 parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
-	std::cout << "parse first line" << std::endl;
 	req->connection()->async_read_until("\r\n", 
 		[=](const boost::system::error_code& err, size_t n) {
 			if(err) {
@@ -124,7 +119,6 @@ void
 parseRequest(RequestPtr req,
 	std::function<void(RequestPtr, bool)> handler)
 {
-	std::cout << "parse start" << std::endl;
 	parse_request_first_line(req, 
 		[=](RequestPtr req, bool good) {
 			if(!good) {

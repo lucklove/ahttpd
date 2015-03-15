@@ -1,13 +1,13 @@
 #include "SslConnection.hh"
 #include <utility>
-#include <vector>
 #include <boost/asio.hpp>
 
 void 
 SslConnection::stop()
 {
 	ssl_shutdown_timer_.expires_from_now(boost::posix_time::seconds(1));
-	auto sft = std::dynamic_pointer_cast<SslConnection>(shared_from_this());
+	auto a = shared_from_this();
+	SslConnectionPtr sft = std::dynamic_pointer_cast<SslConnection>(shared_from_this());
 	ssl_shutdown_timer_.async_wait(
 		std::bind(&SslConnection::stopNextLayer, sft, std::placeholders::_1));
 	socket_.async_shutdown(
