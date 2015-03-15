@@ -1,6 +1,6 @@
 CXX = g++
 
-RM = rm -r
+RM = rm -f
 
 CXXFLAGS = -Wall -std=c++11
 
