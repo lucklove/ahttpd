@@ -8,55 +8,38 @@
 #include "buffer.hh"
 #include <iostream>
 
-class ConnectionManager;
 class Server;
 
 /// Represents a single connection from a client.
 class Connection
 	: public std::enable_shared_from_this<Connection>
 {
-private:
+protected:
         template<typename _type>
         using result_of_t = typename std::result_of<_type>::type;
 
+  	Server *server_;
 public:
 	Connection(const Connection&) = delete;
 	Connection& operator=(const Connection&) = delete;
-	
-	~Connection() { std::cout << "connection 析构" << std::endl; }
-	/// Construct a connection with the given socket.
-	explicit Connection(boost::asio::ip::tcp::socket socket);
-	//ConnectionManager& manager, RequestHandler& handler, Server* server);
+	Connection() = default;	
+	virtual ~Connection() = 0;
 
-	/// Stop all asynchronous operations associated with the connection.
-	void stop();
+	virtual void stop() = 0;
 
 	buffer_t& buffer() { return buffer_; }
-	void async_read_until(const std::string& delim, 
-		std::function<void(const boost::system::error_code &, size_t)> handler);
 
-	void async_read(result_of_t<decltype(&boost::asio::transfer_exactly)(size_t)> completion,
-		std::function<void(const boost::system::error_code &, size_t)> handler) {
-		boost::asio::async_read(socket_, buffer_, completion, handler);
-	}
+	virtual void async_read_until(const std::string& delim, 
+		std::function<void(const boost::system::error_code &, size_t)> handler) = 0;
 
-	void async_write(std::function<
-		void(const boost::system::error_code&, size_t)> handler);
+	virtual void async_read(result_of_t<decltype(&boost::asio::transfer_exactly)(size_t)> completion,
+		std::function<void(const boost::system::error_code &, size_t)> handler) = 0;
+
+	virtual void async_write(std::function<
+		void(const boost::system::error_code&, size_t)> handler) = 0;
 
 private:
-  /// Perform an asynchronous read operation.
-  void do_read();
-
-  /// Perform an asynchronous write operation.
-  void do_write();
-
-  /// Socket for the connection.
-  boost::asio::ip::tcp::socket socket_;
-
-  Server *server_;
-
-  buffer_t buffer_;
-
+	buffer_t buffer_;
 };
 
 using ConnectionPtr = std::shared_ptr<Connection>;

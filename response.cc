@@ -219,9 +219,8 @@ Response::flush()
 
 	if(in().rdbuf()->in_avail())
 		send_buf << in().rdbuf();
-
-	server_->post(std::bind(&Connection::async_write, connection(), 
-		[](const boost::system::error_code& e, size_t n) {
+	
+	connection()->async_write([](const boost::system::error_code& e, size_t n) {
 			if(e) {
 				std::cout << "发送出错" << std::endl;
 				/** TODO:记录错误 */
@@ -229,7 +228,7 @@ Response::flush()
 				std::cout << "发送了" << n << "字节" << std::endl;
 			}
 		}
-	));
+	);
 }
 
 /** FIXME: 不能保证noexcept */			

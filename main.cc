@@ -35,7 +35,7 @@ main(int argc, char* argv[])
 {
 	try {
 		boost::asio::io_service io_service;
-		Server server(io_service, "8888");
+		Server server(io_service, "8888", "9999");
 		server.addHandler("/test", RequestHandlerPtr(new TestHandler(&server)));
 		server.run();
 	} catch(std::exception& e) {
