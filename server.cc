@@ -1,6 +1,7 @@
 #include "server.hh"
 #include "parser.hh"
 #include "TcpConnection.hh"
+#include "log.hh"
 #include <thread>
 #include <vector>
 #include <csignal>

@@ -1,6 +1,7 @@
 #include "TcpConnection.hh"
 #include <utility>
 #include <boost/asio.hpp>
+#include "log.hh"
 
 void 
 TcpConnection::stop()

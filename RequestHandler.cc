@@ -8,13 +8,12 @@
 
 RequestHandler::RequestHandler(Server *server)
 	: server_(server)
-{
-}
+{}
 
 void 
 RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
-  	// Decode url to path.
+  	// Decode url to path.	
 	std::string request_path;
  
 	if(!url_decode(req->getUri(), request_path)) {

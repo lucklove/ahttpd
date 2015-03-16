@@ -188,7 +188,8 @@ to_string(T&& some_thing)
 void
 Response::flush()
 {
-	std::ostream send_buf(&connection()->buffer());	
+	std::ostream send_buf(&connection()->buffer());
+		
 	/** 发送回应包 */
 	if(status_) {	/**< 如果heander被发送，则设置为0 */
 		if(status_ != ok && in().rdbuf()->in_avail() == 0)
@@ -202,7 +203,6 @@ Response::flush()
 			send_buf << h.name << ": " << h.value << "\r\n";
 		send_buf << "\r\n";
 		status_ = header_already_send;
-	
 	}
 
 	if(in().rdbuf()->in_avail())
@@ -211,6 +211,7 @@ Response::flush()
 	connection()->async_write([](const boost::system::error_code& e, size_t n) {
 			if(e) {
 				/** TODO:记录错误 */
+				Log("ERROR") << "connection写入错误:" << e.message();
 			} else {
 				/** TODO:记录成功 */
 			}

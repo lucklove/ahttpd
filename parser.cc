@@ -3,6 +3,7 @@
 #include "buffer.hh"
 #include <regex>
 #include <boost/asio.hpp>
+#include "log.hh"
 
 namespace {
 
@@ -24,14 +25,14 @@ parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 				handler(req, false);
 				return;
 			}
-			std::regex r("([[:print:]]+): ([[:print:]]*)");
+			static const std::regex key_val_reg("([[:print:]]+): ([[:print:]]*)");
 			std::smatch results;
 			std::istream in(&req->connection()->buffer());
 			std::string line;
 			while(getline(in, line)) {
 				if(line == "\r")	/**< 头部最后的\r\n" */
 					break;
-				if(std::regex_search(line, results, r)) {
+				if(std::regex_search(line, results, key_val_reg)) {
 					req->addHeader(results.str(1), results.str(2));
 				} else {
 					assert(0);
@@ -92,14 +93,14 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> h
 				handler(req, false);
 				return;
 			}
-			std::regex r("(GET|POST|PUT|DELETE) "
-				"(/[[:print:]]*) (HTTP/1.1|HTTP/1.0)");
 			std::smatch results;
+			static const std::regex first_line_reg(
+				"(GET|POST|PUT|DELETE) (/[[:print:]]*) (HTTP/1.1|HTTP/1.0)");
 			std::istream in(&req->connection()->buffer());
 			std::string line;
 			getline(in, line);
 			if(std::regex_search(
-				line, results, r)) {
+				line, results, first_line_reg)) {
 				req->setMethod(results.str(1));
 				req->setUri(results.str(2));
 				req->setVersion(results.str(3));
