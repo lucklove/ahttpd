@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <string>
+#include <istream>
 #include "connection.hh"
 #include "RequestHandler.hh"
 #include "request.hh"
@@ -43,26 +44,24 @@ public:
 
 private:
 
-	/// Perform an asynchronous accept operation.
 	void startAccept();
 
-	/// Wait for a request to stop the Server.
 	void do_await_stop();
 
-	/// The io_service used to perform asynchronous operations.
+	void handleTcpAccept(const boost::system::error_code& ec);
+
+	void handleSslAccept(const boost::system::error_code& ec);
+
 	boost::asio::io_service& service_;
 
-	/// The signal_set is used to register for process termination notifications.
 	boost::asio::signal_set signals_;
 
-	/// The next socket to be accepted.
 	boost::asio::ip::tcp::socket socket_;
 
 	boost::asio::ip::tcp::acceptor tcp_acceptor_;
 
 	boost::asio::ip::tcp::acceptor ssl_acceptor_;
 
-	/// The handler for all incoming requests.
 	RequestHandler request_handler_;
 
 	TcpConnectionPtr new_tcp_connection_;
@@ -70,8 +69,4 @@ private:
 	SslConnectionPtr new_ssl_connection_;
 
 	boost::asio::ssl::context ssl_context_;
-
-	void handleTcpAccept(const boost::system::error_code& ec);
-
-	void handleSslAccept(const boost::system::error_code& ec);
 };

@@ -5,7 +5,7 @@ http/https支持
 
 ##依赖##
 1.boost
-2.C++11
+2.C++1y
 3.openssl(https需要)
 
 ##编译##
