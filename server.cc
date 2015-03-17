@@ -27,10 +27,12 @@ generateId(size_t max_size)
 }
 	
 Server::Server(boost::asio::io_service& service, 
-	const std::string& http_port, const std::string& https_port)
+	const std::string& http_port, const std::string& https_port,
+	size_t thread_pool_size)
 	: service_(service), signals_(service),socket_(service), 
 	tcp_acceptor_(service), ssl_acceptor_(service), request_handler_(this),
-	ssl_context_(service, boost::asio::ssl::context::sslv23)
+	ssl_context_(service, boost::asio::ssl::context::sslv23),
+	thread_pool_size_(thread_pool_size), thread_pool_(thread_pool_size)
 {
 	signals_.add(SIGINT);
 	signals_.add(SIGTERM);
@@ -97,9 +99,12 @@ Server::handleTcpAccept(const boost::system::error_code& ec)
 {
 	if(!ec) {
 		RequestPtr req = std::make_shared<Request>(this, new_tcp_connection_);
-		parseRequest(req, [](RequestPtr req, bool good) {
+		parseRequest(req, [this](RequestPtr req, bool good) {
 			if(good) {
-				req->deliverSelf();
+				thread_pool_.wait_to_enqueue([this](auto&&) {
+					if(thread_pool_.size_unlocked() > thread_pool_size_)
+						Log("WARNING") << "thread pool overload";
+				}, &Request::deliverSelf, req);
 			} else {
 				req->connection()->stop();
 			}
