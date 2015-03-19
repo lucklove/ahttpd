@@ -9,7 +9,7 @@ http/https支持
 3.openssl(https需要)
 
 ##编译##
-cd httpd && mkdir build && cd build && cmake .. && make
+cd shttpd && mkdir build && cd build && cmake .. && make
 
 ##运行##
 ./test
