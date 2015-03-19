@@ -4,13 +4,12 @@
 http/https支持
 
 ##依赖##
-1.boost
+1.asio
 2.C++1y
 3.openssl(https需要)
-4.tcmalloc(可选,会大大提高效率)
 
 ##编译##
-cd httpd && make
+cd httpd && mkdir build && cd build && cmake .. && make
 
 ##运行##
 ./test
