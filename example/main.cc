@@ -22,7 +22,7 @@ main(int argc, char* argv[])
 		asio::io_service io_service;
 		Server server(io_service, "8888", "9999");
 		server.addHandler("/test", RequestHandlerPtr(new TestHandler(&server)));
-		server.run(10);
+		server.run(10);		/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {
 		std::cerr << "exception: " << e.what() << "\n";
 	}
