@@ -6,9 +6,10 @@
 #include <sstream>
 #include <utility>
 #include "header.hh"
-#include "connection.hh"
+#include "ptrs.hh"
 
-/// A response to be sent to a client.
+class Server;
+
 class Package
 {
 public:

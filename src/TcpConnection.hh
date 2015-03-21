@@ -33,5 +33,3 @@ public:
 private:
 	asio::ip::tcp::socket socket_;
 };
-
-using TcpConnectionPtr = std::shared_ptr<TcpConnection>;

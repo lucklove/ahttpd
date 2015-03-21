@@ -1,9 +1,10 @@
 #include "parser.hh"
 #include "server.hh"
 #include "buffer.hh"
+#include "log.hh"
+#include "connection.hh"
 #include <regex>
 #include <asio.hpp>
-#include "log.hh"
 
 namespace {
 

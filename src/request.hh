@@ -27,5 +27,3 @@ private:
 	std::string uri;
 	std::string version;
 };
-
-using RequestPtr = std::shared_ptr<Request>;

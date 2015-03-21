@@ -1,6 +1,7 @@
 #include "response.hh"
 #include "server.hh"
 #include "log.hh"
+#include "connection.hh"
 #include <string>
 
 #define PARSE_STATUS(ststus)				\

@@ -6,6 +6,7 @@
 #include <sstream>
 #include "header.hh"
 #include "package.hh"
+#include "ptrs.hh"
 
 class Response : public Package, 
 	public std::enable_shared_from_this<Response> {
@@ -28,5 +29,3 @@ private:
 	status_t status_;
 	size_t body_length();
 };
-
- using ResponsePtr = std::shared_ptr<Response>;

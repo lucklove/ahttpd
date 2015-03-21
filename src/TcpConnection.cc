@@ -2,6 +2,7 @@
 #include <utility>
 #include <asio.hpp>
 #include "log.hh"
+#include "ptrs.hh"
 
 void 
 TcpConnection::stop()

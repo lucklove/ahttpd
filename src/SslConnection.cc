@@ -1,4 +1,5 @@
 #include "SslConnection.hh"
+#include "ptrs.hh"
 #include <utility>
 #include <asio.hpp>
 

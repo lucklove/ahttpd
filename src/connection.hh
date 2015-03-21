@@ -42,5 +42,3 @@ public:
 private:
 	buffer_t buffer_;
 };
-
-using ConnectionPtr = std::shared_ptr<Connection>;

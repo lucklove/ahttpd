@@ -43,5 +43,3 @@ private:
 	asio::deadline_timer ssl_shutdown_timer_;
 	void stopNextLayer(const asio::error_code& ec);
 };
-
-using SslConnectionPtr = std::shared_ptr<SslConnection>;

@@ -3,21 +3,17 @@
 #include <asio.hpp>
 #include <string>
 #include <istream>
-#include "connection.hh"
 #include "RequestHandler.hh"
 #include "request.hh"
 #include "response.hh"
-#include "connection.hh"
-#include "TcpConnection.hh"
 #include "ThreadPool.hh"
+#include "ptrs.hh"
 
 namespace asio {
 namespace ssl {
 class context; 
 }
 }
-class SslConnection;
-using SslConnectionPtr = std::shared_ptr<SslConnection>;
 
 class Server {
 public:

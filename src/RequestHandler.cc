@@ -2,6 +2,7 @@
 #include "response.hh"
 #include "request.hh"
 #include "server.hh"
+#include "connection.hh"
 #include <fstream>
 #include <sstream>
 #include <string>
