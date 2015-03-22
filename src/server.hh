@@ -27,7 +27,7 @@ public:
 
 	void run(size_t thread_number = 1);
 
-	void addHandler(const std::string& path, RequestHandlerPtr handle) {
+	void addHandler(const std::string& path, RequestHandler* handle) {
 		request_handler_.addSubHandler(path, handle);
 	}
 

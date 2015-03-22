@@ -4,6 +4,7 @@
 #include <sstream>
 #include <thread>
 #include <iostream>
+#include <utility>
 
 class Log {
 public:
@@ -22,7 +23,7 @@ public:
 			std::cout << buffer_.rdbuf() << std::endl; 
 	}
 	template<typename T>
-	auto&& operator<<(T&& val) { return buffer_ << val; }
+	auto&& operator<<(T&& val) { return buffer_ << std::forward<T>(val); }
 private:
 	std::string local_time();	
 	std::stringstream buffer_;

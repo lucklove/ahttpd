@@ -34,7 +34,7 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 bool
 RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 {
-	std::tuple<std::string, RequestHandlerPtr> best;
+	std::tuple<std::string, RequestHandler*> best;
 	
 	for(auto handler : sub_handlers_) {
 		size_t cmp_size = std::get<0>(handler).size();

@@ -8,9 +8,6 @@
 #include "response.hh"
 
 class Server;
-class RequestHandler;
-
-using RequestHandlerPtr = std::shared_ptr<RequestHandler>;
 
 /**
  * \brief 请求处理类，处理Request, 生成Resposne, 后则被返回给客户端
@@ -41,7 +38,7 @@ public:
  	 * \brief 添加子handler, 由deliverRequest使用
  	 * \param path 子handler所处路径
  	 */
-	void addSubHandler(const std::string& path, RequestHandlerPtr handler) {
+	void addSubHandler(const std::string& path, RequestHandler * handler) {
 		sub_handlers_.push_back(std::make_tuple(path, handler));
 	}
 
@@ -49,7 +46,7 @@ public:
 private:
 	Server *server_;
 
-	std::vector<std::tuple<const std::string, RequestHandlerPtr>> sub_handlers_;
+	std::vector<std::tuple<const std::string, RequestHandler *>> sub_handlers_;
 
 	static bool url_decode(const std::string& in, std::string& out);
 };
