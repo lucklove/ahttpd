@@ -36,7 +36,7 @@ main(int argc, char *argv[])
 {
 	asio::io_service io_service;
 	Server server(io_service, "8888");
-	server.addHandler("/", RequestHandlerPtr(new TestHandler(&server)));
+	server.addHandler("/", new TestHandler(&server));
 	server.run();
 }
 ```
