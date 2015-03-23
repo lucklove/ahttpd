@@ -17,7 +17,7 @@ to_size(const std::string& s)
 }
 
 void
-parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
+parse_headers(RequestPtr req, const std::function<void(RequestPtr, bool)>& handler)
 {
 	req->connection()->async_read_until("\n",
 		[=](const asio::error_code& err, size_t) {
@@ -31,7 +31,6 @@ parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 			std::string line;
 			getline(in, line);
 			if(line == "\r" || line == "") {	/**< 头部最后的\r\n" */
-				Log(__FUNCTION__) << __LINE__;
 				handler(req, true);
 				return;
 			}
@@ -44,7 +43,7 @@ parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 
 void
 parse_body(RequestPtr req,
-	std::function<void(RequestPtr, bool)> handler)
+	const std::function<void(RequestPtr, bool)>& handler)
 {
 	auto h = req->getFirstHeader("Content-Length");
 	if(h == nullptr) {
@@ -52,7 +51,6 @@ parse_body(RequestPtr req,
 	} else {
 		size_t length = to_size(h[0]);
 		if(length == 0) {
-			Log(__FUNCTION__) << __LINE__ << "bad";
 			handler(req, false);
 			return;
 		}
@@ -60,7 +58,6 @@ parse_body(RequestPtr req,
 		int need_read = length - already_read;
 
 		if(need_read < 0) {
-			Log(__FUNCTION__) << __LINE__ << "bad";
 			handler(req, false);
 			return;
 		}
@@ -69,7 +66,6 @@ parse_body(RequestPtr req,
 			req->out() << &req->connection()->readBuffer();
 
 		if(need_read == 0) {
-			Log(__FUNCTION__) << __LINE__ << "bad";
 			handler(req, true);
 			return;
 		}
@@ -87,12 +83,12 @@ parse_body(RequestPtr req,
 }
 
 void
-parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
+parse_request_first_line(RequestPtr req, const std::function<void(RequestPtr, bool)>& handler)
 {
 	req->connection()->async_read_until("\n", 
 		[=](const asio::error_code& err, size_t n) {
 			if(err) {
-				Log(__FUNCTION__) << __LINE__ << "bad";
+				Log("ERROR") << "PARSE ERROR:" << err.message();
 				handler(req, false);
 				return;
 			}
@@ -121,19 +117,17 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> h
 
 void
 parseRequest(RequestPtr req,
-	std::function<void(RequestPtr, bool)> handler)
+	const std::function<void(RequestPtr, bool)>& handler)
 {
 	parse_request_first_line(req, 
 		[=](RequestPtr req, bool good) {
 			if(!good) {
-				Log(__FUNCTION__) << __LINE__ << "bad";
 				handler(req, good);
 				return;
 			}
 			parse_headers(req,
 				[=](RequestPtr req, bool good) {
 					if(!good) {
-						Log(__FUNCTION__) << __LINE__ << "bad";
 						handler(req, good);
 						return;
 					}				

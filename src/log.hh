@@ -5,6 +5,8 @@
 #include <thread>
 #include <iostream>
 #include <utility>
+#include <exception>
+#include <cstdio>
 
 class Log {
 public:
@@ -19,8 +21,12 @@ public:
 			buffer_ << log_.buffer_.rdbuf();
 	}
 	~Log() { 
-		if(buffer_.rdbuf()->in_avail())
-			std::cout << buffer_.rdbuf() << std::endl; 
+		try {
+			if(buffer_.rdbuf()->in_avail())
+				std::cout << buffer_.rdbuf() << std::endl; 
+		} catch(std::exception& e) {
+			fprintf(stderr, "%s\n", e.what());
+		}
 	}
 	template<typename T>
 	auto&& operator<<(T&& val) { return buffer_ << std::forward<T>(val); }

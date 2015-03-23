@@ -25,18 +25,18 @@ public:
 	void stop() override;
 
 	void async_read_until(const std::string& delim, 
-		std::function<void(const asio::error_code &, size_t)> handler) override;
+		const std::function<void(const asio::error_code &, size_t)>& handler) override;
 
 	void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-		std::function<void(const asio::error_code &, size_t)> handler) override {
+		const std::function<void(const asio::error_code &, size_t)>& handler) override {
 			asio::async_read(socket_, readBuffer(), completion, handler);
 	}
 
-	void async_write(std::function<
-		void(const asio::error_code&, size_t)> handler) override;
+	void async_write(const std::function<
+		void(const asio::error_code&, size_t)>& handler) override;
 
 	asio::ip::tcp::socket& socket() { return socket_.next_layer(); }
-	void async_handshake(std::function<void(const asio::error_code& e)> handle);
+	void async_handshake(const std::function<void(const asio::error_code& e)>& handle);
 
 private:
 	ssl_socket_t socket_;

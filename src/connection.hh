@@ -33,13 +33,13 @@ public:
 	buffer_t& writeBuffer() { return write_buffer_; }
 
 	virtual void async_read_until(const std::string& delim, 
-		std::function<void(const asio::error_code &, size_t)> handler) = 0;
+		const std::function<void(const asio::error_code &, size_t)>& handler) = 0;
 
 	virtual void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-		std::function<void(const asio::error_code &, size_t)> handler) = 0;
+		const std::function<void(const asio::error_code &, size_t)>& handler) = 0;
 
-	virtual void async_write(std::function<
-		void(const asio::error_code&, size_t)> handler) = 0;
+	virtual void async_write(
+		const std::function<void(const asio::error_code&, size_t)>& handler) = 0;
 
 private:
 	buffer_t read_buffer_;

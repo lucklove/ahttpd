@@ -103,14 +103,9 @@ Server::handleRequest(RequestPtr req)
 {
 	parseRequest(req, [this](RequestPtr req, bool good) {
 		if(good) {
-			Log(__FUNCTION__) << __LINE__;
 			auto connection_opt = req->getFirstHeader("Connection");
-			if((connection_opt && *connection_opt == "Keep-alive") || 
-				(req->getVersion() == "HTTP/1.1" && !connection_opt)) {
-					Log("--------------------------");
-					Log(__FUNCTION__) << __LINE__;
+			if(connection_opt && *connection_opt == "Keep-alive") {
 					RequestPtr new_req = std::make_shared<Request>(this, req->connection());
-					Log(__FUNCTION__) << __LINE__;
 					handleRequest(new_req);
 			}
 			thread_pool_.wait_to_enqueue([this](auto&&) {
@@ -122,7 +117,6 @@ Server::handleRequest(RequestPtr req)
 			req->connection()->stop();
 		}
 	});
-	Log(__FUNCTION__) << __LINE__;
 }
 
 void 
@@ -130,7 +124,6 @@ Server::handleTcpAccept(const asio::error_code& ec)
 {
 	if(!ec) {
 		RequestPtr req = std::make_shared<Request>(this, new_tcp_connection_);
-		Log(__FUNCTION__) << __LINE__;
 		handleRequest(req);
 		new_tcp_connection_.reset(new TcpConnection(service_));
 		tcp_acceptor_.async_accept(new_tcp_connection_->socket(),

@@ -36,14 +36,13 @@ SslConnection::stopNextLayer(const asio::error_code& ec)
 
 void 
 SslConnection::async_read_until(const std::string& delim, 
-	std::function<void(const asio::error_code &, size_t)> handler)
+	const std::function<void(const asio::error_code &, size_t)>& handler)
 {
 	asio::async_read_until(socket_, readBuffer(), delim, handler);
 }
 	
 void 
-SslConnection::async_write(std::function<
-	void(const asio::error_code&, size_t)> handler)
+SslConnection::async_write(const std::function<void(const asio::error_code&, size_t)>& handler)
 {
 	asio::async_write(socket_, writeBuffer(), std::bind(
 		[handler](const asio::error_code& e, size_t n, ConnectionPtr) {
@@ -53,7 +52,7 @@ SslConnection::async_write(std::function<
 }
 
 void
-SslConnection::async_handshake(std::function<void (asio::error_code const&)> handle)
+SslConnection::async_handshake(const std::function<void (asio::error_code const&)>& handle)
 {
 	socket_.async_handshake(asio::ssl::stream_base::server, handle);
 }

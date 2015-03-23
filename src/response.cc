@@ -3,6 +3,8 @@
 #include "log.hh"
 #include "connection.hh"
 #include <string>
+#include <exception>
+#include <cstdio>
 
 #define PARSE_STATUS(ststus)				\
 	switch (status) {				\
@@ -214,15 +216,16 @@ Response::flush()
 			if(e) {
 				/** TODO:记录错误 */
 				Log("ERROR") << "connection写入错误:" << e.message();
-			} else {
-				/** TODO:记录成功 */
 			}
 		}
 	);
 }
 
-/** FIXME: 不能保证noexcept */			
 Response::~Response() 
 {
-	flush();
+	try {	
+		flush();
+	} catch(std::exception& e) {
+		fprintf(stderr, "%s\n", e.what());
+	}
 }

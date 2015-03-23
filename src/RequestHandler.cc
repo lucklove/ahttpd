@@ -45,7 +45,7 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 
 	if(std::get<1>(best) == nullptr)
 		return false;
-
+	
 	std::get<1>(best)->handleRequest(req, rep);
 	return true;
 }
