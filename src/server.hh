@@ -24,7 +24,7 @@ public:
 			const std::string& http_port = "",
 			const std::string& https_port = "",
 			size_t thread_pool_size = 10);
-
+	~Server();
 	void run(size_t thread_number = 1);
 
 	void addHandler(const std::string& path, RequestHandler* handle) {
@@ -47,13 +47,10 @@ public:
 	auto enqueue(_fCallable&& f, _tParams&&... args) {
 		return thread_pool_.enqueue(std::forward<_fCallable>(f), std::forward<_tParams>(args)...);
 	}
-
 private:
 	asio::io_service& service_;
 
 	asio::signal_set signals_;
-
-	asio::ip::tcp::socket socket_;
 
 	asio::ip::tcp::acceptor tcp_acceptor_;
 
@@ -72,10 +69,8 @@ private:
 	ThreadPool thread_pool_;
 
 	void startAccept();
-
 	void do_await_stop();
-
 	void handleTcpAccept(const asio::error_code& ec);
-
 	void handleSslAccept(const asio::error_code& ec);
+	void handleRequest(RequestPtr req);
 };

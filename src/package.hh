@@ -30,6 +30,14 @@ public:
 		return std::move(dst_header);
 	}
 
+	std::string* getFirstHeader(std::string h_name) {
+		for(auto& h : headers) {
+			if(h.name == h_name)
+				return &h.value;
+		}
+		return nullptr;
+	}
+
 	void addHeader(const std::string& h_name, const std::string& h_value) {
 		headers.push_back(header_t{h_name, h_value});
 	}

@@ -1,6 +1,5 @@
 #include "parser.hh"
 #include "server.hh"
-#include "buffer.hh"
 #include "log.hh"
 #include "connection.hh"
 #include <regex>
@@ -20,7 +19,7 @@ to_size(const std::string& s)
 void
 parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
-	req->connection()->async_read_until("\r\n\r\n",
+	req->connection()->async_read_until("\n",
 		[=](const asio::error_code& err, size_t) {
 			if(err) {
 				handler(req, false);
@@ -28,18 +27,17 @@ parse_headers(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 			}
 			static const std::regex key_val_reg("([[:print:]]+): ([[:print:]]*)");
 			std::smatch results;
-			std::istream in(&req->connection()->buffer());
+			std::istream in(&req->connection()->readBuffer());
 			std::string line;
-			while(getline(in, line)) {
-				if(line == "\r")	/**< 头部最后的\r\n" */
-					break;
-				if(std::regex_search(line, results, key_val_reg)) {
-					req->addHeader(results.str(1), results.str(2));
-				} else {
-					assert(0);
-				}
+			getline(in, line);
+			if(line == "\r" || line == "") {	/**< 头部最后的\r\n" */
+				Log(__FUNCTION__) << __LINE__;
+				handler(req, true);
+				return;
 			}
-			handler(req, true);
+			if(std::regex_search(line, results, key_val_reg))
+				req->addHeader(results.str(1), results.str(2));
+			parse_headers(req, handler);
 		}
 	);				
 }
@@ -48,27 +46,30 @@ void
 parse_body(RequestPtr req,
 	std::function<void(RequestPtr, bool)> handler)
 {
-	auto h = req->getHeader("Content-Length");
-	if(h.size() == 0) {
+	auto h = req->getFirstHeader("Content-Length");
+	if(h == nullptr) {
 		handler(req, true);
 	} else {
 		size_t length = to_size(h[0]);
 		if(length == 0) {
+			Log(__FUNCTION__) << __LINE__ << "bad";
 			handler(req, false);
 			return;
 		}
-		size_t already_read = req->connection()->buffer().in_avail();
+		size_t already_read = req->connection()->readBuffer().in_avail();
 		int need_read = length - already_read;
 
 		if(need_read < 0) {
+			Log(__FUNCTION__) << __LINE__ << "bad";
 			handler(req, false);
 			return;
 		}
 
 		if(already_read)
-			req->out() << &req->connection()->buffer();
+			req->out() << &req->connection()->readBuffer();
 
 		if(need_read == 0) {
+			Log(__FUNCTION__) << __LINE__ << "bad";
 			handler(req, true);
 			return;
 		}
@@ -78,7 +79,7 @@ parse_body(RequestPtr req,
 					handler(req, false);
 					return;
 				}
-				req->out() << &req->connection()->buffer();
+				req->out() << &req->connection()->readBuffer();
 				handler(req, true);
 			}
 		);
@@ -88,16 +89,17 @@ parse_body(RequestPtr req,
 void
 parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
-	req->connection()->async_read_until("\r\n", 
+	req->connection()->async_read_until("\n", 
 		[=](const asio::error_code& err, size_t n) {
 			if(err) {
+				Log(__FUNCTION__) << __LINE__ << "bad";
 				handler(req, false);
 				return;
 			}
 			std::smatch results;
 			static const std::regex first_line_reg(
 				"(GET|POST|PUT|DELETE) (/[[:print:]]*) (HTTP/1.1|HTTP/1.0)");
-			std::istream in(&req->connection()->buffer());
+			std::istream in(&req->connection()->readBuffer());
 			std::string line;
 			getline(in, line);
 			if(std::regex_search(
@@ -124,12 +126,14 @@ parseRequest(RequestPtr req,
 	parse_request_first_line(req, 
 		[=](RequestPtr req, bool good) {
 			if(!good) {
+				Log(__FUNCTION__) << __LINE__ << "bad";
 				handler(req, good);
 				return;
 			}
 			parse_headers(req,
 				[=](RequestPtr req, bool good) {
 					if(!good) {
+						Log(__FUNCTION__) << __LINE__ << "bad";
 						handler(req, good);
 						return;
 					}				

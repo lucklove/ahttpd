@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "server.hh"
+#include "log.hh"
 
 struct TestHandler : public RequestHandler {
 	using RequestHandler::RequestHandler;
@@ -12,6 +13,7 @@ struct TestHandler : public RequestHandler {
 		rep->out() << "version: " << req->getVersion() << std::endl;
 		for(auto&& h : req->headerMap())
 			rep->out() << h.name << ": " << h.value << std::endl;
+		rep->out() << req->in().rdbuf();
 	}
 };
 

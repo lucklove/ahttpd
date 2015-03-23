@@ -16,7 +16,7 @@ set(HTTPD_SRCS SHARED
 	src/SslConnection.cc 
 )
 set(CMAKE_BUILD_TYPE RELEASE)
-set(CMAKE_CXX_FLAGS_RELEASE "-std=c++1y -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "-std=c++1y -Wall -g")
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 add_library(httpd ${HTTPD_SRCS})
@@ -28,6 +28,7 @@ install(TARGETS httpd
 )
 
 install(FILES
+	src/log.hh
 	src/header.hh
 	src/package.hh
 	src/ptrs.hh

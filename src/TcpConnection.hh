@@ -23,7 +23,7 @@ public:
 
 	void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
 		std::function<void(const asio::error_code &, size_t)> handler) override {
-			asio::async_read(socket_, buffer(), completion, handler);
+			asio::async_read(socket_, readBuffer(), completion, handler);
 	}
 
 	void async_write(std::function<

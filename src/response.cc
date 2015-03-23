@@ -190,14 +190,14 @@ to_string(T&& some_thing)
 void
 Response::flush()
 {
-	std::ostream send_buf(&connection()->buffer());
+	std::ostream send_buf(&connection()->writeBuffer());
 		
 	/** 发送回应包 */
 	if(status_) {	/**< 如果heander被发送，则设置为0 */
 		if(status_ != ok && in().rdbuf()->in_avail() == 0)
 			out() << stock_replies::status_body(status_);
-		auto h = getHeader("Content-Length");
-		if(h.size() == 0) {
+		auto h = getFirstHeader("Content-Length");
+		if(h == nullptr) {
 			addHeader("Content-Length", to_string(contentLength()));
 		}
 		send_buf << status_strings::status_head(status_) << "\r\n";

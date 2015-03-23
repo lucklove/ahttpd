@@ -27,11 +27,11 @@ generateId(size_t max_size)
 }	
 
 }
-	
+
 Server::Server(asio::io_service& service, 
 	const std::string& http_port, const std::string& https_port,
 	size_t thread_pool_size)
-	: service_(service), signals_(service),socket_(service), 
+	: service_(service), signals_(service), 
 	tcp_acceptor_(service), ssl_acceptor_(service), request_handler_(this),
 	thread_pool_size_(thread_pool_size), thread_pool_(thread_pool_size)
 {
@@ -81,6 +81,8 @@ Server::Server(asio::io_service& service,
 	startAccept();
 }
 
+Server::~Server() {}
+
 void 
 Server::run(size_t thread_number)
 {
@@ -96,27 +98,46 @@ Server::run(size_t thread_number)
 		th.join();
 }
 
+void
+Server::handleRequest(RequestPtr req)
+{
+	parseRequest(req, [this](RequestPtr req, bool good) {
+		if(good) {
+			Log(__FUNCTION__) << __LINE__;
+			auto connection_opt = req->getFirstHeader("Connection");
+			if((connection_opt && *connection_opt == "Keep-alive") || 
+				(req->getVersion() == "HTTP/1.1" && !connection_opt)) {
+					Log("--------------------------");
+					Log(__FUNCTION__) << __LINE__;
+					RequestPtr new_req = std::make_shared<Request>(this, req->connection());
+					Log(__FUNCTION__) << __LINE__;
+					handleRequest(new_req);
+			}
+			thread_pool_.wait_to_enqueue([this](auto&&) {
+				if(thread_pool_.size_unlocked() > thread_pool_size_)
+					Log("WARNING") << "thread pool overload";
+			}, &Request::deliverSelf, req);
+		} else {
+			Log("WARNING") << "bad request";
+			req->connection()->stop();
+		}
+	});
+	Log(__FUNCTION__) << __LINE__;
+}
+
 void 
 Server::handleTcpAccept(const asio::error_code& ec)
 {
 	if(!ec) {
 		RequestPtr req = std::make_shared<Request>(this, new_tcp_connection_);
-		parseRequest(req, [this](RequestPtr req, bool good) {
-			if(good) {
-				thread_pool_.wait_to_enqueue([this](auto&&) {
-					if(thread_pool_.size_unlocked() > thread_pool_size_)
-						Log("WARNING") << "thread pool overload";
-				}, &Request::deliverSelf, req);
-			} else {
-				req->connection()->stop();
-			}
-		});
+		Log(__FUNCTION__) << __LINE__;
+		handleRequest(req);
 		new_tcp_connection_.reset(new TcpConnection(service_));
 		tcp_acceptor_.async_accept(new_tcp_connection_->socket(),
 			std::bind(&Server::handleTcpAccept, 
 				this, std::placeholders::_1));
 	} else {
-		/**< TODO:记录错误 */
+		Log("ERROR") << ec.message();
 	}
 }
 
@@ -126,23 +147,17 @@ Server::handleSslAccept(const asio::error_code& ec)
 	if(!ec) {
 		new_ssl_connection_->async_handshake([this](const asio::error_code& e) {
 			if(e) {
-				/** TODO:记录错误 */
+				Log("ERROR") << e.message();
 			} else {
 				RequestPtr req = std::make_shared<Request>(this, new_ssl_connection_);
-				parseRequest(req, [](RequestPtr req, bool good) {
-					if(good) {
-						req->deliverSelf();
-					} else {
-						req->connection()->stop();
-					}
-				});
+				handleRequest(req);
 			}
 			new_ssl_connection_.reset(new SslConnection(service_, *ssl_context_));
 			ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
 				std::bind(&Server::handleSslAccept, this, std::placeholders::_1));
 		});
 	} else {
-		/**< TODO:记录错误 */
+		Log("ERROR") << ec.message();
 	}
 }
 			
@@ -163,7 +178,8 @@ void
 Server::do_await_stop()
 {
 	signals_.async_wait([this](asio::error_code /*ec*/, int /*signo*/) {
-        	tcp_acceptor_.close();
+		Log("NOTE") << "BYE";
+ 	      	tcp_acceptor_.close();
         	ssl_acceptor_.close();
       	});
 }

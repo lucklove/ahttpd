@@ -7,6 +7,7 @@
 #include <asio.hpp>
 #include <iostream>
 #include "buffer.hh"
+#include "log.hh"
 
 class Server;
 
@@ -28,7 +29,8 @@ public:
 
 	virtual void stop() = 0;
 
-	buffer_t& buffer() { return buffer_; }
+	buffer_t& readBuffer() { return read_buffer_; }
+	buffer_t& writeBuffer() { return write_buffer_; }
 
 	virtual void async_read_until(const std::string& delim, 
 		std::function<void(const asio::error_code &, size_t)> handler) = 0;
@@ -40,5 +42,6 @@ public:
 		void(const asio::error_code&, size_t)> handler) = 0;
 
 private:
-	buffer_t buffer_;
+	buffer_t read_buffer_;
+	buffer_t write_buffer_;
 };
