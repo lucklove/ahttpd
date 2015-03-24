@@ -29,7 +29,7 @@ make
 若在运行时出现如下错误:  
 error while loading shared libraries: libshttpd.so: cannot open shared object file: No such file or directory  
 请确保libshttpd.so所在目录在ld的搜索路径中,对于linux系统, libshttpd.so所在的目录一般为/usr/local/lib  
-若发现改目录不在ld的搜索路径中,以下步骤可让libshttpd.so被ld找到:
+若发现改目录不在ld的搜索路径中,以下步骤可让libshttpd.so被ld找到:  
 1.修改/etc/ld.so.conf, 加入一行/usr/local/lib  
 2.执行sudo ldconfig更新配置  
 
