@@ -1,8 +1,8 @@
-project(httpd)
+project(shttpd)
 cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER g++)
 set(HTTPD_SRCS SHARED
 	src/package.cc 
 	src/TcpConnection.cc 
@@ -19,11 +19,11 @@ set(CMAKE_BUILD_TYPE RELEASE)
 set(CMAKE_CXX_FLAGS_RELEASE "-std=c++1y -Wall -g")
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-add_library(httpd ${HTTPD_SRCS})
+add_library(shttpd ${HTTPD_SRCS})
 
-target_link_libraries(httpd ssl crypto pthread)
+target_link_libraries(shttpd ssl crypto pthread)
 
-install(TARGETS httpd
+install(TARGETS shttpd
 	LIBRARY DESTINATION lib
 )
 
