@@ -45,7 +45,7 @@ Server::Server(asio::io_service& service,
 
 	if(http_port != "") {
 		asio::ip::tcp::resolver resolver(service_);
-		asio::ip::tcp::endpoint endpoint = *resolver.resolve({"127.0.0.1", http_port});
+		asio::ip::tcp::endpoint endpoint = *resolver.resolve({"0.0.0.0", http_port});
 		tcp_acceptor_.open(endpoint.protocol());
 		tcp_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 		tcp_acceptor_.bind(endpoint);
@@ -70,7 +70,7 @@ Server::Server(asio::io_service& service,
 		SSL_CTX_set_session_id_context(native_ctx,
 			reinterpret_cast<const unsigned char *>(sessionId.c_str()), sessionId.size());
 		asio::ip::tcp::resolver resolver(service_);
-		asio::ip::tcp::endpoint ssl_endpoint = *resolver.resolve({"127.0.0.1", https_port});
+		asio::ip::tcp::endpoint ssl_endpoint = *resolver.resolve({"0.0.0.0", https_port});
 		ssl_acceptor_.open(ssl_endpoint.protocol());
 		ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 		ssl_acceptor_.bind(ssl_endpoint);
