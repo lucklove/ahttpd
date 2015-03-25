@@ -36,7 +36,7 @@ error while loading shared libraries: libshttpd.so: cannot open shared object fi
 ##测试地址
 http://127.0.0.1:8888/test  
 https://127.0.0.1:9999/test  
-会返回当前请求的方法，路径，headers, body等
+会返回当前请求的方法，路径，query, headers, body等
 
 ##示例
 ```c++
