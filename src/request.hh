@@ -18,29 +18,32 @@ public :
 	void deliverSelf();
 
 	/**
- 	 * \brief 获取请求的uri
- 	 * \return uri
+ 	 * \brief 获取请求的path
+ 	 * \return path
  	 */ 
-	std::string getUri() { return uri; }
+	std::string& path() { return path_; }
 
+	/**
+ 	 * \brief 获取请求中的query string.
+ 	 * \return query string.
+ 	 */
+	std::string& query() { return query_; }
+ 
 	/**
  	 * \brief 获取请求方法
  	 * \return method
  	 */ 
-	std::string getMethod() { return method; }
+	std::string& method() { return method_; }
 
 	/**
  	 * \brief 获取http版本HTTP/1.0 HTTP1.1
  	 * \return 版本信息
  	 */  
-	std::string getVersion() { return version; }
+	std::string& version() { return version_; }
 	
-	void setUri(const std::string& u) { uri = u; }
-	void setMethod(const std::string& m) { method = m; }
-	void setVersion(const std::string& v) { version = v; }
-
 private:
-	std::string method;
-	std::string uri;
-	std::string version;
+	std::string method_;
+	std::string path_;
+	std::string query_;
+	std::string version_;
 };

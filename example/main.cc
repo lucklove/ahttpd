@@ -7,9 +7,10 @@ struct TestHandler : public RequestHandler {
 
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		rep->out() << "it's TestHander::handleRequest" << std::endl;
-		rep->out() << "method: " << req->getMethod() << std::endl;
-		rep->out() << "uri: " << req->getUri() << std::endl;
-		rep->out() << "version: " << req->getVersion() << std::endl;
+		rep->out() << "method: " << req->method() << std::endl;
+		rep->out() << "path: " << req->path() << std::endl;
+		rep->out() << "query: " << req->query() << std::endl;
+		rep->out() << "version: " << req->version() << std::endl;
 		for(auto&& h : req->headerMap())
 			rep->out() << h.name << ": " << h.value << std::endl;
 

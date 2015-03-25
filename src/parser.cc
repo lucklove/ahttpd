@@ -94,15 +94,18 @@ parse_request_first_line(RequestPtr req, const std::function<void(RequestPtr, bo
 			}
 			std::smatch results;
 			static const std::regex first_line_reg(
-				"(GET|POST|PUT|DELETE) (/[[:print:]]*) (HTTP/1.1|HTTP/1.0)");
+				"(GET|POST|PUT|DELETE) (/((?!\\?)[[:print:]])*)"
+				"[\\?]?([[:print:]]*)? (HTTP/1.1|HTTP/1.0)");
 			std::istream in(&req->connection()->readBuffer());
 			std::string line;
 			getline(in, line);
 			if(std::regex_search(
 				line, results, first_line_reg)) {
-				req->setMethod(results.str(1));
-				req->setUri(results.str(2));
-				req->setVersion(results.str(3));
+				req->method() = results.str(1);
+				req->path() = results.str(2);
+				if(results[4].matched)
+					req->query() = results.str(4);
+				req->version() = results.str(5);
 				handler(req, true);
 				return;
 			} else {

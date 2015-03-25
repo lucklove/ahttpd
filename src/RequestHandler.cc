@@ -2,6 +2,7 @@
 #include "response.hh"
 #include "request.hh"
 #include "server.hh"
+#include "log.hh"
 #include "connection.hh"
 #include <fstream>
 #include <sstream>
@@ -14,21 +15,13 @@ RequestHandler::RequestHandler(Server *server)
 void 
 RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
-  	// Decode url to path.	
-	std::string request_path;
- 
-	if(!url_decode(req->getUri(), request_path)) {
-		/** TODO: BAD REQUEST */
-		req->connection()->stop();
-    		return;
-  	}
-
-	req->setUri(request_path);
-
-  	if(!deliverRequest(req, rep)) {
-		rep->setStatus(Response::not_found);		
-		return;
-  	}
+	if(url_decode(req->path()) && url_decode(req->query())) {
+	  	if(!deliverRequest(req, rep))
+			rep->setStatus(Response::not_found);		
+  	} else {
+		Log("WARNING") << "Bad request";
+		rep->setStatus(Response::bad_request);
+	}
 }
 
 bool
@@ -38,28 +31,28 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 	
 	for(auto handler : sub_handlers_) {
 		size_t cmp_size = std::get<0>(handler).size();
-		if(req->getUri().size() >= cmp_size && 
-			req->getUri().substr(0, cmp_size) == std::get<0>(handler))
+		if(req->path().size() >= cmp_size && 
+			req->path().substr(0, cmp_size) == std::get<0>(handler))
 			best = handler;	
 	}
 
 	if(std::get<1>(best) == nullptr)
 		return false;
-	
+
 	std::get<1>(best)->handleRequest(req, rep);
 	return true;
 }
 
 bool 
-RequestHandler::url_decode(const std::string& in, std::string& out)
+RequestHandler::url_decode(std::string& in_out)
 {
-	out.clear();
-	out.reserve(in.size());
-	for(std::size_t i = 0; i < in.size(); ++i) {
-		if(in[i] == '%') {
-      			if(i + 3 <= in.size()) {
+	std::string out;
+	out.reserve(in_out.size());
+	for(std::size_t i = 0; i < in_out.size(); ++i) {
+		if(in_out[i] == '%') {
+      			if(i + 3 <= in_out.size()) {
         			int value = 0;
-        			std::istringstream is(in.substr(i + 1, 2));
+        			std::istringstream is(in_out.substr(i + 1, 2));
         			if(is >> std::hex >> value) {
           				out += static_cast<char>(value);
           				i += 2;
@@ -69,11 +62,12 @@ RequestHandler::url_decode(const std::string& in, std::string& out)
       			} else {
         			return false;
       			}
-    		} else if (in[i] == '+') {
+    		} else if (in_out[i] == '+') {
       			out += ' ';
     		} else {
-      			out += in[i];
+      			out += in_out[i];
     		}
   	}
+	in_out = out;
   	return true;
 }
