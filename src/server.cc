@@ -10,6 +10,7 @@
 #include <random>
 #include <ctime>
 #include <asio/ssl.hpp>
+#include <cstring>
 
 namespace {
 
@@ -103,8 +104,8 @@ Server::handleRequest(RequestPtr req)
 {
 	parseRequest(req, [this](RequestPtr req, bool good) {
 		if(good) {
-			auto connection_opt = req->getFirstHeader("Connection");
-			if(connection_opt && *connection_opt == "Keep-alive") {
+			std::string* connection_opt = req->getFirstHeader("Connection");
+			if(connection_opt && strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) {
 					RequestPtr new_req = std::make_shared<Request>(this, req->connection());
 					handleRequest(new_req);
 			}

@@ -5,6 +5,7 @@
 #include <asio.hpp>
 #include <sstream>
 #include <utility>
+#include <cstring>
 #include "header.hh"
 #include "ptrs.hh"
 
@@ -24,7 +25,7 @@ public:
 	std::vector<std::string> getHeader(std::string h_name) {
 		std::vector<std::string> dst_header;
 		for(auto h : headers) {
-			if(h.name == h_name)
+			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				dst_header.push_back(h.value);
 		}
 		return std::move(dst_header);
@@ -32,7 +33,7 @@ public:
 
 	std::string* getFirstHeader(std::string h_name) {
 		for(auto& h : headers) {
-			if(h.name == h_name)
+			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				return &h.value;
 		}
 		return nullptr;
@@ -65,10 +66,8 @@ protected:
 
 private:
 
-  	/// The headers to be included in the response.
 	std::vector<header_t> headers;
 
-	/// The content to be sent in the response.
 	std::stringstream body;
 
 	ConnectionPtr connection_;	
