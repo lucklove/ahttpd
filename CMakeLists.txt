@@ -2,7 +2,7 @@ project(shttpd)
 cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_COMPILER clang++)
 set(HTTPD_SRCS SHARED
 	src/package.cc 
 	src/TcpConnection.cc 

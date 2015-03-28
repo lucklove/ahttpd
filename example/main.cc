@@ -16,6 +16,7 @@ struct TestHandler : public RequestHandler {
 
 		if(req->in().rdbuf()->in_avail())	/**< 判断是否有数据，[重要]*/
 			rep->out() << req->in().rdbuf();
+//		rep->flush();
 	}
 };
 

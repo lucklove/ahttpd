@@ -24,8 +24,8 @@ public:
 	~Response() override;
 	void setStatus(status_t status) { status_ = status; }
 	short getStatus() { return status_; }
-	void flush();
+	void flush() { flush(true); }
 private:
+	void flush(bool chunked);
 	status_t status_;
-	size_t body_length();
 };

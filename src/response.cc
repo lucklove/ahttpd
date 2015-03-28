@@ -187,10 +187,17 @@ to_string(T&& some_thing)
         return ret;
 }
 
+void
+handle_write_error(const asio::error_code& e, size_t n)
+{
+	if(e)
+		Log("ERROR") << "WRITE ERROR:" << e.message();
+}
+
 }
 
 void
-Response::flush()
+Response::flush(bool chunked)
 {
 	std::ostream send_buf(&connection()->writeBuffer());
 		
@@ -198,9 +205,13 @@ Response::flush()
 	if(status_) {	/**< 如果heander被发送，则设置为0 */
 		if(status_ != ok && in().rdbuf()->in_avail() == 0)
 			out() << stock_replies::status_body(status_);
-		auto h = getFirstHeader("Content-Length");
-		if(h == nullptr) {
-			addHeader("Content-Length", to_string(contentLength()));
+		if(chunked) {
+			addHeader("Transfer-Encoding", "chunked");
+		} else {
+			auto h = getFirstHeader("Content-Length");
+			if(h == nullptr) {
+				addHeader("Content-Length", to_string(contentLength()));
+			}
 		}
 		send_buf << status_strings::status_head(status_) << "\r\n";
 		for(auto&& h : headerMap())
@@ -209,22 +220,29 @@ Response::flush()
 		status_ = header_already_send;
 	}
 
-	if(in().rdbuf()->in_avail())
-		send_buf << in().rdbuf();
-	
-	connection()->async_write([](const asio::error_code& e, size_t n) {
-			if(e) {
-				/** TODO:记录错误 */
-				Log("ERROR") << "connection写入错误:" << e.message();
-			}
-		}
-	);
+	if(in().rdbuf()->in_avail()) {
+		if(chunked) {
+			send_buf << std::hex << contentLength() << "\r\n";
+			send_buf << in().rdbuf() << "\r\n";
+		} else {
+			send_buf << in().rdbuf();
+		}	
+	}
+ 
+	connection()->async_write(handle_write_error);
 }
 
 Response::~Response() 
 {
-	try {	
-		flush();
+	try {
+		if(status_) {		
+			flush(false);
+		} else {
+			flush(true);
+			std::ostream send_buf(&connection()->writeBuffer());
+			send_buf << "0\r\n\r\n";
+			connection()->async_write(handle_write_error);
+		}
 	} catch(std::exception& e) {
 		fprintf(stderr, "%s\n", e.what());
 	}

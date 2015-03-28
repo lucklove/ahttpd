@@ -35,24 +35,43 @@ SslConnection::stopNextLayer(const asio::error_code& ec)
 }		
 
 void 
+SslConnection::async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
+	const std::function<void(const asio::error_code &, size_t)>& handler)
+{
+	asio::async_read(socket_, readBuffer(), completion, 
+		[handler, ptr = shared_from_this()](const asio::error_code& e, size_t n) {
+			handler(e, n);
+		}
+	);
+}
+
+void 
 SslConnection::async_read_until(const std::string& delim, 
 	const std::function<void(const asio::error_code &, size_t)>& handler)
 {
-	asio::async_read_until(socket_, readBuffer(), delim, handler);
+	asio::async_read_until(socket_, readBuffer(), delim, 
+		[handler, ptr = shared_from_this()](const asio::error_code& e, size_t n) {
+			handler(e, n);
+		}
+	);
 }
 	
 void 
 SslConnection::async_write(const std::function<void(const asio::error_code&, size_t)>& handler)
 {
-	asio::async_write(socket_, writeBuffer(), std::bind(
-		[handler](const asio::error_code& e, size_t n, ConnectionPtr) {
+	asio::async_write(socket_, writeBuffer(), 
+		[handler, ptr = shared_from_this()](const asio::error_code& e, size_t n) {
 			handler(e, n);
-		}, 
-		std::placeholders::_1, std::placeholders::_2, shared_from_this())); /**< 防止过早析构 */
+		}
+	);
 }
 
 void
-SslConnection::async_handshake(const std::function<void (asio::error_code const&)>& handle)
+SslConnection::async_handshake(const std::function<void (asio::error_code const&)>& handler)
 {
-	socket_.async_handshake(asio::ssl::stream_base::server, handle);
+	socket_.async_handshake(asio::ssl::stream_base::server, 
+		[handler, ptr = shared_from_this()](const asio::error_code& e) {
+			handler(e);
+		}
+	);
 }

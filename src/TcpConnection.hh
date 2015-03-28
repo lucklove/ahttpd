@@ -13,7 +13,7 @@ class TcpConnection : public Connection
 {
 public:
 	explicit TcpConnection(asio::io_service& service)
-  		: socket_(service)
+  		: socket_(service) 
 	{}
 
 	void stop() override;
@@ -22,9 +22,7 @@ public:
 		const std::function<void(const asio::error_code &, size_t)>& handler) override;
 
 	void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-		const std::function<void(const asio::error_code &, size_t)>& handler) override {
-			asio::async_read(socket_, readBuffer(), completion, handler);
-	}
+		const std::function<void(const asio::error_code &, size_t)>& handler) override;
 
 	void async_write(const std::function<
 		void(const asio::error_code&, size_t)>& handler) override;
