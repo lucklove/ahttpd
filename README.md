@@ -5,22 +5,22 @@ http server异步框架
 http/https支持
 
 ##依赖
-1.asio  
-2.C++1y  
-3.openssl(https需要)  
+- asio  
+- C++1y  
+- openssl(https需要)  
 
 ##编译-安装
-cd shttpd  
-mkdir build  
-cd build  
-cmake ..  
-make  
-sudo make install
+- cd shttpd  
+- mkdir build  
+- cd build  
+- cmake ..  
+- make  
+- sudo make install
 
 ##编译示例
-cd shttpd  
-cd example  
-make  
+- cd shttpd  
+- cd example  
+- make  
 
 ##运行
 ./test  
@@ -30,8 +30,8 @@ make
 error while loading shared libraries: libshttpd.so: cannot open shared object file: No such file or directory  
 请确保libshttpd.so所在目录在ld的搜索路径中,对于linux系统, libshttpd.so所在的目录一般为/usr/local/lib  
 若发现改目录不在ld的搜索路径中,以下步骤可让libshttpd.so被ld找到:  
-1.修改/etc/ld.so.conf, 加入一行/usr/local/lib  
-2.执行sudo ldconfig更新配置  
+- 修改/etc/ld.so.conf, 加入一行/usr/local/lib  
+- 执行sudo ldconfig更新配置  
 
 ##测试地址
 http://127.0.0.1:8888/test  
@@ -58,3 +58,7 @@ main(int argc, char *argv[])
 }
 ```
 更多例子见example
+
+##TODU LIST
+- TcpConnection和SslConnection中的几个async_xxx函数代码实际上是一模一样的, 准备整合到Connection
+- 连接定时器: 指定时间内客户端无反应就断开

@@ -197,7 +197,7 @@ handle_write_error(const asio::error_code& e, size_t n)
 }
 
 void
-Response::flush(bool chunked)
+Response::flush(bool chunked, const std::function<void(std::ostream&)>& posttreat)
 {
 	std::ostream send_buf(&connection()->writeBuffer());
 		
@@ -228,7 +228,10 @@ Response::flush(bool chunked)
 			send_buf << in().rdbuf();
 		}	
 	}
- 
+
+	if(posttreat) 
+		posttreat(send_buf);
+
 	connection()->async_write(handle_write_error);
 }
 
@@ -238,10 +241,7 @@ Response::~Response()
 		if(status_) {		
 			flush(false);
 		} else {
-			flush(true);
-			std::ostream send_buf(&connection()->writeBuffer());
-			send_buf << "0\r\n\r\n";
-			connection()->async_write(handle_write_error);
+			flush(true, [](std::ostream& os) { os << "0\r\n\r\n"; });
 		}
 	} catch(std::exception& e) {
 		fprintf(stderr, "%s\n", e.what());

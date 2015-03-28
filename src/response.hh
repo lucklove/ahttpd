@@ -26,6 +26,6 @@ public:
 	short getStatus() { return status_; }
 	void flush() { flush(true); }
 private:
-	void flush(bool chunked);
+	void flush(bool chunked, const std::function<void(std::ostream&)>& posttreat = {});
 	status_t status_;
 };
