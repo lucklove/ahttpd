@@ -42,18 +42,92 @@ parse_headers(RequestPtr req, const std::function<void(RequestPtr, bool)>& handl
 }
 
 void
-parse_body(RequestPtr req,
-	const std::function<void(RequestPtr, bool)>& handler)
+read_chunked_body(RequestPtr req, const std::function<void(RequestPtr, bool)>& handler)
+{
+	req->connection()->async_read_until("\n",
+		[=](const asio::error_code& err, size_t) {
+			if(err) {
+				Log("ERROR") << err.message();
+				handler(req, false);
+				return;
+			}
+			std::istream in(&req->connection()->readBuffer());
+			size_t length = 0;
+			std::string ignore;
+			in >> std::hex >> length;
+			getline(in, ignore);	/**< 比如A3\r\n, 读取A3后扔掉\r\n */
+
+			size_t already_read = req->connection()->readBuffer().in_avail();
+			int need_read = length - already_read;
+			if(need_read > 0) {
+				req->connection()->async_read(asio::transfer_exactly(need_read),
+					[=](const asio::error_code& err, size_t n) {
+						if(err || static_cast<int>(n) != need_read /**< 避免警告 */
+							|| length > 8192) {
+							if(err)
+								Log("ERROR") << err.message();
+							if(static_cast<int>(n) != need_read)
+								Log("ERROR") << "BUFFER HUNGERY";
+							if(length > 8192)
+								Log("ERROR") << "BUFFER OVERFLOW";
+							handler(req, false);
+							return;
+						}
+						char buf[length];
+						std::istream in(&req->connection()->readBuffer());
+						in.read(buf, length);
+						req->out().write(buf, length);
+				});
+			} else if(length > 0) {
+				if(length > 8192) {
+					Log("ERROR") << "BUFFER OVERFLOW";
+					handler(req, false);
+					return;
+				}
+				char buf[length];
+				in.read(buf, length);
+				req->out().write(buf, length);	
+			}
+
+			req->connection()->async_read_until("\n",
+				[=](const asio::error_code& err, size_t n) {
+					if(err) {
+						Log("ERROR") << err.message();
+						handler(req, false);
+						return;
+					}
+					std::istream in(&req->connection()->readBuffer());
+					std::string ignore;
+					getline(in, ignore);
+				}
+			);
+			if(length == 0) {
+				handler(req, true);
+				return;
+			}
+			read_chunked_body(req, handler);
+		}
+	);	
+}
+
+void
+parse_body(RequestPtr req, const std::function<void(RequestPtr, bool)>& handler)
 {
 	auto h = req->getFirstHeader("Content-Length");
 	if(h == nullptr) {
-		handler(req, true);
+		auto h = req->getFirstHeader("Transfer-Encoding");
+		if(h != nullptr && strcasecmp(h->c_str(), "chunked")  == 0) {
+			read_chunked_body(req, handler);
+		} else {
+			handler(req, true);
+		}
 	} else {
-		size_t length = to_size(h[0]);
+		size_t length = to_size(*h);
 		if(length == 0) {
 			handler(req, false);
 			return;
 		}
+
 		size_t already_read = req->connection()->readBuffer().in_avail();
 		int need_read = length - already_read;
 
@@ -69,6 +143,7 @@ parse_body(RequestPtr req,
 			handler(req, true);
 			return;
 		}
+
 		req->connection()->async_read(asio::transfer_exactly(need_read),
 			[=](const asio::error_code& err, size_t n) {
 				if(err || static_cast<int>(n) != need_read) {	/**< 避免警告 */

@@ -43,7 +43,6 @@ public:
 
 	virtual void async_write(
 		const std::function<void(const asio::error_code&, size_t)>& handler) = 0;
-
 protected:	
 	void enqueueRead(const std::function<void()>& read_func) {
 		std::unique_lock<std::mutex> lck(read_queue_mutex_);

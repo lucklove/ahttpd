@@ -17,8 +17,8 @@ TcpConnection::async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)>
 	enqueueRead([=, ptr = shared_from_this()] {
 		asio::async_read(socket_, readBuffer(), completion, 
 			[this, handler, ptr](const asio::error_code& e, size_t n) {
-				dequeueRead();
 				handler(e, n); 
+				dequeueRead();
 			}
 		);
 	});
@@ -32,8 +32,8 @@ TcpConnection::async_read_until(const std::string& delim,
 	enqueueRead([=, ptr = shared_from_this()] {
 		asio::async_read_until(socket_, readBuffer(), delim, 
 			[this, handler, ptr](const asio::error_code& e, size_t n) {
-				dequeueRead();
 				handler(e, n);
+				dequeueRead();
 			}
 		);
 	});
@@ -47,8 +47,8 @@ TcpConnection::async_write(const std::function<
 	enqueueWrite([=, ptr = shared_from_this()] {
 		asio::async_write(socket_, writeBuffer(), 
 			[this, handler, ptr](const asio::error_code& e, size_t n) {
-				dequeueWrite();
 				handler(e, n);
+				dequeueWrite();
 			}
 		);
 	});

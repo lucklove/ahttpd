@@ -34,7 +34,6 @@ public:
 
 	asio::ip::tcp::socket& socket() { return socket_.next_layer(); }
 	void async_handshake(const std::function<void(const asio::error_code& e)>& handle);
-
 private:
 	ssl_socket_t socket_;
 	asio::deadline_timer ssl_shutdown_timer_;
