@@ -33,11 +33,6 @@ error while loading shared libraries: libshttpd.so: cannot open shared object fi
 - 修改/etc/ld.so.conf, 加入一行/usr/local/lib  
 - 执行sudo ldconfig更新配置  
 
-##测试地址
-http://127.0.0.1:8888/test  
-https://127.0.0.1:9999/test  
-会返回当前请求的方法，路径，query, headers, body等
-
 ##示例
 ```c++
 #include "server.hh"
@@ -57,7 +52,13 @@ main(int argc, char *argv[])
 	server.run();
 }
 ```
-更多例子见example
+##example目录中的示例:
+
+|   名称     |         描述                |             访问地址             |            备注             |
+|------------|-----------------------------|----------------------------------|-----------------------------|
+| HelloWorld | 向客户端发送hello world	   | http://127.0.0.1:8888/HelloWorld |				    |
+|   echo     | 显示客户端请求包的详细信息  | http://127.0.0.1:8888/echo       |				    |
+| HttpsTest  |  https的示例		   | https://127.0.0.1:9999/HttpsTest |  需要输入创建密钥时的密码   |
 
 ##TODU LIST
 - 连接定时器: 指定时间内客户端无反应就断开
