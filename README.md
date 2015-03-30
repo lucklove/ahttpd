@@ -20,11 +20,9 @@ http/https支持
 ##编译示例
 - cd shttpd  
 - cd example  
+- cd 某个示例的目录  
 - make  
 
-##运行
-./test  
-启动过程中会要求输入PEM密码(生成ssl密钥文件时的密码),此时输入lucklove  
 ###注意:
 若在运行时出现如下错误:  
 error while loading shared libraries: libshttpd.so: cannot open shared object file: No such file or directory  
