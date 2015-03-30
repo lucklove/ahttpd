@@ -16,18 +16,9 @@ public:
   		: socket_(service) 
 	{}
 
-	void stop() override;
-
-	void async_read_until(const std::string& delim, 
-		const std::function<void(const asio::error_code &, size_t)>& handler) override;
-
-	void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-		const std::function<void(const asio::error_code &, size_t)>& handler) override;
-
-	void async_write(const std::function<
-		void(const asio::error_code&, size_t)>& handler) override;
-
-	asio::ip::tcp::socket& socket() { return socket_; }
+	void stop() override { socket_.close(); }
+	socket_t socket() override { return socket_t{ &socket_ }; }
+	asio::ip::tcp::socket& nativeSocket() { return socket_; }
 private:
 	asio::ip::tcp::socket socket_;
 };

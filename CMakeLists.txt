@@ -2,10 +2,10 @@ project(shttpd)
 cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER g++)
 set(HTTPD_SRCS SHARED
-	src/package.cc 
-	src/TcpConnection.cc 
+	src/package.cc
+	src/connection.cc 
 	src/request.cc
 	src/response.cc 
 	src/parser.cc 
@@ -15,8 +15,8 @@ set(HTTPD_SRCS SHARED
 	src/RequestHandler.cc 
 	src/SslConnection.cc 
 )
-set(CMAKE_BUILD_TYPE RELEASE)
-set(CMAKE_CXX_FLAGS_RELEASE "-std=c++1y -Wall -g")
+set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_CXX_FLAGS_DEBUG "-std=c++1y -Wall -g -O0")
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 add_library(shttpd ${HTTPD_SRCS})

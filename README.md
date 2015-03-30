@@ -60,5 +60,4 @@ main(int argc, char *argv[])
 更多例子见example
 
 ##TODU LIST
-- TcpConnection和SslConnection中的几个async_xxx函数代码实际上是一模一样的, 准备整合到Connection
 - 连接定时器: 指定时间内客户端无反应就断开

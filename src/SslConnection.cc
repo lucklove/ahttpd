@@ -24,10 +24,10 @@ SslConnection::stopNextLayer(const asio::error_code& ec)
 	}
 	
 	try {
-		if(socket().is_open()) {
+		if(nativeSocket().is_open()) {
 			asio::error_code ignored_ec;
-			socket().shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-			socket().close();
+			nativeSocket().shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+			nativeSocket().close();
 		}
 	} catch(asio::system_error& e) {
 		/**< TODO:记录错误信息 */
@@ -42,49 +42,4 @@ SslConnection::async_handshake(const std::function<void (asio::error_code const&
 			handler(e);
 		}
 	);
-}
-
-void 
-SslConnection::async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-	const std::function<void(const asio::error_code &, size_t)>& handler) 
-{
-	enqueueRead([=, ptr = shared_from_this()] {
-		asio::async_read(socket_, readBuffer(), completion, 
-			[this, handler, ptr](const asio::error_code& e, size_t n) {
-				handler(e, n); 
-				dequeueRead();
-			}
-		);
-	});
-	doRead();
-}
-
-void 
-SslConnection::async_read_until(const std::string& delim, 
-	const std::function<void(const asio::error_code &, size_t)>& handler)
-{
-	enqueueRead([=, ptr = shared_from_this()] {
-		asio::async_read_until(socket_, readBuffer(), delim, 
-			[this, handler, ptr](const asio::error_code& e, size_t n) {
-				handler(e, n);
-				dequeueRead();
-			}
-		);
-	});
-	doRead();
-}
-	
-void 
-SslConnection::async_write(const std::function<
-	void(const asio::error_code&, size_t)>& handler)
-{
-	enqueueWrite([=, ptr = shared_from_this()] {
-		asio::async_write(socket_, writeBuffer(), 
-			[this, handler, ptr](const asio::error_code& e, size_t n) {
-				handler(e, n);
-				dequeueWrite();
-			}
-		);
-	});
-	doWrite();
 }

@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 #include <asio.hpp>
+#include <asio/ssl.hpp>
 #include <mutex>
 #include <queue>
 #include <iostream>
@@ -23,6 +24,21 @@ protected:
         using result_of_t = typename std::result_of<_type>::type;
 
   	Server *server_;
+	enum class socket_type { ordinary, ssl };
+	struct socket_t {
+		socket_t(asio::ip::tcp::socket* ordinary_socket_) 
+			: type(socket_type::ordinary), ordinary_socket(ordinary_socket_)
+		{}
+		socket_t(asio::ssl::stream<asio::ip::tcp::socket>* ssl_socket_)
+			: type(socket_type::ssl), ssl_socket(ssl_socket_)
+		{}
+		socket_type type;
+		union {
+			asio::ip::tcp::socket* ordinary_socket;
+			asio::ssl::stream<asio::ip::tcp::socket>* ssl_socket;
+		};
+	};
+
 public:
 	Connection(const Connection&) = delete;
 	Connection& operator=(const Connection&) = delete;
@@ -35,18 +51,32 @@ public:
 	buffer_t& readBuffer() { return read_buffer_; }
 	buffer_t& writeBuffer() { return write_buffer_; }
 
-	virtual void async_read_until(const std::string& delim, 
-		const std::function<void(const asio::error_code &, size_t)>& handler) = 0;
+	void async_read_until(const std::string& delim, 
+		const std::function<void(const asio::error_code &, size_t)>& handler);
 
-	virtual void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-		const std::function<void(const asio::error_code &, size_t)>& handler) = 0;
+	void async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
+		const std::function<void(const asio::error_code &, size_t)>& handler);
 
-	virtual void async_write(
-		const std::function<void(const asio::error_code&, size_t)>& handler) = 0;
-protected:	
+	void async_write(
+		const std::function<void(const asio::error_code&, size_t)>& handler);
+
+	virtual socket_t socket() = 0;
+protected:
 	void enqueueRead(const std::function<void()>& read_func) {
-		std::unique_lock<std::mutex> lck(read_queue_mutex_);
-		read_queue_.push(std::make_tuple(read_func, false));
+		{
+			std::unique_lock<std::mutex> lck(read_queue_mutex_);
+			read_queue_.push(std::make_tuple(read_func, false));
+		}
+		doRead();
+	}
+
+	void dequeueRead() {
+		{
+			std::unique_lock<std::mutex> lck(read_queue_mutex_);
+			read_queue_.pop();
+		}
+
+		doRead();
 	}
 
 	void doRead() {
@@ -66,19 +96,24 @@ protected:
 		func();
 	}
 
-	void dequeueRead() {
+	void enqueueWrite(const std::function<void()>& write_func) {
 		{
-			std::unique_lock<std::mutex> lck(read_queue_mutex_);
-			read_queue_.pop();
+			std::unique_lock<std::mutex> lck(write_queue_mutex_);
+			write_queue_.push(std::make_tuple(write_func, false));
+		}
+		
+		doWrite();	
+	}
+
+	void dequeueWrite() {
+		{
+			std::unique_lock<std::mutex> lck(write_queue_mutex_);
+			write_queue_.pop();
 		}
 
-		doRead();
+		doWrite();
 	}
-
-	void enqueueWrite(const std::function<void()>& write_func) {
-		std::unique_lock<std::mutex> lck(write_queue_mutex_);
-		write_queue_.push(std::make_tuple(write_func, false));
-	}
+	
 
 	void doWrite() {
 		std::function<void()> func;
@@ -97,15 +132,6 @@ protected:
 		func();
 	}
 
-	void dequeueWrite() {
-		{
-			std::unique_lock<std::mutex> lck(write_queue_mutex_);
-			write_queue_.pop();
-		}
-
-		doWrite();
-	}
-	
 private:
 	buffer_t read_buffer_;
 	buffer_t write_buffer_;

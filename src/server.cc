@@ -127,7 +127,7 @@ Server::handleTcpAccept(const asio::error_code& ec)
 		RequestPtr req = std::make_shared<Request>(this, new_tcp_connection_);
 		handleRequest(req);
 		new_tcp_connection_.reset(new TcpConnection(service_));
-		tcp_acceptor_.async_accept(new_tcp_connection_->socket(),
+		tcp_acceptor_.async_accept(new_tcp_connection_->nativeSocket(),
 			std::bind(&Server::handleTcpAccept, 
 				this, std::placeholders::_1));
 	} else {
@@ -147,7 +147,7 @@ Server::handleSslAccept(const asio::error_code& ec)
 				handleRequest(req);
 			}
 			new_ssl_connection_.reset(new SslConnection(service_, *ssl_context_));
-			ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
+			ssl_acceptor_.async_accept(new_ssl_connection_->nativeSocket(),
 				std::bind(&Server::handleSslAccept, this, std::placeholders::_1));
 		});
 	} else {
@@ -159,11 +159,11 @@ void
 Server::startAccept()
 {
 	if(new_tcp_connection_) {
-		tcp_acceptor_.async_accept(new_tcp_connection_->socket(),
+		tcp_acceptor_.async_accept(new_tcp_connection_->nativeSocket(),
 			std::bind(&Server::handleTcpAccept, this, std::placeholders::_1));
 	}
 	if(new_ssl_connection_) {
-		ssl_acceptor_.async_accept(new_ssl_connection_->socket(),
+		ssl_acceptor_.async_accept(new_ssl_connection_->nativeSocket(),
 			std::bind(&Server::handleSslAccept, this, std::placeholders::_1));
 	}
 }	
