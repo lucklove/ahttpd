@@ -22,7 +22,12 @@ public:
 	Response(Server *server, ConnectionPtr connection) :
 		Package(server, connection), status_(ok) {}
 	~Response() override;
+
 	void setStatus(status_t status) { status_ = status; }
+	void setMimeType(const std::string& mime) { 
+		delHeader("Content-Type");
+		addHeader("Content-Type", mime);
+	}
 	short getStatus() { return status_; }
 	void flush() { flush(true); }
 private:

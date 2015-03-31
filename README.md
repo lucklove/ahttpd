@@ -60,3 +60,6 @@ main(int argc, char *argv[])
 
 ##TODU LIST
 - 连接定时器: 指定时间内客户端无反应就断开
+
+##题外话
+- 任何pull request和issue都是受欢迎的，小issue也许能帮助别人解决大问题

@@ -49,7 +49,14 @@ public:
 				h.value = h_value;
 		}
 	}
-	
+
+	void delHeader(const std::string& h_name) {
+		for(std::vector<header_t>::iterator it = headers.begin(); it != headers.end(); ++it) {
+			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0)
+				headers.erase(it);
+		}
+	}
+
 	std::vector<header_t>& headerMap() { return headers; }
 
 	size_t

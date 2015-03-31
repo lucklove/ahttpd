@@ -17,7 +17,6 @@ struct EchoHandler : public RequestHandler {
 		rep->out() << "version: " << req->version() << std::endl;
 		for(auto&& h : req->headerMap())
 			rep->out() << h.name << ": " << h.value << std::endl;
-
 		if(req->in().rdbuf()->in_avail())	/**< 判断是否有数据，[重要]*/
 			rep->out() << req->in().rdbuf();
 	}
