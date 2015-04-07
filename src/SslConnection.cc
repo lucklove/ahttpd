@@ -34,12 +34,43 @@ SslConnection::stopNextLayer(const asio::error_code& ec)
 	}
 }		
 
+/**
+ * \brief 作为服务端握手
+ */ 
 void
-SslConnection::async_handshake(const std::function<void (asio::error_code const&)>& handler)
+SslConnection::async_handshake(std::function<void (asio::error_code const&)> handler)
 {
 	socket_.async_handshake(asio::ssl::stream_base::server, 
 		[handler, ptr = shared_from_this()](const asio::error_code& e) {
 			handler(e);
 		}
 	);
+}
+	
+void 
+SslConnection::async_connect(const std::string& host, const std::string& port,
+	std::function<void(ConnectionPtr, bool)> handler)
+{
+	Connection::async_connect(host, port, 
+		[this, handler, ptr = shared_from_this()](ConnectionPtr conn, bool good) {
+		if(good) {
+			socket_.set_verify_mode(asio::ssl::verify_peer);
+			socket_.set_verify_callback([](bool, asio::ssl::verify_context&) { 
+				/** XXX: NOT SAFE */
+				return true; 
+			});
+			socket_.async_handshake(asio::ssl::stream_base::client,
+				[=, ptr = ptr](const asio::error_code& e) {
+					if(e) {
+						handler(conn, false);
+					} else {
+						handler(conn, true);
+					}
+				}
+			);
+		} else {
+			Log(__FILE__) << __LINE__;
+			handler(conn, false);
+		}
+	});
 }

@@ -58,7 +58,7 @@ Server::Server(asio::io_service& service,
 		int sslOptions = asio::ssl::context::default_workarounds
 			| asio::ssl::context::no_sslv2
 			| asio::ssl::context::single_dh_use;
-		ssl_context_ = new asio::ssl::context(service, asio::ssl::context::sslv23),
+		ssl_context_ = new asio::ssl::context(service, asio::ssl::context::sslv23);
 		ssl_context_->set_options(sslOptions);
 		ssl_context_->set_verify_mode(asio::ssl::context::verify_none);
 		ssl_context_->load_verify_file("server.csr");
@@ -102,20 +102,21 @@ Server::run(size_t thread_number)
 void
 Server::handleRequest(RequestPtr req)
 {
+	assert(req->connection() != nullptr);
 	parseRequest(req, [this](RequestPtr req, bool good) {
 		if(good) {
-			std::string* connection_opt = req->getFirstHeader("Connection");
-			if(connection_opt && strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) {
-					RequestPtr new_req = std::make_shared<Request>(this, req->connection());
-					handleRequest(new_req);
+			if(req->keepAlive()) {
+				RequestPtr new_req = std::make_shared<Request>(req->connection());
+				assert(new_req.operator->() != req.operator->());
+				handleRequest(new_req);
 			}
 			thread_pool_.wait_to_enqueue([this](auto&&) {
 				if(thread_pool_.size_unlocked() > thread_pool_size_)
 					Log("WARNING") << "thread pool overload";
-			}, &Request::deliverSelf, req);
+			}, &Server::deliverRequest, this, req);
 		} else {
-			Log("WARNING") << "bad request";
 			req->connection()->stop();
+			req->discardConnection();
 		}
 	});
 }
@@ -124,7 +125,7 @@ void
 Server::handleTcpAccept(const asio::error_code& ec)
 {
 	if(!ec) {
-		RequestPtr req = std::make_shared<Request>(this, new_tcp_connection_);
+		RequestPtr req = std::make_shared<Request>(new_tcp_connection_);
 		handleRequest(req);
 		new_tcp_connection_.reset(new TcpConnection(service_));
 		tcp_acceptor_.async_accept(new_tcp_connection_->nativeSocket(),
@@ -143,7 +144,7 @@ Server::handleSslAccept(const asio::error_code& ec)
 			if(e) {
 				Log("ERROR") << e.message();
 			} else {
-				RequestPtr req = std::make_shared<Request>(this, new_ssl_connection_);
+				RequestPtr req = std::make_shared<Request>(new_ssl_connection_);
 				handleRequest(req);
 			}
 			new_ssl_connection_.reset(new SslConnection(service_, *ssl_context_));

@@ -9,6 +9,8 @@
 #include "ThreadPool.hh"
 #include "ptrs.hh"
 
+#include "log.hh"
+
 namespace asio {
 namespace ssl {
 class context; 
@@ -31,15 +33,19 @@ public:
 		request_handler_.addSubHandler(path, handle);
 	}
 
-	void deliverRequest(RequestPtr req, ResponsePtr rep) {
-		request_handler_.handleRequest(req, rep);
+	void deliverRequest(RequestPtr req) {
+		auto res = std::make_shared<Response>(req->connection());
+		req->discardConnection();
+		if(req->keepAlive())
+			res->addHeader("Connection", "Keep-alive");
+		request_handler_.handleRequest(req, res);
 	}
 
 	asio::io_service& service() {
 		return service_;
 	}
 	
-	void post(const std::function<void(void)>& func) {
+	void post(std::function<void(void)> func) {
 		service_.post(func);
 	}
 	

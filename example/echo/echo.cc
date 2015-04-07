@@ -15,8 +15,10 @@ struct EchoHandler : public RequestHandler {
 		rep->out() << "path: " << req->path() << std::endl;
 		rep->out() << "query: " << req->query() << std::endl;
 		rep->out() << "version: " << req->version() << std::endl;
+		rep->flush();
 		for(auto&& h : req->headerMap())
 			rep->out() << h.name << ": " << h.value << std::endl;
+		rep->flush();
 		if(req->in().rdbuf()->in_avail())	/**< 判断是否有数据，[重要]*/
 			rep->out() << req->in().rdbuf();
 	}

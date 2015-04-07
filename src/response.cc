@@ -174,75 +174,34 @@ status_body(Response::status_t status)
 
 } // namespace stock_replies
 
-namespace {
-
-template<typename T>
-std::string
-to_string(T&& some_thing)
-{
-        std::string ret;
-        std::stringstream s(ret);
-        s << some_thing;
-        s >> ret;
-        return ret;
-}
 
 void
-handle_write_error(const asio::error_code& e, size_t n)
+Response::flush()
 {
-	if(e)
-		Log("ERROR") << "WRITE ERROR:" << e.message();
-}
-
-}
-
-void
-Response::flush(bool chunked, const std::function<void(std::ostream&)>& posttreat)
-{
-	std::ostream send_buf(&connection()->writeBuffer());
-		
-	/** 发送回应包 */
-	if(status_) {	/**< 如果heander被发送，则设置为0 */
-		if(status_ != ok && in().rdbuf()->in_avail() == 0)
-			out() << stock_replies::status_body(status_);
-		if(chunked) {
-			addHeader("Transfer-Encoding", "chunked");
-		} else {
-			auto h = getFirstHeader("Content-Length");
-			if(h == nullptr) {
-				addHeader("Content-Length", to_string(contentLength()));
-			}
-		}
-		send_buf << status_strings::status_head(status_) << "\r\n";
-		for(auto&& h : headerMap())
-			send_buf << h.name << ": " << h.value << "\r\n";
-		send_buf << "\r\n";
-		status_ = header_already_send;
+	if(connection() == nullptr)
+		return;
+	if(!chunked()) {	/**< 说明是第一次手动调用flush */
+		/** 由于是第一次调用，说明第一行并未发送 */
+		setChunked(); 
+		connection()->async_write(status_strings::status_head(status_) + "\r\n");
 	}
-
-	if(in().rdbuf()->in_avail()) {
-		if(chunked) {
-			send_buf << std::hex << contentLength() << "\r\n";
-			send_buf << in().rdbuf() << "\r\n";
-		} else {
-			send_buf << in().rdbuf();
-		}	
-	}
-
-	if(posttreat) 
-		posttreat(send_buf);
-
-	connection()->async_write(handle_write_error);
+	flushPackage(); 
 }
 
 Response::~Response() 
 {
+	if(connection() == nullptr)
+		return;
 	try {
-		if(status_) {		
-			flush(false);
+		if(!chunked()) {
+			connection()->async_write(status_strings::status_head(status_) + "\r\n");
+			if(status_ != ok && in().rdbuf()->in_avail() == 0)
+				out() << stock_replies::status_body(status_);
 		} else {
-			flush(true, [](std::ostream& os) { os << "0\r\n\r\n"; });
+			flushPackage();
+			connection()->async_write("0\r\n\r\n");
 		}
+		flushPackage();
 	} catch(std::exception& e) {
 		fprintf(stderr, "%s\n", e.what());
 	}

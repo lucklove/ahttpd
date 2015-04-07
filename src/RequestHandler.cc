@@ -17,10 +17,10 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
 	if(url_decode(req->path()) && url_decode(req->query())) {
 	  	if(!deliverRequest(req, rep))
-			rep->setStatus(Response::not_found);		
+			rep->status() = Response::not_found;
   	} else {
 		Log("WARNING") << "Bad request";
-		rep->setStatus(Response::bad_request);
+		rep->status() = Response::not_found;
 	}
 }
 
@@ -28,7 +28,7 @@ bool
 RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 {
 	std::tuple<std::string, RequestHandler*> best;
-	
+
 	for(auto handler : sub_handlers_) {
 		size_t cmp_size = std::get<0>(handler).size();
 		if(req->path().size() >= cmp_size && 

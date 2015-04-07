@@ -6,14 +6,16 @@ set(CMAKE_CXX_COMPILER g++)
 set(HTTPD_SRCS SHARED
 	src/package.cc
 	src/connection.cc 
-	src/request.cc
 	src/response.cc 
+	src/request.cc 
 	src/parser.cc 
 	src/ThreadPool.cc 
 	src/server.cc 
 	src/log.cc 
 	src/RequestHandler.cc 
 	src/SslConnection.cc 
+	src/client.cc
+	src/MimeType.cc
 )
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++1y -Wall -g -O0")
@@ -36,6 +38,8 @@ install(FILES
 	src/request.hh
 	src/response.hh
 	src/server.hh
+	src/client.hh
+	src/MimeType.hh
 	src/ThreadPool.hh
 	DESTINATION include/shttpd
 )

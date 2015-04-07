@@ -47,7 +47,7 @@ public:
 	 * \note 若回调为空则忽略。
 	 * \warning 回调的执行不提供顺序和并发安全保证。
 	 */
-	ThreadPool(size_t, const std::function<void()>& = {}, const std::function<void()>& = {});
+	ThreadPool(size_t, std::function<void()> = {}, std::function<void()> = {});
 
 	/**
 	 * \brief 析构：设置停止状态并等待所有执行中的线程结束。

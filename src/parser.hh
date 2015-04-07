@@ -11,4 +11,6 @@
  * 	第二个若第二个参数传入true,则表示正常解析，成型的Request通过第一个参数传入
  * 	否则，解析失败
  */ 	
-void parseRequest(RequestPtr req, const std::function<void(RequestPtr, bool)>& handler);
+void parseRequest(RequestPtr req, std::function<void(RequestPtr, bool)> handler);
+
+void parseResponse(ResponsePtr req, std::function<void(ResponsePtr, bool)> handler);

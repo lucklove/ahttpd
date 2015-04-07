@@ -9,18 +9,21 @@
 #include "header.hh"
 #include "ptrs.hh"
 
+#include "log.hh"
+
 class Server;
 
 class Package
 {
 public:
-	Package(Server *server, ConnectionPtr connection) :
-		server_(server), connection_(connection) {}
+	Package(ConnectionPtr connection) :
+		connection_(connection) {}
+	virtual ~Package() {}
 
-	virtual ~Package() = 0;
 	std::istream& in() { return body; }
 	std::ostream& out() { return body; }
 	ConnectionPtr connection() { return connection_; }
+	void discardConnection() { connection_.reset(); }
 
 	std::vector<std::string> getHeader(std::string h_name) {
 		std::vector<std::string> dst_header;
@@ -44,10 +47,8 @@ public:
 	}
 
 	void setHeader(const std::string h_name, const std::string& h_value) {
-		for(auto& h : headers) {
-			if(h.name == h_name)
-				h.value = h_value;
-		}
+		delHeader(h_name);
+		addHeader(h_name, h_value);
 	}
 
 	void delHeader(const std::string& h_name) {
@@ -59,6 +60,19 @@ public:
 
 	std::vector<header_t>& headerMap() { return headers; }
 
+	bool keepAlive() {		
+		std::string* connection_opt = getFirstHeader("Connection");
+		if(connection_opt) {
+			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0)
+				return true;
+		}
+		if(version() == "HTTP/1.1")
+			return true; 
+		return false;
+	}
+
+	virtual std::string& version() = 0;
+
 	size_t
 	contentLength()
 	{
@@ -69,13 +83,16 @@ public:
 		return res;
 	}
 protected:
-	Server *server_;
+	void setHeadLine(const std::string& headline) { headline_ = headline; }
+	bool chunked() { return chunked_; }
+	void setChunked() { chunked_ = true; }
+	void flushPackage();
 
 private:
-
+	bool chunked_ = false;
+	bool send_started_ = false;
 	std::vector<header_t> headers;
-
 	std::stringstream body;
-
-	ConnectionPtr connection_;	
+	ConnectionPtr connection_;
+	std::string headline_;
 };
