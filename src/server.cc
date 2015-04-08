@@ -132,7 +132,8 @@ Server::handleTcpAccept(const asio::error_code& ec)
 			std::bind(&Server::handleTcpAccept, 
 				this, std::placeholders::_1));
 	} else {
-		Log("ERROR") << ec.message();
+		if(ec != asio::error::operation_aborted)
+			Log("ERROR") << ec.message();
 	}
 }
 
@@ -152,7 +153,8 @@ Server::handleSslAccept(const asio::error_code& ec)
 				std::bind(&Server::handleSslAccept, this, std::placeholders::_1));
 		});
 	} else {
-		Log("ERROR") << ec.message();
+		if(ec != asio::error::operation_aborted)
+			Log("ERROR") << ec.message();
 	}
 }
 			

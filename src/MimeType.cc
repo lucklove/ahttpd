@@ -5,11 +5,22 @@ struct map_t {
 	const char* extension;
 	const char* mime_type;
 } maps[] = {
+	{ "css", "text/css" },
 	{ "gif", "image/gif" },
 	{ "htm", "text/html" },
 	{ "html", "text/html" },
 	{ "jpg", "image/jpeg" },
-	{ "png", "image/png" }
+	{ "png", "image/png" },
+	{ "js", "text/javascript" },
+	{ "oga", "audio/ogg" },
+	{ "ogg", "audio/ogg" },
+	{ "ogv", "video/ogg" },
+	{ "swf", "application/x-shockwave-flash" },
+	{ "mp4", "video/mp4" },
+	{ "mp3", "audio/mp3" },
+	{ "svg", "image/svg+xml" },
+	{ "webm", "video/webm" },
+	{ "xml", "application/xml" }
 };
 }
 
