@@ -1,4 +1,4 @@
-http server异步框架
+app server框架
 ===================
 
 ##当前特性
@@ -56,10 +56,8 @@ main(int argc, char *argv[])
 |------------|-----------------------------|----------------------------------|-----------------------------|
 | HelloWorld | 向客户端发送hello world	   | http://127.0.0.1:8888/HelloWorld |				    |
 |   echo     | 显示客户端请求包的详细信息  | http://127.0.0.1:8888/echo       |				    |
-| HttpsTest  |  https的示例		   | https://127.0.0.1:9999/HttpsTest |  需要输入创建密钥时的密码   |
+| HttpsTest  |    https的示例		   | https://127.0.0.1:9999/HttpsTest |  需要输入创建密钥时的密码   |
+|   client   |    异步客户端示例	   |				      |				    |
+|StaticServer|    静态文件服务器           | http://127.0.0.1:8888/[xxx]      |				    |
 
-##TODU LIST
-- 连接定时器: 指定时间内客户端无反应就断开
-
-##题外话
-- 任何pull request和issue都是受欢迎的，小issue也许能帮助别人解决大问题
+##人丑bug多，欢迎找茬
