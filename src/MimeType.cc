@@ -17,6 +17,7 @@ struct map_t {
 	{ "ogv", "video/ogg" },
 	{ "swf", "application/x-shockwave-flash" },
 	{ "mp4", "video/mp4" },
+	{ "flv", "video/x-flv" },
 	{ "mp3", "audio/mp3" },
 	{ "svg", "image/svg+xml" },
 	{ "webm", "video/webm" },

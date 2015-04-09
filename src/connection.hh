@@ -15,10 +15,9 @@
 #include "ptrs.hh"
 
 class Server;
+class ConnectionManager;
 
-/// Represents a single connection from a client.
-class Connection
-	: public std::enable_shared_from_this<Connection>
+class Connection : public std::enable_shared_from_this<Connection>
 {
 protected:
         template<typename _type>
@@ -43,11 +42,13 @@ protected:
 public:
 	Connection(const Connection&) = delete;
 	Connection& operator=(const Connection&) = delete;
-	Connection(asio::io_service& service) : service_(service), resolver_(service) {}	
+	Connection(asio::io_service& service) 
+		: service_(service), resolver_(service) {}	
 
 	virtual ~Connection() {};
 
-	virtual void stop() = 0;
+	virtual void stop() = 0; 
+
 	buffer_t& readBuffer() { return read_buffer_; }
 
 	virtual asio::ip::tcp::socket& nativeSocket() = 0;

@@ -25,7 +25,7 @@ Package::flushPackage()
 		if(chunked_) {
 			addHeader("Transfer-Encoding", "chunked");
 		} else {
-			auto h = getFirstHeader("Content-Length");
+			auto h = getHeader("Content-Length");
 			if(h == nullptr) {
 				addHeader("Content-Length", to_string(contentLength()));
 			}

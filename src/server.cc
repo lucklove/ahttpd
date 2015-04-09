@@ -107,7 +107,6 @@ Server::handleRequest(RequestPtr req)
 		if(good) {
 			if(req->keepAlive()) {
 				RequestPtr new_req = std::make_shared<Request>(req->connection());
-				assert(new_req.operator->() != req.operator->());
 				handleRequest(new_req);
 			}
 			thread_pool_.wait_to_enqueue([this](auto&&) {
@@ -176,7 +175,6 @@ Server::do_await_stop()
 {
 	signals_.async_wait([this](asio::error_code /*ec*/, int /*signo*/) {
 		Log("NOTE") << "BYE";
- 	      	tcp_acceptor_.close();
-        	ssl_acceptor_.close();
+		service_.stop();		/**< XXX:简单粗暴 */
       	});
 }

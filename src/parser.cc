@@ -119,9 +119,9 @@ template<typename Pac_t, typename Handle_t>
 void
 parse_body(Pac_t pac, Handle_t handler)
 {
-	auto h = pac->getFirstHeader("Content-Length");
+	auto h = pac->getHeader("Content-Length");
 	if(h == nullptr) {
-		auto h = pac->getFirstHeader("Transfer-Encoding");
+		auto h = pac->getHeader("Transfer-Encoding");
 		if(h != nullptr && strcasecmp(h->c_str(), "chunked")  == 0) {
 			read_chunked_body(pac, handler);
 		} else {

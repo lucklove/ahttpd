@@ -18,23 +18,24 @@ class Package
 public:
 	Package(ConnectionPtr connection) :
 		connection_(connection) {}
-	virtual ~Package() {}
+
+	virtual ~Package() {};
 
 	std::istream& in() { return body; }
 	std::ostream& out() { return body; }
 	ConnectionPtr connection() { return connection_; }
 	void discardConnection() { connection_.reset(); }
 
-	std::vector<std::string> getHeader(std::string h_name) {
+	std::vector<std::string> getHeaders(std::string h_name) {
 		std::vector<std::string> dst_header;
 		for(auto h : headers) {
 			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				dst_header.push_back(h.value);
 		}
-		return std::move(dst_header);
+		return dst_header;
 	}
 
-	std::string* getFirstHeader(std::string h_name) {
+	std::string* getHeader(std::string h_name) {
 		for(auto& h : headers) {
 			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				return &h.value;
@@ -61,10 +62,13 @@ public:
 	std::vector<header_t>& headerMap() { return headers; }
 
 	bool keepAlive() {		
-		std::string* connection_opt = getFirstHeader("Connection");
+		std::string* connection_opt = getHeader("Connection");
 		if(connection_opt) {
-			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0)
+			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) {
 				return true;
+			} else {
+				return false;
+			}
 		}
 		if(version() == "HTTP/1.1")
 			return true; 

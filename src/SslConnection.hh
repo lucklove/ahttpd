@@ -9,18 +9,16 @@
 #include <iostream>
 #include "connection.hh"
 
-#include "log.hh"
-
 class Server;
 
 class SslConnection : public Connection
 {
 public:
-	explicit SslConnection(asio::io_service& service, 
-		asio::ssl::context& context)
+	explicit SslConnection(asio::io_service& service, asio::ssl::context& context)
   		: Connection(service), socket_(service, context), ssl_shutdown_timer_(service)
 	{}
 	~SslConnection() {}
+
 	void stop() override;
 	socket_t socket() override { return socket_t{ &socket_ }; }
 	asio::ip::tcp::socket& nativeSocket() override { return socket_.next_layer(); }

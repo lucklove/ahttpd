@@ -20,17 +20,18 @@ SslConnection::stopNextLayer(const asio::error_code& ec)
 {
 	ssl_shutdown_timer_.cancel();
 	if(ec) {
-		/**< TODO:记录错误信息 */
+		Log("ERROR") << ec.message();
 	}
 	
 	try {
 		if(nativeSocket().is_open()) {
 			asio::error_code ignored_ec;
+			nativeSocket().cancel();
 			nativeSocket().shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
 			nativeSocket().close();
 		}
 	} catch(asio::system_error& e) {
-		/**< TODO:记录错误信息 */
+		Log("ERROR") << e.what();
 	}
 }		
 

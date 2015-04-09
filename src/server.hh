@@ -9,8 +9,6 @@
 #include "ThreadPool.hh"
 #include "ptrs.hh"
 
-#include "log.hh"
-
 namespace asio {
 namespace ssl {
 class context; 

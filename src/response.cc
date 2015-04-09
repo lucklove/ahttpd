@@ -6,42 +6,50 @@
 #include <exception>
 #include <cstdio>
 
-#define PARSE_STATUS(ststus)				\
-	switch (status) {				\
-		case Response::ok:			\
-    			return ok;			\
-  		case Response::created:			\
-    			return created;			\
-  		case Response::accepted:		\
-    			return accepted;		\
-  		case Response::no_content:		\
-    			return no_content;		\
-  		case Response::multiple_choices:	\
-    			return multiple_choices;	\
-  		case Response::moved_permanently:	\
-    			return moved_permanently;	\
-  		case Response::moved_temporarily:	\
-    			return moved_temporarily;	\
-  		case Response::not_modified:		\
-    			return not_modified;		\
-  		case Response::bad_request:		\
-    			return bad_request;		\
-  		case Response::unauthorized:		\
-    			return unauthorized;		\
-  		case Response::forbidden:		\
-   	 		return forbidden;		\
-  		case Response::not_found:		\
-    			return not_found;		\
-  		case Response::internal_server_error:	\
-    			return internal_server_error;	\
-  		case Response::not_implemented:		\
-    			return not_implemented;		\
-  		case Response::bad_gateway:		\
-    			return bad_gateway;		\
-  		case Response::service_unavailable:	\
-    			return service_unavailable;	\
-  		default:				\
-    			return internal_server_error;	\
+#define PARSE_STATUS(ststus)						\
+	switch (status) {						\
+		case Response::ok:					\
+    			return ok;					\
+  		case Response::created:					\
+    			return created;					\
+  		case Response::accepted:				\
+    			return accepted;				\
+  		case Response::non_authoritative_information:		\
+    			return non_authoritative_information;		\
+  		case Response::no_content:				\
+    			return no_content;				\
+  		case Response::reset_content:				\
+    			return reset_content;				\
+  		case Response::partial_content:				\
+    			return partial_content;				\
+  		case Response::muti_status:				\
+    			return muti_status;				\
+  		case Response::multiple_choices:			\
+    			return multiple_choices;			\
+  		case Response::moved_permanently:			\
+    			return moved_permanently;			\
+  		case Response::moved_temporarily:			\
+    			return moved_temporarily;			\
+  		case Response::not_modified:				\
+    			return not_modified;				\
+  		case Response::bad_request:				\
+    			return bad_request;				\
+  		case Response::unauthorized:				\
+    			return unauthorized;				\
+  		case Response::forbidden:				\
+   	 		return forbidden;				\
+  		case Response::not_found:				\
+    			return not_found;				\
+  		case Response::internal_server_error:			\
+    			return internal_server_error;			\
+  		case Response::not_implemented:				\
+    			return not_implemented;				\
+  		case Response::bad_gateway:				\
+    			return bad_gateway;				\
+  		case Response::service_unavailable:			\
+    			return service_unavailable;			\
+  		default:						\
+    			return internal_server_error;			\
   	}
 
 namespace status_strings {
@@ -52,8 +60,16 @@ const char created[] =
 	"HTTP/1.1 201 Created";
 const char accepted[] =
 	"HTTP/1.1 202 Accepted";
+const char non_authoritative_information[] =
+	"HTTP/1.1 203 Non-Authoritative Information";
 const char no_content[] =
 	"HTTP/1.1 204 No Content";
+const char reset_content[] =
+	"HTTP/1.1 205 Reset Content";
+const char partial_content[] =
+	"HTTP/1.1 206 Partial Content";
+const char muti_status[] =
+	"HTTP/1.1 207 Muti Status";
 const char multiple_choices[] =
 	"HTTP/1.1 300 Multiple Choices";
 const char moved_permanently[] =
@@ -100,10 +116,30 @@ const char accepted[] =
   "<head><title>Accepted</title></head>"
   "<body><h1>202 Accepted</h1></body>"
   "</html>";
+const char non_authoritative_information[] =
+  "<html>"
+  "<head><title>Non-Authoritative Information</title></head>"
+  "<body><h1>203 Non-Authoritative Information</h1></body>"
+  "</html>";
 const char no_content[] =
   "<html>"
   "<head><title>No Content</title></head>"
   "<body><h1>204 Content</h1></body>"
+  "</html>";
+const char reset_content[] =
+  "<html>"
+  "<head><title>Reset Content</title></head>"
+  "<body><h1>205 Reset Content</h1></body>"
+  "</html>";
+const char partial_content[] =
+  "<html>"
+  "<head><title>Partial Content</title></head>"
+  "<body><h1>206 Partial Content</h1></body>"
+  "</html>";
+const char muti_status[] =
+  "<html>"
+  "<head><title>Muti Status</title></head>"
+  "<body><h1>207 Muti Status</h1></body>"
   "</html>";
 const char multiple_choices[] =
   "<html>"
