@@ -1,5 +1,4 @@
 #include "client.hh"
-#include "log.hh"
 #include "parser.hh"
 #include "response.hh"
 #include "request.hh"
@@ -22,17 +21,23 @@ Client::request(const std::string& method, const std::string& url,
 	std::function<void(ResponsePtr, bool)> res_handler,
 	std::function<void(RequestPtr, bool)> req_handler)
 {
-	std::string scheme = "http";
-	std::string host;
-	std::string path = "/";
-	static const std::regex url_reg("((http|https)(://))?(((?![/\\?])[[:print:]])*)([[:print:]]+)?");
+	static const std::regex url_reg("((http|https)(://))?((((?!@)[[:print:]])*)@)?"
+		"(((?![/\\?])[[:print:]])*)([[:print:]]+)?");	/**< http://user:pass@server:port/path?query */
 	std::smatch results;
 	if(std::regex_search(url, results, url_reg)) {
+		std::string scheme = "http";
 		if(results[2].matched) 
-			scheme = results.str(2);
-		host = results.str(4);
-		if(results[6].matched)
-			path = results.str(6);
+			scheme = results.str(2);	
+
+		std::string auth{};
+		if(results[5].matched)
+			auth = results.str(5);
+
+		std::string host = results.str(7);
+
+		std::string path = "/";
+		if(results[9].matched)
+			path = results.str(9);
 		if(path[0] != '/')
 			path = "/" + path;
 		std::string port = scheme;
@@ -64,13 +69,15 @@ Client::request(const std::string& method, const std::string& url,
 				req->version() = "HTTP/1.1";
 				req->addHeader("Host", host);
 				req->addHeader("Connection", "close");
+				if(auth != "")
+					req->basicAuth(auth);
+
 				req_handler(req, true);
 				parseResponse(res, [=](ResponsePtr res, bool good) {
 					res->discardConnection();
 					if(good) {
 						res_handler(res, true);
 					} else {
-						Log(__FILE__) << __LINE__;
 						res_handler(res, false);
 					}
 				});

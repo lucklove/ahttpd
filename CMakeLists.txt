@@ -2,7 +2,7 @@ project(shttpd)
 cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_COMPILER clang++)
 set(HTTPD_SRCS SHARED
 	src/package.cc
 	src/connection.cc 
@@ -16,6 +16,7 @@ set(HTTPD_SRCS SHARED
 	src/SslConnection.cc 
 	src/client.cc
 	src/MimeType.cc
+	src/base64.cc
 )
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++1y -Wall -g -O0")
@@ -41,5 +42,6 @@ install(FILES
 	src/client.hh
 	src/MimeType.hh
 	src/ThreadPool.hh
+	src/base64.hh
 	DESTINATION include/shttpd
 )

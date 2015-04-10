@@ -1,5 +1,7 @@
 #include "request.hh"
 #include "connection.hh"
+#include "base64.hh"
+#include <regex>
 
 void
 Request::flush()
@@ -19,6 +21,28 @@ Request::flush()
 		}
 	}
 	flushPackage();
+}
+
+std::string
+Request::basicAuthInfo()
+{
+	auto auth = getHeader("Authorization"); 
+	if(auth) {
+		static const std::regex basic_auth_reg("[Bb]asic ([[:print:]]*)");
+		std::smatch results;
+		if(std::regex_search(*auth, results, basic_auth_reg)) {
+			return Base64::decode(results.str(1));
+		} else {
+			return {};
+		}
+	}
+	return {};
+}
+
+void
+Request::basicAuth(const std::string& auth)
+{
+	setHeader("Authorization", "Basic " + Base64::encode(auth));
 }
 
 Request::~Request()

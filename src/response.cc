@@ -224,6 +224,7 @@ Response::flush()
 	flushPackage(); 
 }
 
+
 Response::~Response() 
 {
 	if(connection() == nullptr)

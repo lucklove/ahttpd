@@ -43,7 +43,9 @@ public :
 	std::string& version() override { return version_; }
 
 	void flush();
-	
+	void basicAuth(const std::string& auth);
+	std::string basicAuthInfo();
+
 private:
 	std::string method_;
 	std::string path_;
