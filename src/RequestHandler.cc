@@ -16,8 +16,12 @@ void
 RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
 	if(url_decode(req->path()) && url_decode(req->query())) {
-	  	if(!deliverRequest(req, rep))
-			rep->status() = Response::not_found;
+		try {
+	 	 	if(!deliverRequest(req, rep))
+				rep->status() = Response::not_found;
+		} catch(std::exception& e) {
+			Log("WARNING") << "EXCEPTION FROM USER HANDLER: " << e.what();
+		}
   	} else {
 		Log("WARNING") << "Bad request";
 		rep->status() = Response::not_found;

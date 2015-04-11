@@ -31,7 +31,11 @@ main(int argc, char* argv[])
 	try {
 		asio::io_service io_service;
 		Server server(io_service, "8888");			/**< 在8888端口监听 */
-		server.addHandler("/", new StaticServer(&server));
+		if(argc == 1) {
+			server.addHandler("/", new StaticServer(&server));
+		} else {
+			server.addHandler("/", new StaticServer(&server, argv[1]));
+		}
 		server.run(10);						/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {
 		std::cerr << "exception: " << e.what() << "\n";

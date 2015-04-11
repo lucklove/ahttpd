@@ -43,5 +43,6 @@ install(FILES
 	src/MimeType.hh
 	src/ThreadPool.hh
 	src/base64.hh
+	src/exception.hh
 	DESTINATION include/shttpd
 )
