@@ -1,9 +1,11 @@
 language: cpp
 
+install: sudo apt-get install gcc-4.9
+
+before_script: sudo apt-get install libasio-dev
+
 script: 
         - mkdir build
         - cd build
         - cmake ..
         - make
-
-before_script: sudo apt-get install libasio-dev
