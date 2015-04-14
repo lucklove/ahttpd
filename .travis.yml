@@ -4,7 +4,9 @@ install:
         - if [ "$CXX" == "clang++" ]; then .travis_scripts/clang.sh; fi
         - if [ "$CXX" == "g++"     ]; then .travis_scripts/gcc.sh; fi
 
-before_script: sudo apt-get install libasio-dev
+before_script: 
+        - sudo apt-get install -qq boost1.55
+        - sudo apt-get install -qq libasio-dev1.10
 
 script: 
         - mkdir build
