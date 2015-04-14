@@ -5,7 +5,7 @@ install:
         - if [ "$CXX" == "g++"     ]; then .travis_scripts/gcc.sh; fi
 
 before_script: 
-        - sudo apt-get install libboost-all-dev
+        - sudo apt-get install libboost-asio-dev
         - .travis_scripts/asio.sh
 
 script: 
