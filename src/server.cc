@@ -58,7 +58,7 @@ Server::Server(asio::io_service& service,
 		int sslOptions = asio::ssl::context::default_workarounds
 			| asio::ssl::context::no_sslv2
 			| asio::ssl::context::single_dh_use;
-		ssl_context_ = new asio::ssl::context(service, asio::ssl::context::sslv23);
+		ssl_context_ = new asio::ssl::context(asio::ssl::context::sslv23);
 		ssl_context_->set_options(sslOptions);
 		ssl_context_->set_verify_mode(asio::ssl::context::verify_none);
 		ssl_context_->load_verify_file("server.csr");
