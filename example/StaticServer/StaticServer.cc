@@ -29,8 +29,7 @@ int
 main(int argc, char* argv[])
 {
 	try {
-		asio::io_service io_service;
-		Server server(io_service, "8888");			/**< 在8888端口监听 */
+		Server server("8888", "9999");		
 		if(argc == 1) {
 			server.addHandler("/", new StaticServer(&server));
 		} else {

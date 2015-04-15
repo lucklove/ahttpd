@@ -50,6 +50,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 	pac->connection()->async_read_until("\n",
 		[=](const asio::error_code& err, size_t) {
 			if(err) {
+				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << err.message();
 				handler(pac, false);
 				return;
@@ -67,8 +68,10 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 					[=](const asio::error_code& err, size_t n) {
 						if(err || static_cast<int>(n) != need_read /**< 避免警告 */
 							|| length > 1024 * 1024) {
-							if(err)
+							if(err) {
+								Log("DEBUG") << __FILE__ << ":" << __LINE__;
 								Log("ERROR") << err.message();
+							}
 							if(static_cast<int>(n) != need_read)
 								Log("ERROR") << "BUFFER HUNGERY";
 							if(length > 1024 * 1024)
@@ -95,6 +98,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			pac->connection()->async_read_until("\n",
 				[=](const asio::error_code& err, size_t n) {
 					if(err) {
+						Log("DEBUG") << __FILE__ << ":" << __LINE__;
 						Log("ERROR") << err.message();
 						if(length != 0)
 						handler(pac, false);
@@ -201,6 +205,7 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)
 	res->connection()->async_read_until("\n", 
 		[=](const asio::error_code& err, size_t n) {
 			if(err) {
+				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << err.message();
 				handler(res, false);
 				return;

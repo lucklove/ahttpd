@@ -1,0 +1,6 @@
+http1.1和http1.0的区别
+1. http1.1默认(在header中未出现Connection头的情况下)为持久连接, http1.0反之(仅当出现Connection: keep-alive时才保持连接)
+2. http1.1支持Range请求，支持chunked等特性
+3. http1.1可以实现管道连接(一个浏览器通过一个管道发送多次请求)
+4. http1.1支持跟多的method(比如OPTIONS)
+5. http1.1增加了跟多的状态码

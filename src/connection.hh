@@ -61,6 +61,7 @@ public:
 			[=, ptr = shared_from_this()](const asio::error_code& err,
 				asio::ip::tcp::resolver::iterator endpoint_iterator) {
 				if(err) {
+					Log("DEBUG") << __FILE__ << ":" << __LINE__;
 					Log("ERROR") << err.message();
 					handler(nullptr, false);
 				} else {
@@ -83,6 +84,7 @@ public:
 		std::function<void(const asio::error_code&, size_t)> handler =
 			[](const asio::error_code& e, size_t n) {
 				if(e) {
+					Log("DEBUG") << __FILE__ << ":" << __LINE__;
 					Log("ERROR") << "WRITE ERROR:" << e.message() << ", "
 						<< n << " bytes writen";
 				}

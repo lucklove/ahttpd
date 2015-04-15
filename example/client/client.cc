@@ -6,9 +6,7 @@
 int 
 main(int argc, char* argv[])
 {
-	asio::io_service io_service;
-
-	Client c(io_service);
+	Client c;
 	if(argc < 3) {
 		std::cout << "useage: client method url [body]" << std::endl;
 		return 0;
@@ -29,7 +27,7 @@ main(int argc, char* argv[])
 				}
 			}
 		);
-		io_service.run();
+		c.run();
 	} catch(std::exception& e) {
 		std::cout << e.what() << std::endl;
 	}

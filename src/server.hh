@@ -1,6 +1,5 @@
 #pragma once
 
-#include <asio.hpp>
 #include <string>
 #include <istream>
 #include "RequestHandler.hh"
@@ -10,15 +9,19 @@
 #include "ptrs.hh"
 
 namespace asio {
-namespace ssl {
-class context; 
-}
-}
+class io_service;
+};
+
+class ServerImpl;
 
 class Server {
 public:
 	Server(const Server&) = delete;
 	Server& operator=(const Server&) = delete;
+
+	explicit Server(const std::string& http_port = "",
+			const std::string& https_port = "",
+			size_t thread_pool_size = 10);
 
 	explicit Server(asio::io_service& service,
 			const std::string& http_port = "",
@@ -43,38 +46,18 @@ public:
 		return service_;
 	}
 	
-	void post(std::function<void(void)> func) {
-		service_.post(func);
-	}
-	
 	template<typename _fCallable, typename... _tParams>
 	auto enqueue(_fCallable&& f, _tParams&&... args) {
 		return thread_pool_.enqueue(std::forward<_fCallable>(f), std::forward<_tParams>(args)...);
 	}
 private:
+	std::shared_ptr<ServerImpl> pimpl_;
 	asio::io_service& service_;
-
-	asio::signal_set signals_;
-
-	asio::ip::tcp::acceptor tcp_acceptor_;
-
-	asio::ip::tcp::acceptor ssl_acceptor_;
-
+	std::shared_ptr<asio::io_service> service_holder_;
 	RequestHandler request_handler_;
-
-	TcpConnectionPtr new_tcp_connection_;
-
-	SslConnectionPtr new_ssl_connection_;
-
-	asio::ssl::context* ssl_context_;
-
 	size_t thread_pool_size_;
-	
 	ThreadPool thread_pool_;
-
 	void startAccept();
 	void do_await_stop();
-	void handleTcpAccept(const asio::error_code& ec);
-	void handleSslAccept(const asio::error_code& ec);
 	void handleRequest(RequestPtr req);
 };

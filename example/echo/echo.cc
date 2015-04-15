@@ -31,8 +31,7 @@ int
 main(int argc, char* argv[])
 {
 	try {
-		asio::io_service io_service;
-		Server server(io_service, "8888");			/**< 在8888端口监听 */
+		Server server("8888");					/**< 在8888端口监听 */
 		server.addHandler("/echo", new EchoHandler(&server));	/**< 路径为/echo */
 		server.run(10);						/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {

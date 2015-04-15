@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <asio.hpp>
 #include <sstream>
 #include "header.hh"
 #include "package.hh"

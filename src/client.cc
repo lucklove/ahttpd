@@ -14,7 +14,19 @@ Client::Client(asio::io_service& service)
 	ssl_context_->set_default_verify_paths();
 }
 	
+Client::Client()
+ 	: Client(*(new asio::io_service()))
+{
+	service_holder_.reset(&service_);
+}
+
 Client::~Client() { delete ssl_context_; }
+
+void
+Client::run()
+{
+	service_.run();
+}
 
 void
 Client::request(const std::string& method, const std::string& url,
