@@ -44,8 +44,7 @@ struct TestHandler : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-	asio::io_service io_service;
-	Server server(io_service, "8888");
+	Server server("8888");
 	server.addHandler("/", new TestHandler(&server));
 	server.run();
 }

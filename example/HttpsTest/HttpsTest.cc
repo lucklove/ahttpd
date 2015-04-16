@@ -10,8 +10,7 @@ struct HttpsTest : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-    asio::io_service io_service;
-    Server server(io_service, "", "9999");	/**< 使用9999监听https报文，并且不打开http端口(第二个参数为"") */
+    Server server("", "9999");	/**< 使用9999监听https报文，并且不打开http端口(第一个端口个参数为"") */
     server.addHandler("/HttpsTest", new HttpsTest(&server));
     server.run();
 }
