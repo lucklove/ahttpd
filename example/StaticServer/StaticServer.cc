@@ -3,7 +3,6 @@
 #include <fstream>
 #include <regex>
 #include <algorithm>
-#include <pthread.h>
 
 void
 StaticServer::handleRequest(RequestPtr req, ResponsePtr res) 
@@ -22,9 +21,11 @@ StaticServer::handleRequest(RequestPtr req, ResponsePtr res)
 		res->status() = Response::not_found;
 		return;
 	}
-	res->setMimeType(guessMimeType(file_name));
+	std::string mime = guessMimeType(file_name);
+	if(mime == "text/plain")
+		mime += "; charset='utf-8'";
+	res->setMimeType(mime);
 	res->out() << file.rdbuf();
-	Log("DEBUG") << pthread_self();
 }
 
 int 
