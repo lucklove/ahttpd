@@ -5,15 +5,16 @@
 #include "ptrs.hh"
 #include "log.hh"
 
-namespace asio { namespace ssl {
+namespace boost { namespace asio { namespace ssl {
 class context;
 }
 class io_service;
 }
+}
 
 class Client {
 public:
-	Client(asio::io_service& io_service);
+	Client(boost::asio::io_service& io_service);
 	Client();
 
 	~Client();
@@ -26,8 +27,8 @@ public:
 
 	void run();
 private:
-	asio::io_service& service_;
-	std::shared_ptr<asio::io_service> service_holder_;
-	asio::ssl::context* ssl_context_;
+	boost::asio::io_service& service_;
+	std::shared_ptr<boost::asio::io_service> service_holder_;
+	boost::asio::ssl::context* ssl_context_;
 };
 	
