@@ -32,14 +32,15 @@ class ServerImpl {
 	friend class Server;
 public:
 	ServerImpl(asio::io_service& service) 
-		: service_(service), signals_(service), tcp_acceptor_(service), ssl_acceptor_(service)
+		: service_(service), signals_(service), tcp_acceptor_(service), 
+		ssl_acceptor_(service), ssl_context_(asio::ssl::context::sslv23)
 	{}
 private:
 	asio::io_service& service_;
 	asio::signal_set signals_;
 	asio::ip::tcp::acceptor tcp_acceptor_;
 	asio::ip::tcp::acceptor ssl_acceptor_;
-	asio::ssl::context* ssl_context_;
+	asio::ssl::context ssl_context_;
 	TcpConnectionPtr new_tcp_connection_;
 	SslConnectionPtr new_ssl_connection_;
 
@@ -74,7 +75,7 @@ ServerImpl::handleSslAccept(std::function<void(RequestPtr)> request_handler, con
 				RequestPtr req = std::make_shared<Request>(new_ssl_connection_);
 				request_handler(req);
 			}
-			new_ssl_connection_.reset(new SslConnection(service_, *ssl_context_));
+			new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
 			ssl_acceptor_.async_accept(new_ssl_connection_->nativeSocket(),
 				std::bind(&ServerImpl::handleSslAccept, this, 
 				request_handler, std::placeholders::_1));
@@ -87,9 +88,9 @@ ServerImpl::handleSslAccept(std::function<void(RequestPtr)> request_handler, con
 			
 Server::Server(const std::string& http_port, const std::string& https_port, size_t thread_pool_size)
 	: Server(*(new asio::io_service()), http_port, https_port, thread_pool_size)
-	{
-		service_holder_.reset(&service_);	
-	}
+{
+	service_holder_.reset(&service_);	
+}
 
 Server::Server(asio::io_service& service, 
 	const std::string& http_port, const std::string& https_port,
@@ -119,15 +120,14 @@ Server::Server(asio::io_service& service,
 		int sslOptions = asio::ssl::context::default_workarounds
 			| asio::ssl::context::no_sslv2
 			| asio::ssl::context::single_dh_use;
-		pimpl_->ssl_context_ = new asio::ssl::context(asio::ssl::context::sslv23);
-		pimpl_->ssl_context_->set_options(sslOptions);
-		pimpl_->ssl_context_->set_verify_mode(asio::ssl::context::verify_none);
-		pimpl_->ssl_context_->load_verify_file("server.csr");
-		pimpl_->ssl_context_->use_certificate_chain_file("server.crt");
-		pimpl_->ssl_context_->use_private_key_file("server.key",
+		pimpl_->ssl_context_.set_options(sslOptions);
+		pimpl_->ssl_context_.set_verify_mode(asio::ssl::context::verify_none);
+		pimpl_->ssl_context_.load_verify_file("server.csr");
+		pimpl_->ssl_context_.use_certificate_chain_file("server.crt");
+		pimpl_->ssl_context_.use_private_key_file("server.key",
 			 asio::ssl::context::pem);
-		pimpl_->ssl_context_->use_tmp_dh_file("server.dh");
-		SSL_CTX *native_ctx = pimpl_->ssl_context_->native_handle();
+		pimpl_->ssl_context_.use_tmp_dh_file("server.dh");
+		SSL_CTX *native_ctx = pimpl_->ssl_context_.native_handle();
 		std::string sessionId = generateId(SSL_MAX_SSL_SESSION_ID_LENGTH);
 		SSL_CTX_set_session_id_context(native_ctx,
 			reinterpret_cast<const unsigned char *>(sessionId.c_str()), sessionId.size());
@@ -137,7 +137,7 @@ Server::Server(asio::io_service& service,
 		pimpl_->ssl_acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 		pimpl_->ssl_acceptor_.bind(ssl_endpoint);
 		pimpl_->ssl_acceptor_.listen();
-		pimpl_->new_ssl_connection_.reset(new SslConnection(service_, *pimpl_->ssl_context_));
+		pimpl_->new_ssl_connection_.reset(new SslConnection(service_, pimpl_->ssl_context_));
 	}
 
 	startAccept();

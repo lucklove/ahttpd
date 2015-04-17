@@ -32,13 +32,13 @@ int
 main(int argc, char* argv[])
 {
 	try {
-		Server server("8888", "9999", 1);		
+		Server server("8888", "9999");		
 		if(argc == 1) {
 			server.addHandler("/", new StaticServer(&server));
 		} else {
 			server.addHandler("/", new StaticServer(&server, argv[1]));
 		}
-		server.run();						/**< 给io_service 10个线程 */
+		server.run(10);						/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {
 		std::cerr << "exception: " << e.what() << "\n";
 	}
