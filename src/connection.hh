@@ -15,7 +15,6 @@
 #include "ptrs.hh"
 
 class Server;
-class ConnectionManager;
 
 class Connection : public std::enable_shared_from_this<Connection>
 {

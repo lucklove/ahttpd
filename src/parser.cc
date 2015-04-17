@@ -230,47 +230,35 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)
 
 }
 
+#define PARSE(package, pac)						\
+do {									\
+	parse_##package##_first_line(pac,				\
+		[=](decltype(pac) pac, bool good) {			\
+			if(!good) {					\
+				handler(pac, false);			\
+				return;					\
+			}						\
+			parse_headers(pac,				\
+				[=](decltype(pac) pac, bool good) {	\
+					if(!good) {			\
+						handler(pac, false);	\
+						return;			\
+					}				\
+					parse_body(pac, handler);	\
+				}					\
+			);						\
+		}							\
+	);								\
+} while(0)
+		
 void
 parseRequest(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
-	parse_request_first_line(req, 
-		[=](RequestPtr req, bool good) {
-			if(!good) {
-				handler(req, false);
-				return;
-			}
-			parse_headers(req,
-				[=](RequestPtr req, bool good) {
-					if(!good) {
-						handler(req, false);
-						return;
-					}				
-					parse_body(req, handler);
-				}
-			);
-		}
-	);	
-						
+	PARSE(request, req);
 }
 
 void
 parseResponse(ResponsePtr res, std::function<void(ResponsePtr, bool)> handler)
 {
-	parse_response_first_line(res, 
-		[=](ResponsePtr res, bool good) {
-			if(!good) {
-				handler(res, false);
-				return;
-			}
-			parse_headers(res,
-				[=](ResponsePtr res, bool good) {
-					if(!good) {
-						handler(res, false);
-						return;
-					}				
-					parse_body(res, handler);
-				}
-			);
-		}
-	);	
+	PARSE(response, res);
 }

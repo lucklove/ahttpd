@@ -5,7 +5,7 @@ app server框架
 http/https支持
 
 ##依赖
-- asio  
+- boost.asio  
 - C++1y  
 - openssl(https需要)  
 

@@ -1,8 +1,9 @@
 #!/bin/bash
 
-wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/travis/gcc_4.9.1-1_amd64.deb
+wget http://mirrors.kernel.org/ubuntu/pool/main/g/gcc-defaults-arm64-cross/gcc-aarch64-linux-gnu_4.9.2-2_amd64.deb
+#wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/travis/gcc_4.9.1-1_amd64.deb
 sudo apt-get remove cpp libffi-dev
-sudo dpkg --install gcc_4.9.1-1_amd64.deb
+sudo dpkg --install gcc_4.9.2-2_amd64.deb
 
 echo "BEGIN Eliminating old libstdc++"
 sudo rm /usr/lib/gcc/i586-mingw32msvc/4.2.1-sjlj/libstdc++.a

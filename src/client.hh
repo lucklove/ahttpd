@@ -16,7 +16,6 @@ class Client {
 public:
 	Client(boost::asio::io_service& io_service);
 	Client();
-
 	~Client();
 
 	void request(const std::string& method, const std::string& url,
