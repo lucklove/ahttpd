@@ -5,8 +5,7 @@ install:
         - if [ "$CXX" == "g++"     ]; then .travis_scripts/gcc.sh; fi
 
 before_script: 
-        - sudo apt-get install libboost-asio-dev
-        - .travis_scripts/asio.sh
+        - sudo apt-get install libboost-system1.48-dev -y
 
 script: 
         - mkdir build
