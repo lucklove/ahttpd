@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lucklove/shttpd.svg?branch=master)](https://travis-ci.org/lucklove/shttpd)
+
 app server框架
 ===================
 
@@ -7,7 +9,7 @@ http/https支持
 ##依赖
 - boost.asio  
 - C++1y  
-- openssl(https需要)  
+- libssl(https需要)  
 
 ##编译-安装
 - cd shttpd  
