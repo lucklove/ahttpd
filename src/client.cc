@@ -23,7 +23,7 @@ Client::Client()
 Client::~Client() { delete ssl_context_; }
 
 void
-Client::run()
+Client::apply()
 {
 	service_.run();
 }

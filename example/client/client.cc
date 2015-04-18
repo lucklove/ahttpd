@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 				}
 			}
 		);
-		c.run();
+		c.apply();
 	} catch(std::exception& e) {
 		std::cout << e.what() << std::endl;
 	}

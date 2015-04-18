@@ -24,10 +24,9 @@ public:
 			[](RequestPtr req, bool good) {}
 	);
 
-	void run();
+	void apply();
 private:
 	boost::asio::io_service& service_;
 	std::shared_ptr<boost::asio::io_service> service_holder_;
 	boost::asio::ssl::context* ssl_context_;
 };
-	
