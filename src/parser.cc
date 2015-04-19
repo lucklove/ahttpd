@@ -3,7 +3,7 @@
 #include "log.hh"
 #include "connection.hh"
 #include <regex>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <iostream>
 
 namespace {
@@ -22,7 +22,7 @@ void
 parse_headers(Pac_t pac, Handle_t handler)
 {
 	pac->connection()->async_read_until("\n",
-		[=](const asio::error_code& err, size_t) {
+		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
 				handler(pac, false);
 				return;
@@ -48,7 +48,7 @@ void
 read_chunked_body(Pac_t pac, Handle_t handler)
 {
 	pac->connection()->async_read_until("\n",
-		[=](const asio::error_code& err, size_t) {
+		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << err.message();
@@ -64,8 +64,8 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			size_t already_read = pac->connection()->readBuffer().in_avail();
 			int need_read = length - already_read;
 			if(need_read > 0) {
-				pac->connection()->async_read(asio::transfer_exactly(need_read),
-					[=](const asio::error_code& err, size_t n) {
+				pac->connection()->async_read(boost::asio::transfer_exactly(need_read),
+					[=](const boost::system::error_code& err, size_t n) {
 						if(err || static_cast<int>(n) != need_read /**< 避免警告 */
 							|| length > 1024 * 1024) {
 							if(err) {
@@ -96,7 +96,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			}
 
 			pac->connection()->async_read_until("\n",
-				[=](const asio::error_code& err, size_t n) {
+				[=](const boost::system::error_code& err, size_t n) {
 					if(err) {
 						Log("DEBUG") << __FILE__ << ":" << __LINE__;
 						Log("ERROR") << err.message();
@@ -154,8 +154,8 @@ parse_body(Pac_t pac, Handle_t handler)
 			return;
 		}
 
-		pac->connection()->async_read(asio::transfer_exactly(need_read),
-			[=](const asio::error_code& err, size_t n) {
+		pac->connection()->async_read(boost::asio::transfer_exactly(need_read),
+			[=](const boost::system::error_code& err, size_t n) {
 				if(err || static_cast<int>(n) != need_read) {	/**< 避免警告 */
 					handler(pac, false);
 					return;
@@ -171,7 +171,7 @@ void
 parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
 	req->connection()->async_read_until("\n", 
-		[req, handler](const asio::error_code& err, size_t n) {
+		[req, handler](const boost::system::error_code& err, size_t n) {
 			if(err) {
 				handler(req, false);
 				return;
@@ -203,7 +203,7 @@ void
 parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)> handler)
 {
 	res->connection()->async_read_until("\n", 
-		[=](const asio::error_code& err, size_t n) {
+		[=](const boost::system::error_code& err, size_t n) {
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << err.message();
@@ -230,47 +230,35 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)
 
 }
 
+#define PARSE(package, pac)						\
+do {									\
+	parse_##package##_first_line(pac,				\
+		[=](decltype(pac) pac, bool good) {			\
+			if(!good) {					\
+				handler(pac, false);			\
+				return;					\
+			}						\
+			parse_headers(pac,				\
+				[=](decltype(pac) pac, bool good) {	\
+					if(!good) {			\
+						handler(pac, false);	\
+						return;			\
+					}				\
+					parse_body(pac, handler);	\
+				}					\
+			);						\
+		}							\
+	);								\
+} while(0)
+		
 void
 parseRequest(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
 {
-	parse_request_first_line(req, 
-		[=](RequestPtr req, bool good) {
-			if(!good) {
-				handler(req, false);
-				return;
-			}
-			parse_headers(req,
-				[=](RequestPtr req, bool good) {
-					if(!good) {
-						handler(req, false);
-						return;
-					}				
-					parse_body(req, handler);
-				}
-			);
-		}
-	);	
-						
+	PARSE(request, req);
 }
 
 void
 parseResponse(ResponsePtr res, std::function<void(ResponsePtr, bool)> handler)
 {
-	parse_response_first_line(res, 
-		[=](ResponsePtr res, bool good) {
-			if(!good) {
-				handler(res, false);
-				return;
-			}
-			parse_headers(res,
-				[=](ResponsePtr res, bool good) {
-					if(!good) {
-						handler(res, false);
-						return;
-					}				
-					parse_body(res, handler);
-				}
-			);
-		}
-	);	
+	PARSE(response, res);
 }

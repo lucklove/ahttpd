@@ -3,7 +3,7 @@
 #define ASYNC_APPLY(op, func, ...)							\
 enqueue##op([=, ptr = shared_from_this()] {						\
 	socket_t sock = socket();							\
-	auto handle = [this, handler, ptr](const asio::error_code& e, size_t n) {	\
+	auto handle = [this, handler, ptr](const boost::system::error_code& e, size_t n) {	\
 		handler(e, n);								\
 		dequeue##op();								\
 	};										\
@@ -18,22 +18,22 @@ enqueue##op([=, ptr = shared_from_this()] {						\
 })
 
 void 
-Connection::async_read(result_of_t<decltype(&asio::transfer_exactly)(size_t)> completion,
-	std::function<void(const asio::error_code &, size_t)> handler) 
+Connection::async_read(result_of_t<decltype(&boost::asio::transfer_exactly)(size_t)> completion,
+	std::function<void(const boost::system::error_code &, size_t)> handler) 
 {
-	ASYNC_APPLY(Read, asio::async_read, readBuffer(), completion);
+	ASYNC_APPLY(Read, boost::asio::async_read, readBuffer(), completion);
 }
 
 void 
 Connection::async_read_until(const std::string& delim, 
-	std::function<void(const asio::error_code &, size_t)> handler)
+	std::function<void(const boost::system::error_code &, size_t)> handler)
 {
-	ASYNC_APPLY(Read, asio::async_read_until, readBuffer(), delim);
+	ASYNC_APPLY(Read, boost::asio::async_read_until, readBuffer(), delim);
 }
 	
 void 
 Connection::async_write(const std::string& msg, 
-	std::function<void(const asio::error_code&, size_t)> handler)
+	std::function<void(const boost::system::error_code&, size_t)> handler)
 {
-	ASYNC_APPLY(Write, asio::async_write, asio::buffer(msg));
+	ASYNC_APPLY(Write, boost::asio::async_write, boost::asio::buffer(msg));
 }

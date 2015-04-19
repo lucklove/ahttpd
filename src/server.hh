@@ -8,9 +8,10 @@
 #include "ThreadPool.hh"
 #include "ptrs.hh"
 
-namespace asio {
+namespace boost { namespace asio {
 class io_service;
-};
+}
+}
 
 class ServerImpl;
 
@@ -23,7 +24,7 @@ public:
 			const std::string& https_port = "",
 			size_t thread_pool_size = 10);
 
-	explicit Server(asio::io_service& service,
+	explicit Server(boost::asio::io_service& service,
 			const std::string& http_port = "",
 			const std::string& https_port = "",
 			size_t thread_pool_size = 10);
@@ -42,7 +43,7 @@ public:
 		request_handler_.handleRequest(req, res);
 	}
 
-	asio::io_service& service() {
+	boost::asio::io_service& service() {
 		return service_;
 	}
 	
@@ -52,8 +53,8 @@ public:
 	}
 private:
 	std::shared_ptr<ServerImpl> pimpl_;
-	asio::io_service& service_;
-	std::shared_ptr<asio::io_service> service_holder_;
+	boost::asio::io_service& service_;
+	std::shared_ptr<boost::asio::io_service> service_holder_;
 	RequestHandler request_handler_;
 	size_t thread_pool_size_;
 	ThreadPool thread_pool_;

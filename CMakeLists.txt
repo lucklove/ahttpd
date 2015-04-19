@@ -17,6 +17,7 @@ set(HTTPD_SRCS SHARED
 	src/client.cc
 	src/MimeType.cc
 	src/base64.cc
+	src/mail.cc
 )
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++1y -Wall -g -O0")
@@ -24,7 +25,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 add_library(shttpd ${HTTPD_SRCS})
 
-target_link_libraries(shttpd ssl crypto pthread)
+target_link_libraries(shttpd ssl crypto pthread boost_system)
 
 install(TARGETS shttpd
 	LIBRARY DESTINATION lib
@@ -44,5 +45,6 @@ install(FILES
 	src/ThreadPool.hh
 	src/base64.hh
 	src/exception.hh
+	src/mail.hh
 	DESTINATION include/shttpd
 )

@@ -5,17 +5,17 @@
 #include "SslConnection.hh"
 #include "TcpConnection.hh"
 #include <regex>
-#include <asio/ssl.hpp>
+#include <boost/asio/ssl.hpp>
 
-Client::Client(asio::io_service& service)
+Client::Client(boost::asio::io_service& service)
  	:service_(service) 
 {
-	ssl_context_ = new asio::ssl::context(asio::ssl::context::sslv23);
+	ssl_context_ = new boost::asio::ssl::context(boost::asio::ssl::context::sslv23);
 	ssl_context_->set_default_verify_paths();
 }
 	
 Client::Client()
- 	: Client(*(new asio::io_service()))
+ 	: Client(*(new boost::asio::io_service()))
 {
 	service_holder_.reset(&service_);
 }
@@ -23,7 +23,7 @@ Client::Client()
 Client::~Client() { delete ssl_context_; }
 
 void
-Client::run()
+Client::apply()
 {
 	service_.run();
 }
