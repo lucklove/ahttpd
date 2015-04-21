@@ -19,5 +19,5 @@ BOOST_AUTO_TEST_CASE(client_test)
 			BOOST_CHECK(res->status() == Response::ok);
 		}
 	);
-	c.run();
+	c.apply();
 }

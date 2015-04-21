@@ -33,6 +33,9 @@ error while loading shared libraries: libshttpd.so: cannot open shared object fi
 - 修改/etc/ld.so.conf, 加入一行/usr/local/lib  
 - 执行sudo ldconfig更新配置  
 
+###gcc-4.8 workaround：
+经测试在gcc-4.8下能编译通过,但是运行时抛出std::regex_error异常, 执行`sh gcc-4.8-fix.sh`可修复问题  
+
 ##示例
 ```c++
 #include "server.hh"
