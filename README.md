@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/lucklove/shttpd.svg?branch=master)](https://travis-ci.org/lucklove/shttpd)
-
+[![Coverage Status](https://coveralls.io/repos/lucklove/shttpd/badge.svg)](https://coveralls.io/r/lucklove/shttpd)
 app server框架
 ===================
 
