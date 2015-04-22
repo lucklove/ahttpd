@@ -4,7 +4,9 @@ app server框架
 ===================
 
 ##当前特性
-http/https支持
+- http
+- https
+- smtp
 
 ##依赖
 - boost.asio  
@@ -18,12 +20,6 @@ http/https支持
 - cmake ..  
 - make  
 - sudo make install
-
-##编译示例
-- cd shttpd  
-- cd example  
-- cd 某个示例的目录  
-- make  
 
 ###注意:
 若在运行时出现如下错误:  

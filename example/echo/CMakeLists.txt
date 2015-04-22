@@ -1,0 +1,3 @@
+ADD_EXECUTABLE(echo echo.cc)
+INCLUDE_DIRECTORIES(../../src)
+TARGET_LINK_LIBRARIES(echo shttpd)
