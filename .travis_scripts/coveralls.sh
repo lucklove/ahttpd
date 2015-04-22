@@ -4,7 +4,7 @@
 # compile and link flags!
 if [ "$CXX" == "g++" ];
 then
-  sudo pip install cpp-coveralls
-  cd build
-  coveralls -r ../ -e CMakeFiles -e example -e test -t ${COVERALLS_TOKEN}
+	sudo pip install cpp-coveralls
+	cd build
+	coveralls -r ../ -e CMakeFiles -e test --gcov-options '\-lp'
 fi
