@@ -9,11 +9,14 @@ before_install:
         - sudo apt-get -qq update
 
 install:
+        - .travis_scripts/cmake.sh
         - sudo apt-get install -qq boost1.55
         - if [ "$CXX" == "g++"     ]; then .travis_scripts/gcc.sh; fi
 
 script: 
-        - mkdir build
-        - cd build
-        - cmake ..
-        - make
+        - mkdir build; pushd build;
+        - cmake -D CMAKE_CXX_FLAGS=--coverage .. && make debug && make -j 2 run_test
+        - popd;
+
+after_success:
+        - .travis_scripts/coveralls.sh

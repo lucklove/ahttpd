@@ -6,7 +6,6 @@ SET(SHTTPD_SRCS SHARED
 	parser.cc 
 	ThreadPool.cc 
 	server.cc 
-	log.cc 
 	RequestHandler.cc 
 	SslConnection.cc 
 	client.cc

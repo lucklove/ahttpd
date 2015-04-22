@@ -51,4 +51,5 @@ private:
 	std::string path_;
 	std::string query_;
 	std::string version_;
+	CookieJar cookie_jar_;
 };

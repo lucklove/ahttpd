@@ -3,6 +3,7 @@ SET(TEST_SOURCES
 	mime/mime.cc
 	base64/base64.cc
 )
-ADD_EXECUTABLE(test ${TEST_SOURCES})
+ADD_EXECUTABLE(shttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
-TARGET_LINK_LIBRARIES(test shttpd boost_system ssl crypto pthread)
+TARGET_LINK_LIBRARIES(shttpd_test shttpd boost_system ssl crypto pthread)
+ADD_CUSTOM_TARGET(run_test COMMAND ${CMAKE_BINARY_DIR}/test/shttpd_test DEPENDS shttpd_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

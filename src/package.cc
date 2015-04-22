@@ -21,7 +21,7 @@ Package::flushPackage()
 {
 	std::stringstream send_buf;
 
-	if(!send_started_) {	/**< 如果heander被发送，则设置为true */
+	if(!send_started_) {		/**< 如果heander被发送，则设置为true */
 		if(chunked_) {
 			addHeader("Transfer-Encoding", "chunked");
 		} else {
@@ -30,6 +30,7 @@ Package::flushPackage()
 				addHeader("Content-Length", to_string(contentLength()));
 			}
 		}
+//		add_cookie();		/**< 将cookie写入header */	
 		for(auto&& h : headerMap())
 			send_buf << h.name << ": " << h.value << "\r\n";
 		send_buf << "\r\n";

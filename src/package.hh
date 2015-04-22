@@ -7,8 +7,7 @@
 #include <cstring>
 #include "header.hh"
 #include "ptrs.hh"
-
-#include "log.hh"
+#include "cookie.hh"
 
 class Server;
 
@@ -86,7 +85,8 @@ public:
 		return res;
 	}
 protected:
-	void setHeadLine(const std::string& headline) { headline_ = headline; }
+
+//	void setHeadLine(const std::string& headline) { headline_ = headline; }
 	bool chunked() { return chunked_; }
 	void setChunked() { chunked_ = true; }
 	void flushPackage();
@@ -97,5 +97,5 @@ private:
 	std::vector<header_t> headers;
 	std::stringstream body;
 	ConnectionPtr connection_;
-	std::string headline_;
+//	std::string headline_;
 };
