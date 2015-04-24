@@ -1,4 +1,5 @@
 #include <boost/lexical_cast.hpp>
+#include <boost/date_time.hpp>
 #include "utils.hh"
 #include "log.hh"
 
@@ -31,6 +32,19 @@ get_int_month(const std::string& char_month)
 	}
 	return 0;
 }
+
+void
+to_localtime(struct tm* utc_tm)					/**< 将utc的tm结构转换为local时间的tm结构 */
+{
+	struct tm gmt, local;
+	time_t t = 0;
+	boost::date_time::c_time::localtime(&t, &local);
+	boost::date_time::c_time::gmtime(&t, &gmt);
+	utc_tm->tm_hour += local.tm_hour - gmt.tm_hour;
+	utc_tm->tm_min += local.tm_min - gmt.tm_min;
+	utc_tm->tm_sec += local.tm_sec - gmt.tm_sec;
+}
+
 }
 
 time_t 
@@ -53,9 +67,10 @@ gmtToTime(const std::string& gmt_time)
 			timestamp.tm_year += 2000;		
 		StringTokenizer time_st(st.nextToken(), ':');
 		/** 由于mktime参数为local时间而非UTC时间, 因此将utc时间+8小时转换为local时间 */
-		timestamp.tm_hour = boost::lexical_cast<unsigned short>(time_st.nextToken()) + 8;
+		timestamp.tm_hour = boost::lexical_cast<unsigned short>(time_st.nextToken());
 		timestamp.tm_min = boost::lexical_cast<unsigned short>(time_st.nextToken());
 		timestamp.tm_sec = boost::lexical_cast<unsigned short>(time_st.nextToken());
+		to_localtime(&timestamp);
 		return mktime(&timestamp);
 	} catch(boost::bad_lexical_cast &e) {
 		Log("DEBUG") << __FILE__ << ":" << __LINE__;

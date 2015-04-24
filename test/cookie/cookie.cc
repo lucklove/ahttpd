@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(response_cookie_muti_test)
 	BOOST_CHECK(cookies[0].key == "user");
 	BOOST_CHECK(cookies[0].val == "username1");
 	BOOST_CHECK(cookies[1].val == "username2");
-	BOOST_CHECK(cookies[1].expires == gmtToTime("Sat, 02-May-15 23:38:25"));
+	BOOST_CHECK(cookies[1].expires == gmtToTime("Sat, 02-May-2015 23:38:25"));
 	BOOST_CHECK(cookies[1].domain == "www.example.com");
 	BOOST_CHECK(cookies[2].expires == 1111111111);
 }
