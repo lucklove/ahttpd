@@ -2,53 +2,94 @@
 
 #include <string>
 #include <vector>
+#include <boost/lexical_cast.hpp>
 #include "utils.hh"
+#include "log.hh"
 
-class Cookie {
-public:
-	Cookie(const std::string& token, time_t expires = 0, const std::string& domain = "", 
-		const std::string& path = "/", const std::string& secure = "") : 
-		token_(token), expires_(expires), domain_(domain), path_(path), secure_(secure)
-	{}
-	
-	std::string getToken() {
-		return token_;
-	}
-	std::string getExpires() {
-		return gmtTime(expires_);
-	}
-	std::string getDomain() {
-		return domain_;
-	}
-	std::string getPath() {
-		return path_;
-	}
-	std::string getSecure() {
-		return secure_;
-	}
-private:
-	std::string token_;
-	time_t expires_;
-	std::string domain_;
-	std::string path_;
-	std::string secure_;
+struct request_cookie_t {
+	std::string key;
+	std::string val;
 };
 
-class CookieJar {
-public:
-	void putCookie(const Cookie& c) {
-		cookies_.push_back(c);
+struct response_cookie_t {
+	std::string key;
+	std::string val;
+	time_t expires = 0;
+	std::string domain;
+	std::string path;
+	bool secure = false;
+	bool httponly = false;
+};
+
+static inline std::vector<request_cookie_t>
+parseRequestCookie(const std::string& cookie_header)
+{
+	std::vector<request_cookie_t> cookie_jar;
+	request_cookie_t cookie;
+	StringTokenizer token_st(cookie_header, ' ', ';');
+	while(token_st.hasMoreTokens()) {
+		StringTokenizer key_val_st(token_st.nextToken(), '=');
+		if(key_val_st.hasMoreTokens())
+			cookie.key = key_val_st.nextToken();		
+		if(key_val_st.hasMoreTokens())
+			cookie.val = key_val_st.nextToken();
+		cookie_jar.push_back(cookie);
 	}
-	const Cookie* getCookie(const std::string& name) {
-		for(auto& c : cookies_) {
-			if(c.getToken().size() > name.size() && c.getToken().substr(0, name.size()) == name)
-				return &c;
+	return cookie_jar;
+}
+
+static inline response_cookie_t
+parseResponseCookie(const std::string& cookie_header)
+{
+	response_cookie_t cookie;
+	StringTokenizer st(cookie_header, ';');
+	if(st.hasMoreTokens()) {
+		StringTokenizer key_val_st(st.nextToken(), '=');
+		if(key_val_st.hasMoreTokens())
+			cookie.key = key_val_st.nextToken();
+		if(key_val_st.hasMoreTokens())
+			cookie.val = key_val_st.nextToken();
+	}
+	while(st.hasMoreTokens()) {
+		StringTokenizer key_val_st(st.nextToken(), '=');
+		std::string key;
+		std::string val;
+		if(key_val_st.hasMoreTokens())
+			key = key_val_st.nextToken();
+		int nonblank = key.find_first_not_of(" ");			/**< 去除开始的空白 */
+		if(nonblank == key.npos)
+			continue;
+		key = key.substr(nonblank, key.size());
+		if(key_val_st.hasMoreTokens())
+			val = key_val_st.nextToken();
+		if(strcasecmp(key.c_str(), "expires") == 0) {
+			if(!cookie.expires)
+				cookie.expires = gmtToTime(val);
+		} else if(strcasecmp(key.c_str(), "max-age") == 0) {
+			try {
+				cookie.expires = boost::lexical_cast<time_t>(val);
+			} catch(boost::bad_lexical_cast &e) {
+				Log("ERROR") << e.what();
+				cookie.expires = 0;
+			}
+		} else if(strcasecmp(key.c_str(), "domain") == 0) {
+			cookie.domain = val;
+		} else if(strcasecmp(key.c_str(), "path") == 0) {
+			cookie.path = val;
+		} else if(strcasecmp(key.c_str(), "secure") == 0) {
+			cookie.secure = true;
+		} else if(strcasecmp(key.c_str(), "HttpOnly") == 0) {
+			cookie.httponly = true;
 		}
-		return nullptr;
 	}
-	const std::vector<Cookie>& cookieMap() {
-		return cookies_;
-	}
-private:
-	std::vector<Cookie> cookies_;	
-};
+	return cookie;	
+}
+
+static inline std::vector<response_cookie_t>
+parseResponseCookie(const std::vector<std::string>& cookie_headers)
+{
+	std::vector<response_cookie_t> cookie_jar;
+	for(const std::string& h : cookie_headers)
+		cookie_jar.push_back(parseResponseCookie(h));
+	return cookie_jar;
+}

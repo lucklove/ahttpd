@@ -42,6 +42,26 @@ public :
  	 */  
 	std::string& version() override { return version_; }
 
+	std::string* getCookieValue(const std::string& key) {
+		if(cookies_.size() == 0)
+			parse_cookie();
+			
+		for(auto& c : cookies_) {
+			if(std::get<0>(c) == key)
+				return &std::get<1>(c);
+		}
+		return nullptr;
+	}
+
+	void setCookie(const std::string& token) {
+		std::string *h = getHeader("Cookie");
+		if(h) {
+			*h += "; " + token;
+		} else {
+			addHeader("Cookie", token);
+		}
+	}
+
 	void flush();
 	void basicAuth(const std::string& auth);
 	std::string basicAuthInfo();
@@ -51,5 +71,11 @@ private:
 	std::string path_;
 	std::string query_;
 	std::string version_;
-	CookieJar cookie_jar_;
+	std::vector<std::tuple<std::string, std::string>> cookies_;
+
+	void parse_cookie() {
+//		std::string *h = getHeader("Cookie");
+//		if(!h)
+//			return;
+	}
 };

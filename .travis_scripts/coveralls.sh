@@ -6,5 +6,5 @@ if [ "$CXX" == "g++" ];
 then
 	sudo pip install cpp-coveralls
 	cd build
-	coveralls -r ../ -e CMakeFiles -e test --gcov-options '\-lp'
+	coveralls -r ../src -e --gcov-options '\-lp'
 fi

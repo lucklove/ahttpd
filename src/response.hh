@@ -34,5 +34,5 @@ private:
 	std::string version_;
 	status_t status_;
 	std::string msg_;
-	CookieJar cookie_jar_;
+//	CookieJar cookie_jar_;
 };

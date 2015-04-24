@@ -12,6 +12,7 @@ SET(SHTTPD_SRCS SHARED
 	MimeType.cc
 	base64.cc
 	mail.cc
+	utils.cc
 )
 ADD_LIBRARY(shttpd ${SHTTPD_SRCS})
 TARGET_LINK_LIBRARIES(shttpd ssl crypto pthread boost_system)
