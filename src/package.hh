@@ -51,9 +51,12 @@ public:
 	}
 
 	void delHeader(const std::string& h_name) {
-		for(std::vector<header_t>::iterator it = headers.begin(); it != headers.end(); ++it) {
-			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0)
-				headers.erase(it);
+		for(std::vector<header_t>::iterator it = headers.begin(); it != headers.end();) {
+			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0) {
+				it = headers.erase(it);
+			} else {
+				++it;
+			}
 		}
 	}
 

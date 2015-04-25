@@ -32,5 +32,7 @@ INSTALL(FILES
 	base64.hh
 	exception.hh
 	mail.hh
+	cookie.hh
+	utils.hh
 	DESTINATION include/shttpd
 )

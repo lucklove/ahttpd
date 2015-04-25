@@ -51,7 +51,6 @@ ThreadPool::~ThreadPool() noexcept
 		try
 		{
 			std::lock_guard<std::mutex> lck(queue_mutex);
-
 			stopped = true;
 		}
 		catch(std::system_error& e)

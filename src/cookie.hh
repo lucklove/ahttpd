@@ -57,7 +57,7 @@ parseResponseCookie(const std::string& cookie_header)
 		if(key_val_st.hasMoreTokens())
 			key = key_val_st.nextToken();
 		int nonblank = key.find_first_not_of(" ");			/**< 去除开始的空白 */
-		if(nonblank == key.npos)
+		if(nonblank == static_cast<int>(key.npos))
 			continue;
 		key = key.substr(nonblank, key.size());
 		if(key_val_st.hasMoreTokens())

@@ -6,6 +6,7 @@ SET(TEST_SOURCES
 	base64/base64.cc
 	cookie/cookie.cc
 	time/time.cc
+	ThreadPool/ThreadPool.cc
 )
 ADD_EXECUTABLE(shttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
