@@ -7,6 +7,8 @@ SET(TEST_SOURCES
 	cookie/cookie.cc
 	time/time.cc
 	ThreadPool/ThreadPool.cc
+	request/request.cc
+	response/response.cc
 )
 ADD_EXECUTABLE(shttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)

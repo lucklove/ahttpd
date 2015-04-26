@@ -13,10 +13,10 @@ Request::flush()
 		/** 由于是第一次调用，说明第一行并未发送 */
 		setChunked();
 		if(query_ == "") {
-//			Log("NOTE") << method_ << " " << path_ << " " << version_;
+			Log("NOTE") << method_ << " " << path_ << " " << version_;
 			connection()->async_write(method_ + " " + path_ + " " + version_ + "\r\n");
 		} else {
-//			Log("NOTE") << method_ << " " << path_ << "?" << query_ << " " << version_;
+			Log("NOTE") << method_ << " " << path_ << "?" << query_ << " " << version_;
 			connection()->async_write(method_ + " " + path_ + "?" + query_ + " " + version_ + "\r\n");
 		}
 	}
@@ -53,10 +53,10 @@ Request::~Request()
 	try {
 		if(!chunked()) {
 			if(query_ == "") {
-//				Log("NOTE") << method_ << " " << path_ << " " << version_;
+				Log("NOTE") << method_ << " " << path_ << " " << version_;
 				connection()->async_write(method_ + " " + path_ + " " + version_ + "\r\n");
 			} else {
-//				Log("NOTE") << method_ << " " << path_ << "?" << query_ << " " << version_;
+				Log("NOTE") << method_ << " " << path_ << "?" << query_ << " " << version_;
 				connection()->async_write(method_ + " " + path_ + "?" + query_ + " " + version_ + "\r\n");
 			}
 		} else {

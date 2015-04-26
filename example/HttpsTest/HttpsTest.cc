@@ -1,4 +1,5 @@
 #include "server.hh"
+#include <fstream>
 
 struct HttpsTest : public RequestHandler {
     using RequestHandler::RequestHandler;
@@ -10,7 +11,12 @@ struct HttpsTest : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-    Server server("", "9999");	/**< 使用9999监听https报文，并且不打开http端口(第一个端口个参数为"") */
-    server.addHandler("/HttpsTest", new HttpsTest(&server));
-    server.run();
+	std::ifstream config("../../../example/HttpsTest/config.txt");
+	if(!config) {
+		Log("ERROR") << "Unable to load config file";
+		return -1;
+	}
+	Server server(config);
+	server.addHandler("/HttpsTest", new HttpsTest(&server));
+	server.run();
 }

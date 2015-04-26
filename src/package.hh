@@ -77,6 +77,7 @@ public:
 	}
 
 	virtual std::string& version() = 0;
+	virtual void parseCookie() = 0;
 
 	size_t
 	contentLength()

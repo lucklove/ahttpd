@@ -45,7 +45,8 @@ struct TestHandler : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-	Server server("8888");
+	std::stringstream config("{\"http port\":\"8888\"}");
+	Server server(config);
 	server.addHandler("/", new TestHandler(&server));
 	server.run();
 }

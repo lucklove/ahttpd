@@ -32,7 +32,8 @@ int
 main(int argc, char* argv[])
 {
 	try {
-		Server server("8888");		
+		std::stringstream config("{\"http port\":\"8888\"}");
+		Server server(config);		
 		if(argc == 1) {
 			server.addHandler("/", new StaticServer(&server));
 		} else {
