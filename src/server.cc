@@ -226,16 +226,16 @@ void
 Server::handleRequest(RequestPtr req)
 {
 	assert(req->connection() != nullptr);
-	parseRequest(req, [this](RequestPtr req, bool good) {
-		if(good) {
-			if(req->keepAlive()) {
-				RequestPtr new_req = std::make_shared<Request>(req->connection());
+	parseRequest(req, [=](RequestPtr request) {
+		if(request) {
+			if(request->keepAlive()) {
+				RequestPtr new_req = std::make_shared<Request>(request->connection());
 				handleRequest(new_req);
 			}
 			thread_pool_.wait_to_enqueue([this](std::unique_lock<std::mutex>&) {
 				if(thread_pool_.size_unlocked() > thread_pool_size_)
 					Log("WARNING") << "thread pool overload";
-			}, &Server::deliverRequest, this, req);
+			}, &Server::deliverRequest, this, request);
 		} else {
 			req->connection()->stop();
 			req->discardConnection();

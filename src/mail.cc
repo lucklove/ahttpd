@@ -97,8 +97,8 @@ Mail::send(const std::string& to_addr, const std::string& subject,
 	} else {
 		conn = std::make_shared<TcpConnection>(service_);
 	}
-	conn->async_connect(server_, port_, [=](ConnectionPtr conn, bool good) {
-		CHECK(good);
+	conn->async_connect(server_, port_, [=](ConnectionPtr conn) {
+		CHECK(conn);
 		conn->async_read_until("\n", [=](const boost::system::error_code& ec, size_t) {
 			if(ec) {
 				Log("DEBUG") << __LINE__;

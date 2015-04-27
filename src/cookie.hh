@@ -9,6 +9,14 @@
 struct request_cookie_t {
 	std::string key;
 	std::string val;
+	request_cookie_t& setKey(const std::string& k) {
+		key = k;
+		return *this;
+	}
+	request_cookie_t& setVal(const std::string& v) {
+		val = v;
+		return *this;
+	}
 };
 
 struct response_cookie_t {
@@ -19,6 +27,34 @@ struct response_cookie_t {
 	std::string path;
 	bool secure = false;
 	bool httponly = false;
+	response_cookie_t& setKey(const std::string& k) {
+		key = k;
+		return *this;
+	}
+	response_cookie_t& setVal(const std::string& v) {
+		val = v;
+		return *this;
+	}
+	response_cookie_t& setExpires(time_t e) {
+		expires = e;
+		return *this;
+	}
+	response_cookie_t& setDomain(const std::string& d) {
+		domain = d;
+		return *this;
+	}
+	response_cookie_t& setPath(const std::string& p) {
+		path = p;
+		return *this;
+	}
+	response_cookie_t& setSecure(bool flag) {
+		secure = flag;
+		return *this;
+	}
+	response_cookie_t& setHttpOnly(bool flag) {
+		httponly = flag;
+		return *this;
+	}
 };
 
 static inline std::vector<request_cookie_t>
@@ -41,7 +77,7 @@ parseRequestCookie(const std::string& cookie_header)
 static inline response_cookie_t
 parseResponseCookie(const std::string& cookie_header)
 {
-	response_cookie_t cookie;
+	response_cookie_t cookie = {};
 	StringTokenizer st(cookie_header, ';');
 	if(st.hasMoreTokens()) {
 		StringTokenizer key_val_st(st.nextToken(), '=');

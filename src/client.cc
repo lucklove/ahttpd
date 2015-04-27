@@ -30,8 +30,8 @@ Client::apply()
 
 void
 Client::request(const std::string& method, const std::string& url,
-	std::function<void(ResponsePtr, bool)> res_handler,
-	std::function<void(RequestPtr, bool)> req_handler)
+	std::function<void(ResponsePtr)> res_handler,
+	std::function<void(RequestPtr)> req_handler)
 {
 	static const std::regex url_reg("((http|https)(://))?((((?!@)[[:print:]])*)@)?"
 		"(((?![/\\?])[[:print:]])*)([[:print:]]+)?");	/**< http://user:pass@server:port/path?query */
@@ -66,8 +66,8 @@ Client::request(const std::string& method, const std::string& url,
 			connection = std::make_shared<SslConnection>(service_, *ssl_context_);
 		}
 
-		connection->async_connect(host, port, [=](ConnectionPtr conn, bool good) {
-			if(good) {
+		connection->async_connect(host, port, [=](ConnectionPtr conn) {
+			if(conn) {
 				auto req = std::make_shared<Request>(conn);
 				auto res = std::make_shared<Response>(conn);
 				req->method() = method;
@@ -84,21 +84,21 @@ Client::request(const std::string& method, const std::string& url,
 				if(auth != "")
 					req->basicAuth(auth);
 
-				req_handler(req, true);
-				parseResponse(res, [=](ResponsePtr res, bool good) {
+				req_handler(req);
+				parseResponse(res, [=](ResponsePtr response) {
 					res->discardConnection();
-					if(good) {
-						res_handler(res, true);
+					if(response) {
+						res_handler(res);
 					} else {
-						res_handler(res, false);
+						res_handler(nullptr);
 					}
 				});
 			} else {
-				req_handler(nullptr, false);
-				res_handler(nullptr, false);
+				req_handler(nullptr);
+				res_handler(nullptr);
 			}
 		});
 	} else {
-		res_handler(nullptr, false);
+		res_handler(nullptr);
 	}
 }

@@ -36,7 +36,7 @@ public:
 		if(cookie.val != "")
 			header_val += "=" + cookie.val;
 		if(cookie.expires)
-			header_val += "; expires=" + gmtTime(time(nullptr) + cookie.expires) + " GMT";
+			header_val += "; expires=" + gmtTime(cookie.expires) + " GMT";
 		if(cookie.domain != "")
 			header_val += "; domain=" +  cookie.domain;
 		if(cookie.path != "")
@@ -44,7 +44,8 @@ public:
 		if(cookie.secure)
 			header_val += "; secure";
 		if(cookie.httponly)
-			header_val += "; HttpOnly";	
+			header_val += "; HttpOnly";
+		addHeader("Set-Cookie", header_val);	
 	}
 
 	const std::vector<response_cookie_t>& cookieJar() {

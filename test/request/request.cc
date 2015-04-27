@@ -17,4 +17,19 @@ BOOST_AUTO_TEST_CASE(request_header_test)
 
 BOOST_AUTO_TEST_CASE(request_cookie_test)
 {
+	Request req(nullptr);
+	req.setCookie({"key1", "val1"});
+	req.setCookie({"key2", "val2"});
+	const std::string* ptr = req.getHeader("Cookie");
+	BOOST_REQUIRE(ptr);
+	BOOST_CHECK(*ptr == "key1=val1; key2=val2");
+	req.parseCookie();
+	ptr = req.getCookieValue("key1");
+	BOOST_REQUIRE(ptr);
+	BOOST_CHECK(*ptr == "val1");
+	ptr = req.getCookieValue("key2");	
+	BOOST_REQUIRE(ptr);
+	BOOST_CHECK(*ptr == "val2");
+	ptr = req.getCookieValue("key3");
+	BOOST_CHECK(ptr == nullptr);
 }

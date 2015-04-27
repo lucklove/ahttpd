@@ -42,11 +42,11 @@ SslConnection::async_handshake(std::function<void (boost::system::error_code con
 	
 void 
 SslConnection::async_connect(const std::string& host, const std::string& port,
-	std::function<void(ConnectionPtr, bool)> handler)
+	std::function<void(ConnectionPtr)> handler)
 {
 	Connection::async_connect(host, port, 
-		[this, handler, ptr = shared_from_this()](ConnectionPtr conn, bool good) {
-		if(good) {
+		[this, handler, ptr = shared_from_this()](ConnectionPtr conn) {
+		if(conn) {
 			socket_.set_verify_mode(boost::asio::ssl::verify_peer);
 			socket_.set_verify_callback([](bool, boost::asio::ssl::verify_context&) { 
 				/** XXX: NOT SAFE */
@@ -55,15 +55,15 @@ SslConnection::async_connect(const std::string& host, const std::string& port,
 			socket_.async_handshake(boost::asio::ssl::stream_base::client,
 				[=, ptr = ptr](const boost::system::error_code& e) {
 					if(e) {
-						handler(conn, false);
+						handler(nullptr);
 					} else {
-						handler(conn, true);
+						handler(conn);
 					}
 				}
 			);
 		} else {
 			Log(__FILE__) << __LINE__;
-			handler(conn, false);
+			handler(nullptr);
 		}
 	});
 }

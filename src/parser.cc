@@ -24,7 +24,7 @@ parse_headers(Pac_t pac, Handle_t handler)
 	pac->connection()->async_read_until("\n",
 		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
-				handler(pac, false);
+				handler(nullptr);
 				return;
 			}
 			static const std::regex key_val_reg("([[:print:]]+): ([[:print:]]*)");
@@ -33,7 +33,7 @@ parse_headers(Pac_t pac, Handle_t handler)
 			std::string line;
 			getline(in, line);
 			if(line == "\r" || line == "") {	/**< 头部最后的\r\n" */
-				handler(pac, true);
+				handler(pac);
 				return;
 			}
 			if(std::regex_search(line, results, key_val_reg))
@@ -52,7 +52,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << err.message();
-				handler(pac, false);
+				handler(nullptr);
 				return;
 			}
 			std::istream in(&pac->connection()->readBuffer());
@@ -76,7 +76,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 								Log("ERROR") << "BUFFER HUNGERY";
 							if(length > 1024 * 1024)
 								Log("ERROR") << "BUFFER OVERFLOW";
-							handler(pac, false);
+							handler(nullptr);
 							return;
 						}
 						char buf[length];
@@ -87,7 +87,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			} else if(length > 0) {
 				if(length > 1024 * 1024) {
 					Log("ERROR") << "BUFFER OVERFLOW";
-					handler(pac, false);
+					handler(nullptr);
 					return;
 				}
 				char buf[length];
@@ -101,14 +101,14 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 						Log("DEBUG") << __FILE__ << ":" << __LINE__;
 						Log("ERROR") << err.message();
 						if(length != 0)
-						handler(pac, false);
+						handler(nullptr);
 						return;
 					}
 					std::istream in(&pac->connection()->readBuffer());
 					std::string ignore;
 					getline(in, ignore);
 					if(length == 0) {
-						handler(pac, true);
+						handler(pac);
 						return;
 					}
 				}
@@ -129,12 +129,12 @@ parse_body(Pac_t pac, Handle_t handler)
 		if(h != nullptr && strcasecmp(h->c_str(), "chunked")  == 0) {
 			read_chunked_body(pac, handler);
 		} else {
-			handler(pac, true);
+			handler(pac);
 		}
 	} else {
 		size_t length = to_size(*h);
 		if(length == 0) {
-			handler(pac, true);
+			handler(pac);
 			return;
 		}
 
@@ -142,7 +142,7 @@ parse_body(Pac_t pac, Handle_t handler)
 		int need_read = length - already_read;
 
 		if(need_read < 0) {
-			handler(pac, false);
+			handler(nullptr);
 			return;
 		}
 
@@ -150,30 +150,30 @@ parse_body(Pac_t pac, Handle_t handler)
 			pac->out() << &pac->connection()->readBuffer();
 
 		if(need_read == 0) {
-			handler(pac, true);
+			handler(pac);
 			return;
 		}
 
 		pac->connection()->async_read(boost::asio::transfer_exactly(need_read),
 			[=](const boost::system::error_code& err, size_t n) {
 				if(err || static_cast<int>(n) != need_read) {	/**< 避免警告 */
-					handler(pac, false);
+					handler(nullptr);
 					return;
 				}
 				pac->out() << &pac->connection()->readBuffer();
-				handler(pac, true);
+				handler(pac);
 			}
 		);
 	}
 }
 
 void
-parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
+parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler)
 {
 	req->connection()->async_read_until("\n", 
 		[req, handler](const boost::system::error_code& err, size_t n) {
 			if(err) {
-				handler(req, false);
+				handler(nullptr);
 				return;
 			}
 			std::smatch results;
@@ -190,9 +190,9 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> h
 				if(results[4].matched)
 					req->query() = results.str(4);
 				req->version() = results.str(5);
-				handler(req, true);
+				handler(req);
 			} else {
-				handler(req, false);
+				handler(nullptr);
 			}
 		}
 	);
@@ -200,14 +200,14 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr, bool)> h
 }
 
 void
-parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)> handler)
+parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> handler)
 {
 	res->connection()->async_read_until("\n", 
 		[=](const boost::system::error_code& err, size_t n) {
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << err.message();
-				handler(res, false);
+				handler(nullptr);
 				return;
 			}
 			std::smatch results;
@@ -219,9 +219,9 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)
 				res->version() = results.str(1);
 				res->status() = static_cast<Response::status_t>(to_size(results.str(2)));
 				res->message() = results.str(3);
-				handler(res, true);
+				handler(res);
 			} else {
-				handler(res, false);
+				handler(nullptr);
 			}
 		}
 	);
@@ -233,17 +233,18 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr, bool)
 #define PARSE(package, pac)						\
 do {									\
 	parse_##package##_first_line(pac,				\
-		[=](decltype(pac) pac, bool good) {			\
-			if(!good) {					\
-				handler(pac, false);			\
+		[=](decltype(pac) pac) {				\
+			if(!pac) {					\
+				handler(nullptr);			\
 				return;					\
 			}						\
 			parse_headers(pac,				\
-				[=](decltype(pac) pac, bool good) {	\
-					if(!good) {			\
-						handler(pac, false);	\
+				[=](decltype(pac) pac) {		\
+					if(!pac) {			\
+						handler(nullptr);	\
 						return;			\
 					}				\
+					pac->parseCookie();		\
 					parse_body(pac, handler);	\
 				}					\
 			);						\
@@ -252,13 +253,13 @@ do {									\
 } while(0)
 		
 void
-parseRequest(RequestPtr req, std::function<void(RequestPtr, bool)> handler)
+parseRequest(RequestPtr req, std::function<void(RequestPtr)> handler)
 {
 	PARSE(request, req);
 }
 
 void
-parseResponse(ResponsePtr res, std::function<void(ResponsePtr, bool)> handler)
+parseResponse(ResponsePtr res, std::function<void(ResponsePtr)> handler)
 {
 	PARSE(response, res);
 }

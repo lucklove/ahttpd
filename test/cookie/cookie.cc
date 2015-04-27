@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(response_cookie_single_test)
 		"httponly;domain=www.example.com; path=/example");
 	BOOST_CHECK(cookie.key == "user");
 	BOOST_CHECK(cookie.val == "username");
-	BOOST_CHECK(cookie.expires == gmtToTime("Sat, 02-May-2015 23:38:25"));
+	BOOST_CHECK(cookie.expires == gmtToTime("Sat, 02-May-2015 23:38:25 GMT"));
 	BOOST_CHECK(cookie.domain == "www.example.com");
 	BOOST_CHECK(cookie.path == "/example");
 	BOOST_CHECK(cookie.secure == true);

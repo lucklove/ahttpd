@@ -24,7 +24,7 @@ public:
 	boost::asio::ip::tcp::socket& nativeSocket() override { return socket_.next_layer(); }
 	void async_handshake(std::function<void(const boost::system::error_code& e)> handle);
 	void async_connect(const std::string& host, const std::string& port,
-		std::function<void(ConnectionPtr, bool)> handler) override;
+		std::function<void(ConnectionPtr)> handler) override;
 private:
 	boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket_;
 	boost::asio::deadline_timer ssl_shutdown_timer_;
