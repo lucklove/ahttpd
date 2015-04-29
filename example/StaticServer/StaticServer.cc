@@ -35,9 +35,9 @@ main(int argc, char* argv[])
 		std::stringstream config("{\"http port\":\"8888\"}");
 		Server server(config);		
 		if(argc == 1) {
-			server.addHandler("/", new StaticServer(&server));
+			server.addHandler("/", new StaticServer());
 		} else {
-			server.addHandler("/", new StaticServer(&server, argv[1]));
+			server.addHandler("/", new StaticServer(argv[1]));
 		}
 		server.run(10);						/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {

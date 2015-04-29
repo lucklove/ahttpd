@@ -2,7 +2,6 @@
 #include <fstream>
 
 struct HttpsTest : public RequestHandler {
-    using RequestHandler::RequestHandler;
     void handleRequest(RequestPtr req, ResponsePtr rep) override {
         rep->out() << "this should be accessed through HTTPS!" << std::endl;
     }
@@ -17,6 +16,6 @@ main(int argc, char *argv[])
 		return -1;
 	}
 	Server server(config);
-	server.addHandler("/HttpsTest", new HttpsTest(&server));
+	server.addHandler("/HttpsTest", new HttpsTest());
 	server.run();
 }

@@ -8,10 +8,6 @@
 #include <sstream>
 #include <string>
 
-RequestHandler::RequestHandler(Server *server)
-	: server_(server)
-{}
-
 void 
 RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {

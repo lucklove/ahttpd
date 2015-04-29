@@ -8,8 +8,6 @@
 #include "server.hh"
 
 struct EchoHandler : public RequestHandler {
-	using RequestHandler::RequestHandler;
-
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		auto auth_info = req->basicAuthInfo();
 		rep->out() << "method: " << req->method() << std::endl;
@@ -33,7 +31,7 @@ main(int argc, char* argv[])
 	try {
 		std::stringstream config("{\"http port\":\"8888\"}");
 		Server server(config);						/**< 在8888端口监听 */
-		server.addHandler("/echo", new EchoHandler(&server));		/**< 路径为/echo */
+		server.addHandler("/echo", new EchoHandler());			/**< 路径为/echo */
 		server.run(10);							/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {
 		std::cerr << "exception: " << e.what() << "\n";

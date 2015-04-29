@@ -9,6 +9,13 @@
 #include <cstdio>
 #include "utils.hh"
 
+/**
+ *\brief 
+ *	日志记录类，打印日志信息到控制台，信息包括日志级别，
+ *	当前时间，当前线程，以及日志内容
+ *\example
+ *	Log("WARNING") << "something bad happened";
+ */	
 class Log {
 public:
 	explicit Log(const std::string& type) {
@@ -16,7 +23,6 @@ public:
 			<< "[\033[36m" <<std::this_thread::get_id() << "\033[0m] "
 			<< "[\033[37m" << type << "\033[0m] ";
 	}
-	Log(const Log&) = delete;
 	Log(Log&& log_) { 
 		if(log_.buffer_.rdbuf()->in_avail())
 			buffer_ << log_.buffer_.rdbuf();

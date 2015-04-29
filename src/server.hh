@@ -30,6 +30,7 @@ public:
 	void run(size_t thread_number = 1);
 
 	void addHandler(const std::string& path, RequestHandler* handle) {
+		handle->setServer(this);
 		request_handler_.addSubHandler(path, handle);
 	}
 

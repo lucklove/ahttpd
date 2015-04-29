@@ -36,7 +36,6 @@ error while loading shared libraries: libshttpd.so: cannot open shared object fi
 ```c++
 #include "server.hh"
 struct TestHandler : public RequestHandler {
-	using RequestHandler::RequestHandler;
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		rep->out() << "hello world!" << std::endl;
 	}
@@ -47,7 +46,7 @@ main(int argc, char *argv[])
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server server(config);
-	server.addHandler("/", new TestHandler(&server));
+	server.addHandler("/", new TestHandler());
 	server.run();
 }
 ```

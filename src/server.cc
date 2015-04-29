@@ -113,7 +113,7 @@ Server::Server(std::istream& config, size_t thread_pool_size)
 }
 
 Server::Server(boost::asio::io_service& service, std::istream& config, size_t thread_pool_size)
-	: pimpl_(std::make_shared<ServerImpl>(service)), service_(service), request_handler_(this),
+	: pimpl_(std::make_shared<ServerImpl>(service)), service_(service),
 	thread_pool_size_(thread_pool_size), thread_pool_(thread_pool_size)
 {
 	pimpl_->signals_.add(SIGINT);
