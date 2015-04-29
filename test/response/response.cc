@@ -5,7 +5,7 @@ BOOST_AUTO_TEST_CASE(response_cookie_test)
 {
 	Response res(nullptr);
 	time_t t = time(nullptr);
-	res.setCookie(response_cookie_t().setKey("key1").setVal("val1").setSecure(true));
+	res.setCookie(response_cookie_t().setKey("key1").setVal("val1").setSecure());
 	res.setCookie(response_cookie_t().setKey("key2").setVal("val2").setExpires(t));
 	auto hs = res.getHeaders("Set-Cookie");
 	BOOST_CHECK(hs.size() == 2);

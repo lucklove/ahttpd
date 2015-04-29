@@ -10,11 +10,13 @@ struct HttpsTest : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-	std::ifstream config("../../../example/HttpsTest/config.txt");
-	if(!config) {
-		Log("ERROR") << "Unable to load config file";
-		return -1;
-	}
+	std::stringstream config("{"
+		"\"https port\":\"9999\","
+		"\"verify file\":\"../../../certificate/server.csr\","
+		"\"certificate chain file\":\"../../../certificate/server.crt\","
+		"\"private key\":\"../../../certificate/server.key\","
+		"\"tmp dh file\":\"../../../certificate/server.dh\""
+	"}");
 	Server server(config);
 	server.addHandler("/HttpsTest", new HttpsTest());
 	server.run();

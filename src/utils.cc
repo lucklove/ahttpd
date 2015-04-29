@@ -66,10 +66,10 @@ gmtToTime(const std::string& gmt_time)
 		if(timestamp.tm_year < 0)				/**< DD-MM-YY */
 			timestamp.tm_year += 2000;		
 		StringTokenizer time_st(st.nextToken(), ':');
-		/** 由于mktime参数为local时间而非UTC时间, 因此将utc时间+8小时转换为local时间 */
 		timestamp.tm_hour = boost::lexical_cast<unsigned short>(time_st.nextToken());
 		timestamp.tm_min = boost::lexical_cast<unsigned short>(time_st.nextToken());
 		timestamp.tm_sec = boost::lexical_cast<unsigned short>(time_st.nextToken());
+		/** 由于mktime参数为local时间而非UTC时间, 因此需要先转换为本地时间 */
 		to_localtime(&timestamp);
 		return mktime(&timestamp);
 	} catch(boost::bad_lexical_cast &e) {

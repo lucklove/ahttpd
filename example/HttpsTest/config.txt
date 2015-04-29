@@ -1,8 +1,0 @@
-{
-	"https port":"9999",
-	"https server":"127.0.0.2",
-	"verify file":"../../../example/HttpsTest/server.csr",
-	"certificate chain file":"../../../example/HttpsTest/server.crt",
-	"private key":"../../../example/HttpsTest/server.key",
-	"tmp dh file":"../../../example/HttpsTest/server.dh"
-}

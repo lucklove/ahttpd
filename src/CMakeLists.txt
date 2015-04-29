@@ -34,5 +34,6 @@ INSTALL(FILES
 	mail.hh
 	cookie.hh
 	utils.hh
+	params.hh
 	DESTINATION include/shttpd
 )

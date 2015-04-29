@@ -27,7 +27,10 @@ public:
 			std::istream& config,
 			size_t thread_pool_size = 10);
 	~Server();
+
 	void run(size_t thread_number = 1);
+
+	void stop();
 
 	void addHandler(const std::string& path, RequestHandler* handle) {
 		handle->setServer(this);

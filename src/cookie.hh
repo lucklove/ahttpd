@@ -47,12 +47,12 @@ struct response_cookie_t {
 		path = p;
 		return *this;
 	}
-	response_cookie_t& setSecure(bool flag) {
-		secure = flag;
+	response_cookie_t& setSecure() {
+		secure = true;
 		return *this;
 	}
-	response_cookie_t& setHttpOnly(bool flag) {
-		httponly = flag;
+	response_cookie_t& setHttpOnly() {
+		httponly = true;
 		return *this;
 	}
 };

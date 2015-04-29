@@ -223,6 +223,13 @@ Server::run(size_t thread_number)
 }
 
 void
+Server::stop()
+{
+	Log("NOTE") << "BYE";
+	service_.stop();		/**< XXX:简单粗暴 */
+}
+
+void
 Server::handleRequest(RequestPtr req)
 {
 	assert(req->connection() != nullptr);
@@ -272,7 +279,6 @@ void
 Server::do_await_stop()
 {
 	pimpl_->signals_.async_wait([this](boost::system::error_code /*ec*/, int /*signo*/) {
-		Log("NOTE") << "BYE";
-		service_.stop();		/**< XXX:简单粗暴 */
+		stop();
       	});
 }

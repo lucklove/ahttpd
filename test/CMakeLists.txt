@@ -1,7 +1,7 @@
 SET(TEST_SOURCES
 	test.cc
-#	connection/connection.cc
-#	client/client.cc
+	connection/connection.cc
+	client/client.cc
 	mime/mime.cc
 	base64/base64.cc
 	cookie/cookie.cc
