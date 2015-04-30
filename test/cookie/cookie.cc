@@ -42,20 +42,12 @@ BOOST_AUTO_TEST_CASE(response_cookie_single_test)
 	BOOST_CHECK(cookie.httponly == true);
 }
 
-BOOST_AUTO_TEST_CASE(response_max_age_test)
-{
-	auto cookie = parseResponseCookie("user=username; Max-Age=2222222222");
-	BOOST_CHECK(cookie.key == "user");
-	BOOST_CHECK(cookie.val == "username");
-	BOOST_CHECK(cookie.expires == 2222222222);
-}
-	
 BOOST_AUTO_TEST_CASE(response_cookie_muti_test)
 {
 	std::vector<std::string> cookie_headers;
 	cookie_headers.push_back("user=username1");
 	cookie_headers.push_back("user=username2; expires=Sat, 02-May-15 23:38:25 GMT;domain=www.example.com;");
-	cookie_headers.push_back("user=username3; expires=Sat, 02-May-15 23:38:25 GMT; Max-Age=1111111111");
+	cookie_headers.push_back("user=username3; expires=Sat, 02-May-15 23:38:25 GMT;");
 	auto cookies = parseResponseCookie(cookie_headers);
 	BOOST_REQUIRE(cookies.size() == 3);
 	BOOST_CHECK(cookies[0].key == "user");
@@ -63,5 +55,5 @@ BOOST_AUTO_TEST_CASE(response_cookie_muti_test)
 	BOOST_CHECK(cookies[1].val == "username2");
 	BOOST_CHECK(cookies[1].expires == gmtToTime("Sat, 02-May-2015 23:38:25"));
 	BOOST_CHECK(cookies[1].domain == "www.example.com");
-	BOOST_CHECK(cookies[2].expires == 1111111111);
+	BOOST_CHECK(cookies[2].expires == gmtToTime("Sat, 02-May-2015 23:38:25"));
 }

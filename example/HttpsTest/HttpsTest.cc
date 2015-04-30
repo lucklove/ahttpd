@@ -12,6 +12,7 @@ main(int argc, char *argv[])
 {
 	std::stringstream config("{"
 		"\"https port\":\"9999\","
+		"\"http port\":\"8888\","
 		"\"verify file\":\"../../../certificate/server.csr\","
 		"\"certificate chain file\":\"../../../certificate/server.crt\","
 		"\"private key\":\"../../../certificate/server.key\","

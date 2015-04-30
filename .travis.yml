@@ -16,7 +16,7 @@ install:
 
 script: 
         - mkdir build; pushd build;
-        - cmake -D CMAKE_CXX_FLAGS=--coverage .. && make debug && make -j 2 run_test
+        - cmake -D CMAKE_CXX_FLAGS=--coverage .. && make debug && make run_test
         - popd;
 
 after_success:

@@ -12,9 +12,10 @@ BOOST_AUTO_TEST_CASE(thread_pool_test)
 	bool flag = false;
 	pool.enqueue([&]{ 
 		Log("thread_pool_test") << "do task";
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		flag = true;	
 	});
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	Log("NOTE") << "pool.size() = " << pool.size();
+	sleep(2);
 	BOOST_CHECK(flag);
-//	BOOST_CHECK(pool.size());
 }

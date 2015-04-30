@@ -39,6 +39,10 @@ struct response_cookie_t {
 		expires = e;
 		return *this;
 	}
+	response_cookie_t& setMaxAge(long age) {
+		expires = time(nullptr) + age;
+		return *this;
+	}
 	response_cookie_t& setDomain(const std::string& d) {
 		domain = d;
 		return *this;
@@ -103,7 +107,7 @@ parseResponseCookie(const std::string& cookie_header)
 				cookie.expires = gmtToTime(val);
 		} else if(strcasecmp(key.c_str(), "max-age") == 0) {
 			try {
-				cookie.expires = boost::lexical_cast<time_t>(val);
+				cookie.expires = time(nullptr) + boost::lexical_cast<long>(val);
 			} catch(boost::bad_lexical_cast &e) {
 				Log("ERROR") << e.what();
 				cookie.expires = 0;

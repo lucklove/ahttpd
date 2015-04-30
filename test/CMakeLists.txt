@@ -8,7 +8,7 @@ SET(TEST_SOURCES
 	utils/time.cc
 	utils/string_tokenizer.cc
 	utils/params.cc
-#	ThreadPool/ThreadPool.cc
+	ThreadPool/ThreadPool.cc
 	request/request.cc
 	response/response.cc
 	server/server.cc
