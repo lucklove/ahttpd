@@ -10,6 +10,20 @@ struct TestServer : RequestHandler {
 	}
 };
 
+struct ChunkedTestServer : RequestHandler {
+	void handleRequest(RequestPtr req, ResponsePtr res) override {
+		res->out() << "this ";
+		res->flush();
+		res->out() << "is ";
+		res->flush();
+		res->out() << "a ";
+		res->flush();
+		res->out() << "chunked ";
+		res->flush();
+		res->out() << "body";
+	}
+};
+	
 BOOST_AUTO_TEST_CASE(deliver_test)
 {
 	std::stringstream config("{\"http port\": \"8888\"}");
@@ -64,3 +78,22 @@ BOOST_AUTO_TEST_CASE(https_test)
 	server.run();
 */
 }
+
+BOOST_AUTO_TEST_CASE(chunked_body_test)
+{
+	std::stringstream config("{\"http port\": \"8888\"}");
+	Server server(config);
+	server.addHandler("/chunked", new ChunkedTestServer());
+	server.enqueue([&]{
+		std::this_thread::sleep_for(std::chrono::seconds(1));		/**< 等待server开始监听 */
+		Client c;
+		c.request("GET", "http://localhost:8888/chunked", [&](auto res) {
+			std::stringstream ss;
+			ss << res->out().rdbuf();
+			BOOST_CHECK(ss.str() == "this is a chunked body");
+			server.stop();
+		});
+		c.apply();
+	});
+	server.run();
+}	

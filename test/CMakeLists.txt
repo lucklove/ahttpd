@@ -12,6 +12,7 @@ SET(TEST_SOURCES
 	request/request.cc
 	response/response.cc
 	server/server.cc
+	exception/exception.cc
 )
 ADD_EXECUTABLE(shttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
