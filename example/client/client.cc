@@ -13,15 +13,15 @@ main(int argc, char* argv[])
 	}
 	try {
 		c.request(argv[1], argv[2], 
-			[](auto res, bool good) {
-				if(good) {
+			[](ResponsePtr res) {
+				if(res) {
 					std::cout << res->out().rdbuf();
 				} else {
 					std::cout << "bad" << std::endl;
 				}
 			},
-			[=](auto req, bool good) {
-				if(good) {
+			[=](RequestPtr req) {
+				if(req) {
 					if(argc == 4)
 						req->out() << argv[3];
 				}

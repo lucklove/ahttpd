@@ -29,10 +29,35 @@ public:
 	std::string& version() override { return version_; }
 	status_t& status() { return status_; }
 	std::string& message() { return msg_; }
-	void flush(); 
+	void flush();
+
+	void setCookie(const response_cookie_t& cookie) {
+		std::string header_val = cookie.key;
+		if(cookie.val != "")
+			header_val += "=" + cookie.val;
+		if(cookie.expires)
+			header_val += "; expires=" + gmtTime(cookie.expires) + " GMT";
+		if(cookie.domain != "")
+			header_val += "; domain=" +  cookie.domain;
+		if(cookie.path != "")
+			header_val += "; path=" + cookie.path;
+		if(cookie.secure)
+			header_val += "; secure";
+		if(cookie.httponly)
+			header_val += "; HttpOnly";
+		addHeader("Set-Cookie", header_val);	
+	}
+
+	const std::vector<response_cookie_t>& cookieJar() {
+		return cookie_jar_;
+	}
+	
+	void parseCookie() override {
+		cookie_jar_ = parseResponseCookie(getHeaders("Set-Cookie"));		
+	}
 private:
 	std::string version_;
 	status_t status_;
 	std::string msg_;
-	CookieJar cookie_jar_;
+	std::vector<response_cookie_t> cookie_jar_;
 };

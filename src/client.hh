@@ -19,9 +19,9 @@ public:
 	~Client();
 
 	void request(const std::string& method, const std::string& url,
-		std::function<void(ResponsePtr, bool)> res_handler,
-		std::function<void(RequestPtr, bool)> req_handler =
-			[](RequestPtr req, bool good) {}
+		std::function<void(ResponsePtr)> res_handler,
+		std::function<void(RequestPtr)> req_handler =
+			[](RequestPtr req) {}
 	);
 
 	void apply();

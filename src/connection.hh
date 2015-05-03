@@ -53,7 +53,7 @@ public:
 	virtual boost::asio::ip::tcp::socket& nativeSocket() = 0;
 
 	virtual void async_connect(const std::string& host, const std::string& port,
-		std::function<void(ConnectionPtr, bool)> handler) {
+		std::function<void(ConnectionPtr)> handler) {
 		boost::asio::ip::tcp::resolver::query query(host, port);
 
 		resolver_.async_resolve(query,
@@ -62,7 +62,7 @@ public:
 				if(err) {
 					Log("DEBUG") << __FILE__ << ":" << __LINE__;
 					Log("ERROR") << err.message();
-					handler(nullptr, false);
+					handler(nullptr);
 				} else {
 					boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
 					nativeSocket().async_connect(endpoint,
@@ -172,10 +172,10 @@ private:
 	std::mutex write_queue_mutex_{};
 	void handle_connect(const boost::system::error_code& err, 
 		boost::asio::ip::tcp::resolver::iterator endpoint_iterator, 
-		std::function<void(ConnectionPtr, bool)> handler,
+		std::function<void(ConnectionPtr)> handler,
 		ConnectionPtr ptr) {			/**< 防止过早的析构 */
 		if(!err) {
-			handler(ptr, true);
+			handler(ptr);
 		} else if(endpoint_iterator != boost::asio::ip::tcp::resolver::iterator()) {
 			nativeSocket().close();
 			boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
@@ -183,7 +183,7 @@ private:
             			std::placeholders::_1, ++endpoint_iterator, handler, ptr));
 		} else {
 			Log("ERROR") << "connect faild";
-			handler(nullptr, false);
+			handler(nullptr);
 		}
 	}
 };

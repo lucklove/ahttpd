@@ -1,7 +1,7 @@
 #include "server.hh"
+#include <fstream>
 
 struct HttpsTest : public RequestHandler {
-    using RequestHandler::RequestHandler;
     void handleRequest(RequestPtr req, ResponsePtr rep) override {
         rep->out() << "this should be accessed through HTTPS!" << std::endl;
     }
@@ -10,7 +10,15 @@ struct HttpsTest : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-    Server server("", "9999");	/**< 使用9999监听https报文，并且不打开http端口(第一个端口个参数为"") */
-    server.addHandler("/HttpsTest", new HttpsTest(&server));
-    server.run();
+	std::stringstream config("{"
+		"\"https port\":\"9999\","
+		"\"http port\":\"8888\","
+		"\"verify file\":\"../../../certificate/server.csr\","
+		"\"certificate chain file\":\"../../../certificate/server.crt\","
+		"\"private key\":\"../../../certificate/server.key\","
+		"\"tmp dh file\":\"../../../certificate/server.dh\""
+	"}");
+	Server server(config);
+	server.addHandler("/HttpsTest", new HttpsTest());
+	server.run();
 }

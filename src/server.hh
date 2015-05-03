@@ -20,18 +20,20 @@ public:
 	Server(const Server&) = delete;
 	Server& operator=(const Server&) = delete;
 
-	explicit Server(const std::string& http_port = "",
-			const std::string& https_port = "",
+	explicit Server(std::istream& config,
 			size_t thread_pool_size = 10);
 
 	explicit Server(boost::asio::io_service& service,
-			const std::string& http_port = "",
-			const std::string& https_port = "",
+			std::istream& config,
 			size_t thread_pool_size = 10);
 	~Server();
+
 	void run(size_t thread_number = 1);
 
+	void stop();
+
 	void addHandler(const std::string& path, RequestHandler* handle) {
+		handle->setServer(this);
 		request_handler_.addSubHandler(path, handle);
 	}
 

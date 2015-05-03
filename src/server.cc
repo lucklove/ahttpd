@@ -11,8 +11,29 @@
 #include <ctime>
 #include <boost/asio/ssl.hpp>
 #include <cstring>
-
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 namespace {
+
+using boost::property_tree::read_json;
+using boost::property_tree::ptree;
+
+template<typename T>
+T
+parse_config(const ptree& t, const std::string& key, 
+	std::function<void(std::exception& e, T&)> exception_callback = 
+	[](std::exception& e, T& retval) {
+		retval = T{};
+	})
+{
+	T ret{};
+	try {
+		ret = t.get<T>(key);
+	} catch(std::exception& e) {
+		exception_callback(e, ret);
+	}
+	return ret;
+}
 
 std::string
 generateId(size_t max_size)
@@ -26,8 +47,8 @@ generateId(size_t max_size)
 		ret.push_back(c(e));
 	return ret;
 }	
-
 }
+
 class ServerImpl {
 	friend class Server;
 public:
@@ -86,16 +107,14 @@ ServerImpl::handleSslAccept(std::function<void(RequestPtr)> request_handler, con
 	}
 }
 			
-Server::Server(const std::string& http_port, const std::string& https_port, size_t thread_pool_size)
-	: Server(*(new boost::asio::io_service()), http_port, https_port, thread_pool_size)
+Server::Server(std::istream& config, size_t thread_pool_size)
+	: Server(*(new boost::asio::io_service()), config, thread_pool_size)
 {
 	service_holder_.reset(&service_);	
 }
 
-Server::Server(boost::asio::io_service& service, 
-	const std::string& http_port, const std::string& https_port,
-	size_t thread_pool_size)
-	: pimpl_(std::make_shared<ServerImpl>(service)), service_(service), request_handler_(this),
+Server::Server(boost::asio::io_service& service, std::istream& config, size_t thread_pool_size)
+	: pimpl_(std::make_shared<ServerImpl>(service)), service_(service),
 	thread_pool_size_(thread_pool_size), thread_pool_(thread_pool_size)
 {
 	pimpl_->signals_.add(SIGINT);
@@ -105,10 +124,26 @@ Server::Server(boost::asio::io_service& service,
 #endif
 
 	do_await_stop();
-
+	ptree conf;
+	read_json(config, conf);
+	std::string http_port = parse_config<std::string>(conf, "http port",
+		[](std::exception&, std::string&) {
+			Log("NOTE") << "no http port provide in config, disable http";
+		}
+	);
+	std::string https_port = parse_config<std::string>(conf, "https port",
+		[](std::exception&, std::string&) {
+			Log("NOTE") << "no https port provide in config, disable https";
+		}
+	);
 	if(http_port != "") {
+		std::string http_server = parse_config<std::string>(conf, "http server",
+			[](std::exception&, std::string& server) {
+				server = "0.0.0.0";
+			}
+		);
 		boost::asio::ip::tcp::resolver resolver(service_);
-		boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve({"0.0.0.0", http_port});
+		boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve({http_server, http_port});
 		pimpl_->tcp_acceptor_.open(endpoint.protocol());
 		pimpl_->tcp_acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 		pimpl_->tcp_acceptor_.bind(endpoint);
@@ -122,17 +157,45 @@ Server::Server(boost::asio::io_service& service,
 			| boost::asio::ssl::context::single_dh_use;
 		pimpl_->ssl_context_.set_options(sslOptions);
 		pimpl_->ssl_context_.set_verify_mode(boost::asio::ssl::context::verify_none);
-		pimpl_->ssl_context_.load_verify_file("server.csr");
-		pimpl_->ssl_context_.use_certificate_chain_file("server.crt");
-		pimpl_->ssl_context_.use_private_key_file("server.key",
-			 boost::asio::ssl::context::pem);
-		pimpl_->ssl_context_.use_tmp_dh_file("server.dh");
+		pimpl_->ssl_context_.load_verify_file(parse_config<std::string>(conf, "verify file",
+			[](std::exception& e, std::string&) {
+				Log("ERROR") << "can't peek verify file path in config";
+				Log("ERROR") << e.what();
+				abort();
+			}
+		)); //csr
+		pimpl_->ssl_context_.use_certificate_chain_file(parse_config<std::string>(conf, "certificate chain file",
+			[](std::exception& e, std::string&) {
+				Log("ERROR") << "can't peek certificate chain file path in config";
+				Log("ERROR") << e.what();
+				abort();
+			}
+		));//crt
+		pimpl_->ssl_context_.use_private_key_file(parse_config<std::string>(conf, "private key",
+			[](std::exception& e, std::string&) {
+				Log("ERROR") << "can't peek certificate private key path in config";
+				Log("ERROR") << e.what();
+				abort();
+			}
+		), boost::asio::ssl::context::pem);
+		pimpl_->ssl_context_.use_tmp_dh_file(parse_config<std::string>(conf, "tmp dh file",
+			[](std::exception& e, std::string&) {
+				Log("ERROR") << "can't peek tmp dh file path in config";
+				Log("ERROR") << e.what();
+				abort();
+			}
+		));
 		SSL_CTX *native_ctx = pimpl_->ssl_context_.native_handle();
 		std::string sessionId = generateId(SSL_MAX_SSL_SESSION_ID_LENGTH);
 		SSL_CTX_set_session_id_context(native_ctx,
 			reinterpret_cast<const unsigned char *>(sessionId.c_str()), sessionId.size());
+		std::string https_server = parse_config<std::string>(conf, "https server",
+			[](std::exception&, std::string& server) {
+				server = "0.0.0.0";
+			}
+		);
 		boost::asio::ip::tcp::resolver resolver(service_);
-		boost::asio::ip::tcp::endpoint ssl_endpoint = *resolver.resolve({"0.0.0.0", https_port});
+		boost::asio::ip::tcp::endpoint ssl_endpoint = *resolver.resolve({https_server, https_port});
 		pimpl_->ssl_acceptor_.open(ssl_endpoint.protocol());
 		pimpl_->ssl_acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 		pimpl_->ssl_acceptor_.bind(ssl_endpoint);
@@ -161,19 +224,26 @@ Server::run(size_t thread_number)
 }
 
 void
+Server::stop()
+{
+	Log("NOTE") << "BYE";
+	service_.stop();		/**< XXX:简单粗暴 */
+}
+
+void
 Server::handleRequest(RequestPtr req)
 {
 	assert(req->connection() != nullptr);
-	parseRequest(req, [this](RequestPtr req, bool good) {
-		if(good) {
-			if(req->keepAlive()) {
-				RequestPtr new_req = std::make_shared<Request>(req->connection());
+	parseRequest(req, [=](RequestPtr request) {
+		if(request) {
+			if(request->keepAlive()) {
+				RequestPtr new_req = std::make_shared<Request>(request->connection());
 				handleRequest(new_req);
 			}
 			thread_pool_.wait_to_enqueue([this](std::unique_lock<std::mutex>&) {
 				if(thread_pool_.size_unlocked() > thread_pool_size_)
 					Log("WARNING") << "thread pool overload";
-			}, &Server::deliverRequest, this, req);
+			}, &Server::deliverRequest, this, request);
 		} else {
 			req->connection()->stop();
 			req->discardConnection();
@@ -210,7 +280,6 @@ void
 Server::do_await_stop()
 {
 	pimpl_->signals_.async_wait([this](boost::system::error_code /*ec*/, int /*signo*/) {
-		Log("NOTE") << "BYE";
-		service_.stop();		/**< XXX:简单粗暴 */
+		stop();
       	});
 }

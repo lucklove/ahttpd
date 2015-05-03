@@ -51,9 +51,12 @@ public:
 	}
 
 	void delHeader(const std::string& h_name) {
-		for(std::vector<header_t>::iterator it = headers.begin(); it != headers.end(); ++it) {
-			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0)
-				headers.erase(it);
+		for(std::vector<header_t>::iterator it = headers.begin(); it != headers.end();) {
+			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0) {
+				it = headers.erase(it);
+			} else {
+				++it;
+			}
 		}
 	}
 
@@ -74,6 +77,7 @@ public:
 	}
 
 	virtual std::string& version() = 0;
+	virtual void parseCookie() = 0;
 
 	size_t
 	contentLength()
@@ -86,7 +90,6 @@ public:
 	}
 protected:
 
-//	void setHeadLine(const std::string& headline) { headline_ = headline; }
 	bool chunked() { return chunked_; }
 	void setChunked() { chunked_ = true; }
 	void flushPackage();
@@ -97,5 +100,4 @@ private:
 	std::vector<header_t> headers;
 	std::stringstream body;
 	ConnectionPtr connection_;
-//	std::string headline_;
 };

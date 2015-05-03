@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8.12)
-project(shttpd)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
+PROJECT(ahttpd)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_COMPILER g++)
-add_compile_options("-std=c++1y")
+SET(CMAKE_VERBOSE_MAKEFILE ON)
+SET(CMAKE_CXX_COMPILER g++)
+ADD_COMPILE_OPTIONS("-std=c++1y")
 SUBDIRS(
 	src
 	test

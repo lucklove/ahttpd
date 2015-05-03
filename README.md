@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/lucklove/shttpd.svg?branch=master)](https://travis-ci.org/lucklove/shttpd)
-[![Coverage Status](https://coveralls.io/repos/lucklove/shttpd/badge.svg)](https://coveralls.io/r/lucklove/shttpd)
+[![Build Status](https://travis-ci.org/lucklove/ahttpd.svg?branch=master)](https://travis-ci.org/lucklove/ahttpd)
+[![Coverage Status](https://coveralls.io/repos/lucklove/ahttpd/badge.svg?branch=master)](https://coveralls.io/r/lucklove/ahttpd?branch=master)
 app server框架
 ===================
 
@@ -14,7 +14,7 @@ app server框架
 - libssl(https需要)  
 
 ##编译-安装
-- cd shttpd  
+- cd ahttpd  
 - mkdir build  
 - cd build  
 - cmake ..  
@@ -23,9 +23,9 @@ app server框架
 
 ###注意:
 若在运行时出现如下错误:  
-error while loading shared libraries: libshttpd.so: cannot open shared object file: No such file or directory  
-请确保libshttpd.so所在目录在ld的搜索路径中,对于linux系统, libshttpd.so所在的目录一般为/usr/local/lib  
-若发现改目录不在ld的搜索路径中,以下步骤可让libshttpd.so被ld找到:  
+error while loading shared libraries: libahttpd.so: cannot open shared object file: No such file or directory  
+请确保libahttpd.so所在目录在ld的搜索路径中,对于linux系统, libahttpd.so所在的目录一般为/usr/local/lib  
+若发现改目录不在ld的搜索路径中,以下步骤可让libahttpd.so被ld找到:  
 - 修改/etc/ld.so.conf, 加入一行/usr/local/lib  
 - 执行sudo ldconfig更新配置  
 
@@ -36,7 +36,6 @@ error while loading shared libraries: libshttpd.so: cannot open shared object fi
 ```c++
 #include "server.hh"
 struct TestHandler : public RequestHandler {
-	using RequestHandler::RequestHandler;
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		rep->out() << "hello world!" << std::endl;
 	}
@@ -45,8 +44,9 @@ struct TestHandler : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
-	Server server("8888");
-	server.addHandler("/", new TestHandler(&server));
+	std::stringstream config("{\"http port\":\"8888\"}");
+	Server server(config);
+	server.addHandler("/", new TestHandler());
 	server.run();
 }
 ```
@@ -59,6 +59,7 @@ main(int argc, char *argv[])
 | HttpsTest  | https的示例		   | https://127.0.0.1:9999/HttpsTest     |  需要输入创建密钥时的密码         |
 |   client   | 异步客户端示例	           |				          |				      |
 |StaticServer| 静态文件服务器              | http://127.0.0.1:8888/[xxx]          | 其中的小游戏来自github用户kig)    |
+|   mail     | 使用smtp发送邮件		   |					  |				      |
 
 点击[这里](http://115.28.32.115:8888)访问静态文件服务器中的游戏
 

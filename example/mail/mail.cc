@@ -4,10 +4,16 @@
 int
 main(int argc, char *argv[])
 {
-	Mail m("MDD_smart@163.com", "1245678900..", "smtp.163.com");
-//	Mail m("MDD_smart@163.com", "1245678900..", "127.0.0.1");
-	m.send("1041324091@qq.com", "测试邮件", "请勿回复", [](bool good) {
-		Log("DEBUG") << good;
+	if(argc != 4) {
+		std::cout << "USEAGE: ./mail dest@destdomain.com subject body" << std::endl;
+		return -1;
+	}
+	Mail m("ahttpd@163.com", "qjhjhnevjghjdoml", "smtp.163.com");
+	m.send(argv[1], argv[2], argv[3], [=](bool good) {
+		if(!good) {
+			std::cout << "send mail to "<< argv[1] << " failed" << std::endl;
+			return -2;
+		}
 	});
 	m.apply();
 }

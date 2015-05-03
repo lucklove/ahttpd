@@ -15,10 +15,10 @@ class Server;
  */
 class RequestHandler {
 public:
+	RequestHandler() = default;
 	RequestHandler(const RequestHandler&) = delete;
 	RequestHandler& operator=(const RequestHandler&) = delete;
-	explicit RequestHandler(Server *server);
-	virtual ~RequestHandler() {}
+	virtual ~RequestHandler() = default;
 
 	/**
  	 * \brief Request处理函数
@@ -42,9 +42,13 @@ public:
 		sub_handlers_.push_back(std::make_tuple(path, handler));
 	}
 
+	void setServer(Server *server) {
+		server_ = server;
+	}
+
 	Server* server() { return server_; }
 private:
-	Server *server_;
+	Server *server_ = nullptr;
 
 	std::vector<std::tuple<const std::string, RequestHandler *>> sub_handlers_;
 
