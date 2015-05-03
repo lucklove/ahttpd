@@ -33,3 +33,10 @@ BOOST_AUTO_TEST_CASE(request_cookie_test)
 	ptr = req.getCookieValue("key3");
 	BOOST_CHECK(ptr == nullptr);
 }
+
+BOOST_AUTO_TEST_CASE(basic_auth_test)
+{
+	Request req(nullptr);
+	req.basicAuth("ahttpd:ahttpd");
+	BOOST_CHECK(req.basicAuthInfo() == "ahttpd:ahttpd");
+}
