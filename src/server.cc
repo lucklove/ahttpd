@@ -48,6 +48,7 @@ generateId(size_t max_size)
 	return ret;
 }	
 }
+
 class ServerImpl {
 	friend class Server;
 public:
@@ -126,12 +127,12 @@ Server::Server(boost::asio::io_service& service, std::istream& config, size_t th
 	ptree conf;
 	read_json(config, conf);
 	std::string http_port = parse_config<std::string>(conf, "http port",
-		[](std::exception&, auto&&) {
+		[](std::exception&, std::string&) {
 			Log("NOTE") << "no http port provide in config, disable http";
 		}
 	);
 	std::string https_port = parse_config<std::string>(conf, "https port",
-		[](std::exception&, auto&&) {
+		[](std::exception&, std::string&) {
 			Log("NOTE") << "no https port provide in config, disable https";
 		}
 	);
@@ -157,28 +158,28 @@ Server::Server(boost::asio::io_service& service, std::istream& config, size_t th
 		pimpl_->ssl_context_.set_options(sslOptions);
 		pimpl_->ssl_context_.set_verify_mode(boost::asio::ssl::context::verify_none);
 		pimpl_->ssl_context_.load_verify_file(parse_config<std::string>(conf, "verify file",
-			[](std::exception& e, auto&&) {
+			[](std::exception& e, std::string&) {
 				Log("ERROR") << "can't peek verify file path in config";
 				Log("ERROR") << e.what();
 				abort();
 			}
 		)); //csr
 		pimpl_->ssl_context_.use_certificate_chain_file(parse_config<std::string>(conf, "certificate chain file",
-			[](std::exception& e, auto&&) {
+			[](std::exception& e, std::string&) {
 				Log("ERROR") << "can't peek certificate chain file path in config";
 				Log("ERROR") << e.what();
 				abort();
 			}
 		));//crt
 		pimpl_->ssl_context_.use_private_key_file(parse_config<std::string>(conf, "private key",
-			[](std::exception& e, auto&&) {
+			[](std::exception& e, std::string&) {
 				Log("ERROR") << "can't peek certificate private key path in config";
 				Log("ERROR") << e.what();
 				abort();
 			}
 		), boost::asio::ssl::context::pem);
 		pimpl_->ssl_context_.use_tmp_dh_file(parse_config<std::string>(conf, "tmp dh file",
-			[](std::exception& e, auto&&) {
+			[](std::exception& e, std::string&) {
 				Log("ERROR") << "can't peek tmp dh file path in config";
 				Log("ERROR") << e.what();
 				abort();

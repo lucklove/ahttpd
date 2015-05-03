@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(http_test)
 	server.enqueue([&]{
 		std::this_thread::sleep_for(std::chrono::seconds(1));		/**< 等待server开始监听 */
 		Client c;
-		c.request("GET", "http://localhost:8888/something_not_exist", [&](auto res) {
+		c.request("GET", "http://localhost:8888/something_not_exist", [&](ResponsePtr res) {
 			BOOST_CHECK(res->status() == Response::not_found);
 			server.stop();
 		});
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(https_test)
 	server.enqueue([&]{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		Client c;
-		c.request("GET", "https://localhost:9999/something_not_exist", [&](auto res) {
+		c.request("GET", "https://localhost:9999/something_not_exist", [&](ResponsePtr res) {
 			BOOST_CHECK(res->status() == Response::not_found);
 			server.stop();
 		});
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(chunked_body_test)
 	server.enqueue([&]{
 		std::this_thread::sleep_for(std::chrono::seconds(1));		/**< 等待server开始监听 */
 		Client c;
-		c.request("GET", "http://localhost:8888/chunked", [&](auto res) {
+		c.request("GET", "http://localhost:8888/chunked", [&](ResponsePtr res) {
 			std::stringstream ss;
 			ss << res->out().rdbuf();
 			BOOST_CHECK(ss.str() == "this is a chunked body");
