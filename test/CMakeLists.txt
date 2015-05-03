@@ -13,8 +13,9 @@ SET(TEST_SOURCES
 	response/response.cc
 	server/server.cc
 	exception/exception.cc
+	mail/mail.cc
 )
-ADD_EXECUTABLE(shttpd_test ${TEST_SOURCES})
+ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
-TARGET_LINK_LIBRARIES(shttpd_test shttpd boost_system ssl crypto pthread)
-ADD_CUSTOM_TARGET(run_test COMMAND ${CMAKE_BINARY_DIR}/test/shttpd_test DEPENDS shttpd_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+TARGET_LINK_LIBRARIES(ahttpd_test ahttpd boost_system ssl crypto pthread)
+ADD_CUSTOM_TARGET(run_test COMMAND ${CMAKE_BINARY_DIR}/test/ahttpd_test DEPENDS ahttpd_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -1,3 +1,3 @@
 ADD_EXECUTABLE(mail mail.cc)
 INCLUDE_DIRECTORIES(../../src)
-TARGET_LINK_LIBRARIES(mail shttpd)
+TARGET_LINK_LIBRARIES(mail ahttpd)

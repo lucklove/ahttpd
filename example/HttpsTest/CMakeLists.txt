@@ -1,3 +1,3 @@
 ADD_EXECUTABLE(HttpsTest HttpsTest.cc)
 INCLUDE_DIRECTORIES(../../src)
-TARGET_LINK_LIBRARIES(HttpsTest shttpd)
+TARGET_LINK_LIBRARIES(HttpsTest ahttpd)

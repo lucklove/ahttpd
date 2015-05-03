@@ -4,9 +4,16 @@
 int
 main(int argc, char *argv[])
 {
-	Mail m("sender@xxx.com", "senderpassword", "smtp.xxx.com");
-	m.send("receiver@xxx.com", "subject", "body", [](bool good) {
-		Log("DEBUG") << good;
+	if(argc != 4) {
+		std::cout << "USEAGE: ./mail dest@destdomain.com subject body" << std::endl;
+		return -1;
+	}
+	Mail m("ahttpd@163.com", "qjhjhnevjghjdoml", "smtp.163.com");
+	m.send(argv[1], argv[2], argv[3], [=](bool good) {
+		if(!good) {
+			std::cout << "send mail to "<< argv[1] << " failed" << std::endl;
+			return -2;
+		}
 	});
 	m.apply();
 }

@@ -14,9 +14,9 @@ SET(SHTTPD_SRCS SHARED
 	mail.cc
 	utils.cc
 )
-ADD_LIBRARY(shttpd ${SHTTPD_SRCS})
-TARGET_LINK_LIBRARIES(shttpd ssl crypto pthread boost_system)
-INSTALL(TARGETS shttpd LIBRARY DESTINATION lib)
+ADD_LIBRARY(ahttpd ${SHTTPD_SRCS})
+TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)
+INSTALL(TARGETS ahttpd LIBRARY DESTINATION lib)
 INSTALL(FILES
 	log.hh
 	header.hh
@@ -35,5 +35,5 @@ INSTALL(FILES
 	cookie.hh
 	utils.hh
 	params.hh
-	DESTINATION include/shttpd
+	DESTINATION include/ahttpd
 )
