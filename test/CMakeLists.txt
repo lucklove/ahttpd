@@ -1,6 +1,6 @@
 SET(TEST_SOURCES
 	test.cc
-	connection/connection.cc
+#	connection/connection.cc
 	client/client.cc
 	mime/mime.cc
 	base64/base64.cc
@@ -11,9 +11,9 @@ SET(TEST_SOURCES
 	ThreadPool/ThreadPool.cc
 	request/request.cc
 	response/response.cc
-	server/server.cc
+#	server/server.cc
 	exception/exception.cc
-	mail/mail.cc
+#	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
