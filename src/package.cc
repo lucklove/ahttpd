@@ -1,20 +1,6 @@
 #include "package.hh"
 #include "connection.hh"
-
-namespace {
-
-template<typename T>
-std::string
-to_string(T&& some_thing)
-{
-        std::string ret;
-        std::stringstream s(ret);
-        s << some_thing;
-        s >> ret;
-        return ret;
-}
-
-}
+#include <boost/lexical_cast.hpp>
 
 void
 Package::flushPackage()
@@ -27,10 +13,9 @@ Package::flushPackage()
 		} else {
 			auto h = getHeader("Content-Length");
 			if(h == nullptr) {
-				addHeader("Content-Length", to_string(contentLength()));
+				addHeader("Content-Length", boost::lexical_cast<std::string>(contentLength()));
 			}
 		}
-//		add_cookie();		/**< 将cookie写入header */	
 		for(auto&& h : headerMap())
 			send_buf << h.name << ": " << h.value << "\r\n";
 		send_buf << "\r\n";

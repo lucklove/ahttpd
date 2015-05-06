@@ -5,13 +5,13 @@
 BOOST_AUTO_TEST_CASE(thread_pool_test)
 {
 	ThreadPool pool(1, []{ 
-		Log("thread_pool_test") << "task start";
+		Log("NOTE") << "task start(thread pool)";
 	}, []{
-		Log("thread_pool_test") << "task end";
+		Log("NOTE") << "task end(thread pool)";
 	});
 	bool flag = false;
 	pool.enqueue([&]{ 
-		Log("thread_pool_test") << "do task";
+		Log("NOTE") << "do task(thread pool)";
 		flag = true;	
 		std::this_thread::sleep_for(std::chrono::seconds(2));
 	});

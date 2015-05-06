@@ -1,5 +1,4 @@
 #include <boost/test/unit_test.hpp>
-#define private public
 #include "client.hh"
 #include "server.hh"
 #include "response.hh"
@@ -40,30 +39,6 @@ BOOST_AUTO_TEST_CASE(client_request_test)
 */
 }
 
-BOOST_AUTO_TEST_CASE(client_cookie_simple_test)
-{
-	std::stringstream config("{\"http port\":\"8888\"}");
-	Server s(config);
-	auto set_cookie = new SetCookie();
-	s.addHandler("/", set_cookie);
-	Client c(s.service());
-	c.enableCookie();
-	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1"));
-	c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
-		auto cookie_jar = c.cookie_jar_;
-		BOOST_REQUIRE(cookie_jar.size());
-		BOOST_CHECK(cookie_jar[0].key == "key1");
-		BOOST_CHECK(cookie_jar[0].val == "val1");
-		BOOST_CHECK(cookie_jar[0].expires == 0);
-		BOOST_CHECK(cookie_jar[0].domain == "localhost");
-		BOOST_CHECK(cookie_jar[0].path == "/");
-		BOOST_CHECK(cookie_jar[0].secure == false);
-		BOOST_CHECK(cookie_jar[0].httponly == false);
-		s.stop();
-	});
-	s.run();
-}
-
 BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
@@ -82,7 +57,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
 			std::stringstream ss;
 			ss << res->out().rdbuf();
 			BOOST_CHECK(ss.str() == "key2=val2; key3=val3");
-			Log("DEBUG") << ss.str();
+			Log("NOTE") << ss.str();
 			s.stop();
 		});
 	});
@@ -107,7 +82,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_expires_test)
 			std::stringstream ss;
 			ss << res->out().rdbuf();
 			BOOST_CHECK(ss.str() == "key2=val2");
-			Log("DEBUG") << ss.str();
+			Log("NOTE") << ss.str();
 			s.stop();
 		});
 	});
@@ -134,7 +109,32 @@ BOOST_AUTO_TEST_CASE(client_cookie_path_test)
 			std::stringstream ss;
 			ss << res->out().rdbuf();
 			BOOST_CHECK(ss.str() == "key1=val1; key3=val3; key5=val5");
-			Log("DEBUG") << ss.str();
+			Log("NOTE") << ss.str();
+			s.stop();
+		});
+	});
+	s.run();
+}
+
+BOOST_AUTO_TEST_CASE(client_cookie_domain_test)
+{
+	std::stringstream config("{\"http port\":\"8888\"}");
+	Server s(config);
+	auto set_cookie = new SetCookie();
+	auto echo_cookie = new EchoCookie();
+	s.addHandler("/", set_cookie);
+	s.addHandler("/echo", echo_cookie);
+	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1").setDomain("127.0.0.1").setMaxAge(10));
+	set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setDomain(".localhost").setMaxAge(10));
+	set_cookie->cookies.push_back(response_cookie_t().setKey("key3").setVal("val3").setMaxAge(10));
+	Client c(s.service());
+	c.enableCookie();
+	c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
+		c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
+			std::stringstream ss;
+			ss << res->out().rdbuf();
+			BOOST_CHECK(ss.str() == "key2=val2; key3=val3");
+			Log("NOTE") << ss.str();
 			s.stop();
 		});
 	});

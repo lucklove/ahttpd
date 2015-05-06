@@ -11,6 +11,6 @@ BOOST_AUTO_TEST_CASE(exception_test)
 	try {
 		DEBUG_THROW(TestException, "Just test Exception, don't worry, nothing bad");
 	} catch(Exception& e) {
-		Log("TEST") << e;
+		Log("NOTE") << e;
 	}
 }
