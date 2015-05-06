@@ -75,6 +75,7 @@ void
 Mail::apply()
 {
 	service_.run();
+	service_.reset();
 }
 
 #define CHECK(cond)						\

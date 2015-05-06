@@ -4,19 +4,10 @@
 #include "connection.hh"
 #include <regex>
 #include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 
 namespace {
-
-inline size_t 
-to_size(const std::string& s)
-{
-	std::stringstream ss(s);
-	size_t ret = 0;
-	ss >> ret;
-	return ret;
-}
-
 template<typename Pac_t, typename Handle_t>
 void
 parse_headers(Pac_t pac, Handle_t handler)
@@ -132,7 +123,7 @@ parse_body(Pac_t pac, Handle_t handler)
 			handler(pac);
 		}
 	} else {
-		size_t length = to_size(*h);
+		size_t length = boost::lexical_cast<size_t>(*h);
 		if(length == 0) {
 			handler(pac);
 			return;
@@ -217,7 +208,7 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> hand
 			getline(in, line);
 			if(std::regex_search(line, results, first_line_reg)) {
 				res->version() = results.str(1);
-				res->status() = static_cast<Response::status_t>(to_size(results.str(2)));
+				res->status() = static_cast<Response::status_t>(boost::lexical_cast<size_t>(results.str(2)));
 				res->message() = results.str(3);
 				handler(res);
 			} else {

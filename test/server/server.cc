@@ -55,9 +55,10 @@ BOOST_AUTO_TEST_CASE(http_test)
 	server.run();
 }
 
+/*
+ * FIXME: 在加载密钥文件时需要输入密码，无法在trivas CI上使用
 BOOST_AUTO_TEST_CASE(https_test)
 {
-/*
 	std::stringstream config("{"
 		"\"https port\":\"9999\","
 		"\"verify file\":\"certificate/server.csr\","
@@ -76,8 +77,8 @@ BOOST_AUTO_TEST_CASE(https_test)
 		c.apply();
 	});
 	server.run();
-*/
 }
+*/
 
 BOOST_AUTO_TEST_CASE(chunked_body_test)
 {

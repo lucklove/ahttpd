@@ -221,6 +221,7 @@ Server::run(size_t thread_number)
 	}
 	for(auto&& th : threads)
 		th.join();
+	service_.reset();
 }
 
 void
