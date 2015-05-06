@@ -85,6 +85,7 @@ void
 Client::apply()
 {
 	service_.run();
+	service_.reset();			/**< 准备下一次apply */
 }
 
 void
@@ -174,7 +175,7 @@ void
 Client::add_cookie_to_request(RequestPtr req, const std::string& scheme, const std::string& host)
 {
 	for(auto iter = cookie_jar_.begin(); iter != cookie_jar_.end();) {
-		if(iter->expires < time(nullptr)) {
+		if(iter->expires != 0 && iter->expires < time(nullptr)) {
 			cookie_jar_.erase(iter);
 		} else {
 			++iter;

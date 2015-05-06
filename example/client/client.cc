@@ -7,6 +7,7 @@ int
 main(int argc, char* argv[])
 {
 	Client c;
+	c.enableCookie();
 	if(argc < 3) {
 		std::cout << "useage: client method url [body]" << std::endl;
 		return 0;

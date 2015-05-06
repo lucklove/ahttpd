@@ -4,12 +4,13 @@ app server框架
 ===================
 
 ##当前特性
-- http
-- https
-- smtp
+- http/https server
+- http/https client
+- smtp client
+- cookie
 
 ##依赖
-- boost.asio  
+- boost
 - C++1y  
 - libssl(https需要)  
 

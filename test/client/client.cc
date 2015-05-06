@@ -19,9 +19,15 @@ struct EchoCookie : RequestHandler {
 	}
 };
 
+struct EchoBody : RequestHandler {
+	void handleRequest(RequestPtr req, ResponsePtr res) {
+		BOOST_REQUIRE(req->method() == "POST");
+		res->out() << req->in().rdbuf();
+	}
+};
+
 BOOST_AUTO_TEST_CASE(client_request_test)
 {
-/*
 	Client c;
 	c.request("GET", "http://www.example.com",
 		[](ResponsePtr res) {
@@ -36,7 +42,40 @@ BOOST_AUTO_TEST_CASE(client_request_test)
 		}
 	);
 	c.apply();
-*/
+}
+
+BOOST_AUTO_TEST_CASE(client_request_chunked_body_test)
+{
+	std::stringstream config("{\"http port\":\"8888\"}");
+	Server s(config);
+	auto echo_body = new EchoBody();
+	s.addHandler("/echo", echo_body);
+	Client c(s.service());
+	c.request("POST", "http://localhost:8888/echo",
+		[&](ResponsePtr res) {
+			BOOST_REQUIRE(res);
+			BOOST_CHECK(res->status() == Response::ok);
+			std::stringstream ss;
+			ss << res->in().rdbuf();
+			BOOST_CHECK(ss.str() == "this is a chunked body");
+			Log("NOTE") << ss.str();
+			s.stop();
+		},
+		[](RequestPtr req) {
+			BOOST_REQUIRE(req);
+			req->out() << "this ";
+			req->flush();
+			req->out() << "is ";
+			req->flush();
+			req->out() << "a ";
+			req->flush();
+			req->out() << "chunked ";
+			req->flush();
+			req->out() << "body";
+			req->flush();
+		}
+	);
+	s.run();
 }
 
 BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
@@ -56,7 +95,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
 		c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
 			std::stringstream ss;
 			ss << res->out().rdbuf();
-			BOOST_CHECK(ss.str() == "key2=val2; key3=val3");
+			BOOST_CHECK(ss.str() == "key1=val1; key2=val2; key3=val3");
 			Log("NOTE") << ss.str();
 			s.stop();
 		});
