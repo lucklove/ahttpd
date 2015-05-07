@@ -10,7 +10,8 @@
 class Response : public Package, 
 	public std::enable_shared_from_this<Response> {
 public:
-	enum status_t {
+	typedef unsigned short status_t;
+	enum {
 		ok = 200, created, accepted, non_authoritative_information, 
 			no_content, reset_content, partial_content, muti_status,
 		multiple_choices = 300, moved_permanently, moved_temporarily, not_modified,

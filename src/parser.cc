@@ -208,7 +208,7 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> hand
 			getline(in, line);
 			if(std::regex_search(line, results, first_line_reg)) {
 				res->version() = results.str(1);
-				res->status() = static_cast<Response::status_t>(boost::lexical_cast<size_t>(results.str(2)));
+				res->status() = boost::lexical_cast<Response::status_t>(results.str(2));
 				res->message() = results.str(3);
 				handler(res);
 			} else {
