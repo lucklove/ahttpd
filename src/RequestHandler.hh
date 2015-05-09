@@ -51,6 +51,4 @@ private:
 	Server *server_ = nullptr;
 
 	std::vector<std::tuple<const std::string, RequestHandler *>> sub_handlers_;
-
-	static bool url_decode(std::string& in_out);
 };

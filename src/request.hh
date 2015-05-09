@@ -34,7 +34,12 @@ public :
  	 * \brief 获取请求方法
  	 * \return method
  	 */ 
-	std::string& method() { return method_; }
+	std::string getMethod() { return method_; }
+
+	/**
+ 	 * \brief 设置请求方法
+ 	 */ 
+	void setMethod(const std::string& method) { method_ = method; }
 
 	/**
  	 * \brief 获取http版本HTTP/1.0 HTTP1.1

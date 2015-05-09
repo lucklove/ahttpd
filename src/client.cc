@@ -130,7 +130,7 @@ Client::request(const std::string& method, const std::string& url,
 			if(conn) {
 				auto req = std::make_shared<Request>(conn);
 				auto res = std::make_shared<Response>(conn);
-				req->method() = method;
+				req->setMethod(method);
 				auto pos = path.find("?");
 				if(pos == path.npos) {
 					req->path() = path;

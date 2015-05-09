@@ -8,19 +8,38 @@
 #include <sstream>
 #include <string>
 
+namespace {
+const char *allowed_method[] = {
+	"GET",
+	"POST",
+	"PUT",
+	"DELETE"
+};
+
+bool method_implemented(const std::string& method)
+{
+	for(const char* m : allowed_method) {
+		if(m == method)
+			return true;
+	}
+	return false;
+}
+}
+
 void 
 RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
-	if(url_decode(req->path()) && url_decode(req->query())) {
-		try {
-	 	 	if(!deliverRequest(req, rep))
-				rep->status() = Response::not_found;
-		} catch(std::exception& e) {
-			Log("WARNING") << "EXCEPTION FROM USER HANDLER: " << e.what();
+	try {
+		if(!method_implemented(req->getMethod())) {
+			rep->status() = Response::not_implemented;
+			return;
 		}
-  	} else {
-		Log("WARNING") << "Bad request";
-		rep->status() = Response::not_found;
+		if(!deliverRequest(req, rep)) {
+			rep->status() = Response::not_found;
+			return;
+		}
+	} catch(std::exception& e) {
+		Log("WARNING") << "EXCEPTION FROM USER HANDLER: " << e.what();
 	}
 }
 
@@ -41,33 +60,4 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 
 	std::get<1>(best)->handleRequest(req, rep);
 	return true;
-}
-
-bool 
-RequestHandler::url_decode(std::string& in_out)
-{
-	std::string out;
-	out.reserve(in_out.size());
-	for(std::size_t i = 0; i < in_out.size(); ++i) {
-		if(in_out[i] == '%') {
-      			if(i + 3 <= in_out.size()) {
-        			int value = 0;
-        			std::istringstream is(in_out.substr(i + 1, 2));
-        			if(is >> std::hex >> value) {
-          				out += static_cast<char>(value);
-          				i += 2;
-        			} else {
-          				return false;
-        			}
-      			} else {
-        			return false;
-      			}
-    		} else if (in_out[i] == '+') {
-      			out += ' ';
-    		} else {
-      			out += in_out[i];
-    		}
-  	}
-	in_out = out;
-  	return true;
 }

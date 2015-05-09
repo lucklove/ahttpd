@@ -1,6 +1,7 @@
 #include "parser.hh"
 #include "server.hh"
 #include "log.hh"
+#include "utils.hh"
 #include "connection.hh"
 #include <regex>
 #include <boost/asio.hpp>
@@ -167,24 +168,37 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler
 				handler(nullptr);
 				return;
 			}
-			std::smatch results;
-			static const std::regex first_line_reg(
-				"(GET|POST|PUT|DELETE) (/((?!\\?)[[:print:]])*)"
-				"[\\?]?([[:print:]]*)? (HTTP/1.1|HTTP/1.0)");
 			std::istream in(&req->connection()->readBuffer());
 			std::string line;
 			getline(in, line);
-			if(std::regex_search(
-				line, results, first_line_reg)) {
-				req->method() = results.str(1);
-				req->path() = results.str(2);
-				if(results[4].matched)
-					req->query() = results.str(4);
-				req->version() = results.str(5);
-				handler(req);
-			} else {
+			StringTokenizer first_line_st(line);
+			std::string url;
+			StringTokenizer url_st;
+
+			if(!first_line_st.hasMoreTokens())
+				goto bad_request;
+			req->setMethod(first_line_st.nextToken());
+
+			if(!first_line_st.hasMoreTokens())
+				goto bad_request;
+			url = first_line_st.nextToken();
+			if(!urlDecode(url) || url[0] != '/')
+				goto bad_request;
+			url_st = StringTokenizer(url, '?');
+			req->path() = url_st.nextToken();
+			if(url_st.hasMoreTokens())
+				req->query() = url_st.nextToken();
+
+			if(!first_line_st.hasMoreTokens())
+				goto bad_request;
+			req->version() = first_line_st.nextToken();
+
+			handler(req);
+			return;
+
+			bad_request:
+				Log("WARNING") << "Bad request";
 				handler(nullptr);
-			}
 		}
 	);
 

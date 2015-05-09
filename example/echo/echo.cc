@@ -10,7 +10,7 @@
 struct EchoHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		auto auth_info = req->basicAuthInfo();
-		rep->out() << "method: " << req->method() << std::endl;
+		rep->out() << "method: " << req->getMethod() << std::endl;
 		rep->out() << "path: " << req->path() << std::endl;
 		rep->out() << "query: " << req->query() << std::endl;
 		rep->out() << "version: " << req->version() << std::endl;

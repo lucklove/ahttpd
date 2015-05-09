@@ -7,7 +7,7 @@
 void
 StaticServer::handleRequest(RequestPtr req, ResponsePtr res) 
 {
-	if(req->method() != "GET") {				/**< 只允许GET请求 */
+	if(req->getMethod() != "GET") {				/**< 只允许GET请求 */
 		res->status() = Response::not_implemented;
 		return;
 	}

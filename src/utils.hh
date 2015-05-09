@@ -13,7 +13,7 @@ struct TokenError : Exception {
 	using Exception::Exception;
 };
 
-static inline std::string
+inline std::string
 localTime(time_t t)
 {
 	char lc_time[64] = { 0 };
@@ -23,7 +23,7 @@ localTime(time_t t)
 	return lc_time;
 }
 
-static inline std::string
+inline std::string
 gmtTime(time_t t)
 {
 	char gmt_time[64] = { 0 };
@@ -39,7 +39,6 @@ peek(_type&& arg, _tParams&&...)
 {
         return std::forward<_type>(arg);
 }
-
 
 /**
  * \brief Split a container by a special item in it.
@@ -137,3 +136,5 @@ private:
 };
 
 time_t gmtToTime(const std::string& gmt_time);
+std::string urlEncode(const std::string& url);
+bool urlDecode(std::string& url);

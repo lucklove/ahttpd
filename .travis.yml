@@ -10,11 +10,13 @@ before_install:
         - sudo apt-get -qq update
 
 install:
+        - gcc-4.8-fix.sh 
         - sudo apt-get install cmake 
         - sudo apt-get install -qq boost1.55
         - if [ "$CXX" == "g++"     ]; then .travis_scripts/gcc.sh; fi
 
 script: 
+        - sh gcc-4.8-fix.sh
         - mkdir build; pushd build;
         - cmake -D CMAKE_CXX_FLAGS=--coverage .. && make debug && make run_test
         - popd;

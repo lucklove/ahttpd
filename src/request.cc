@@ -1,5 +1,6 @@
 #include "request.hh"
 #include "connection.hh"
+#include "utils.hh"
 #include "base64.hh"
 #include <regex>
 

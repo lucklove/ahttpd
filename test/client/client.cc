@@ -21,7 +21,7 @@ struct EchoCookie : RequestHandler {
 
 struct EchoBody : RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr res) {
-		BOOST_REQUIRE(req->method() == "POST");
+		BOOST_REQUIRE(req->getMethod() == "POST");
 		res->out() << req->in().rdbuf();
 	}
 };
