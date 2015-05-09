@@ -27,9 +27,12 @@ public:
 		delHeader("Content-Type");
 		addHeader("Content-Type", mime);
 	}
-	std::string& version() override { return version_; }
-	status_t& status() { return status_; }
-	std::string& message() { return msg_; }
+	std::string getVersion() override { return version_; }
+	void setVersion(const std::string& version) { version_ = version; }
+	status_t getStatus() { return status_; }
+	void setStatus(status_t status) { status_ = status; }
+	std::string getMessage() { return msg_; }
+	void setMessage(const std::string& msg) { msg_ = msg; }
 	void flush();
 
 	void setCookie(const response_cookie_t& cookie) {

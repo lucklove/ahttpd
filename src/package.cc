@@ -16,7 +16,7 @@ Package::flushPackage()
 				addHeader("Content-Length", boost::lexical_cast<std::string>(contentLength()));
 			}
 		}
-		for(auto&& h : headerMap())
+		for(auto h : getHeaderMap())
 			send_buf << h.name << ": " << h.value << "\r\n";
 		send_buf << "\r\n";
 		send_started_ = true;

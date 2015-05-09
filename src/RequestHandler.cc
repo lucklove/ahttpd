@@ -31,11 +31,11 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
 	try {
 		if(!method_implemented(req->getMethod())) {
-			rep->status() = Response::not_implemented;
+			rep->setStatus(Response::not_implemented);
 			return;
 		}
 		if(!deliverRequest(req, rep)) {
-			rep->status() = Response::not_found;
+			rep->setStatus(Response::not_found);
 			return;
 		}
 	} catch(std::exception& e) {
@@ -50,8 +50,8 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 
 	for(auto handler : sub_handlers_) {
 		size_t cmp_size = std::get<0>(handler).size();
-		if(req->path().size() >= cmp_size && 
-			req->path().substr(0, cmp_size) == std::get<0>(handler))
+		if(req->getPath().size() >= cmp_size && 
+			req->getPath().substr(0, cmp_size) == std::get<0>(handler))
 			best = handler;	
 	}
 

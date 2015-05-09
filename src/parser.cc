@@ -185,13 +185,13 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler
 			if(!urlDecode(url) || url[0] != '/')
 				goto bad_request;
 			url_st = StringTokenizer(url, '?');
-			req->path() = url_st.nextToken();
+			req->setPath(url_st.nextToken());
 			if(url_st.hasMoreTokens())
-				req->query() = url_st.nextToken();
+				req->setQueryString(url_st.nextToken());
 
 			if(!first_line_st.hasMoreTokens())
 				goto bad_request;
-			req->version() = first_line_st.nextToken();
+			req->setVersion(first_line_st.nextToken());
 
 			handler(req);
 			return;
@@ -221,9 +221,9 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> hand
 			std::string line;
 			getline(in, line);
 			if(std::regex_search(line, results, first_line_reg)) {
-				res->version() = results.str(1);
-				res->status() = boost::lexical_cast<Response::status_t>(results.str(2));
-				res->message() = results.str(3);
+				res->setVersion(results.str(1));
+				res->setStatus(boost::lexical_cast<Response::status_t>(results.str(2)));
+				res->setMessage(results.str(3));
 				handler(res);
 			} else {
 				handler(nullptr);

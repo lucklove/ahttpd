@@ -6,7 +6,7 @@ struct TestServer : RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr res) override {
 		BOOST_CHECK(req->connection() == nullptr);
 		BOOST_CHECK(res->connection() == nullptr);
-		req->query() = "ok";
+		req->setQueryString("ok");
 	}
 };
 
@@ -26,17 +26,18 @@ struct ChunkedTestServer : RequestHandler {
 	
 BOOST_AUTO_TEST_CASE(deliver_test)
 {
-	std::stringstream config("{\"http port\": \"8888\"}");
+	std::stringstream config("{}");
 	Server server(config);
 	server.addHandler("/test", new TestServer());
 	RequestPtr req = std::make_shared<Request>(nullptr);
-	req->path() = "/test";
+	req->setMethod("GET");
+	req->setPath("/test");
 	server.deliverRequest(req);
-	BOOST_CHECK(req->query() == "ok");
-	req->query() = "";
-	req->path() = "/test/subdir";
+	BOOST_CHECK(req->getQueryString() == "ok");
+	req->setQueryString("");
+	req->setPath("/test/subdir");
 	server.deliverRequest(req);
-	BOOST_CHECK(req->query() == "ok");
+	BOOST_CHECK(req->getQueryString() == "ok");
 }
 
 BOOST_AUTO_TEST_CASE(http_test)
@@ -47,7 +48,7 @@ BOOST_AUTO_TEST_CASE(http_test)
 		std::this_thread::sleep_for(std::chrono::seconds(1));		/**< 等待server开始监听 */
 		Client c;
 		c.request("GET", "http://localhost:8888/something_not_exist", [&](ResponsePtr res) {
-			BOOST_CHECK(res->status() == Response::not_found);
+			BOOST_CHECK(res->getStatus() == Response::not_found);
 			server.stop();
 		});
 		c.apply();
@@ -71,7 +72,7 @@ BOOST_AUTO_TEST_CASE(https_test)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		Client c;
 		c.request("GET", "https://localhost:9999/something_not_exist", [&](ResponsePtr res) {
-			BOOST_CHECK(res->status() == Response::not_found);
+			BOOST_CHECK(res->getStatus() == Response::not_found);
 			server.stop();
 		});
 		c.apply();

@@ -26,7 +26,7 @@ public:
 
 	std::vector<std::string> getHeaders(std::string h_name) {
 		std::vector<std::string> dst_header;
-		for(auto h : headers) {
+		for(auto h : headers_) {
 			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				dst_header.push_back(h.value);
 		}
@@ -34,7 +34,7 @@ public:
 	}
 
 	std::string* getHeader(std::string h_name) {
-		for(auto& h : headers) {
+		for(auto& h : headers_) {
 			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				return &h.value;
 		}
@@ -42,7 +42,7 @@ public:
 	}
 
 	void addHeader(const std::string& h_name, const std::string& h_value) {
-		headers.push_back(header_t{h_name, h_value});
+		headers_.push_back(header_t{h_name, h_value});
 	}
 
 	void setHeader(const std::string h_name, const std::string& h_value) {
@@ -51,16 +51,16 @@ public:
 	}
 
 	void delHeader(const std::string& h_name) {
-		for(std::vector<header_t>::iterator it = headers.begin(); it != headers.end();) {
+		for(std::vector<header_t>::iterator it = headers_.begin(); it != headers_.end();) {
 			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0) {
-				it = headers.erase(it);
+				it = headers_.erase(it);
 			} else {
 				++it;
 			}
 		}
 	}
 
-	std::vector<header_t>& headerMap() { return headers; }
+	std::vector<header_t>& getHeaderMap() { return headers_; }
 
 	bool keepAlive() {		
 		std::string* connection_opt = getHeader("Connection");
@@ -71,12 +71,12 @@ public:
 				return false;
 			}
 		}
-		if(version() == "HTTP/1.1")
+		if(getVersion() == "HTTP/1.1")
 			return true; 
 		return false;
 	}
 
-	virtual std::string& version() = 0;
+	virtual std::string getVersion() = 0;
 	virtual void parseCookie() = 0;
 
 	size_t
@@ -97,7 +97,7 @@ protected:
 private:
 	bool chunked_ = false;
 	bool send_started_ = false;
-	std::vector<header_t> headers;
+	std::vector<header_t> headers_;
 	std::stringstream body;
 	ConnectionPtr connection_;
 };

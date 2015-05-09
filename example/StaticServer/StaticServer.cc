@@ -8,17 +8,17 @@ void
 StaticServer::handleRequest(RequestPtr req, ResponsePtr res) 
 {
 	if(req->getMethod() != "GET") {				/**< 只允许GET请求 */
-		res->status() = Response::not_implemented;
+		res->setStatus(Response::not_implemented);
 		return;
 	}
 	std::string file_name = doc_root;
-	std::string path = req->path();
+	std::string path = req->getPath();
 	if(path[path.size()-1] == '/')
 		path += "index.html";
 	file_name += path;
 	std::ifstream file(file_name);
 	if(!file) {
-		res->status() = Response::not_found;
+		res->setStatus(Response::not_found);
 		return;
 	}
 	std::string mime = guessMimeType(file_name);

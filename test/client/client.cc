@@ -32,13 +32,13 @@ BOOST_AUTO_TEST_CASE(client_request_test)
 	c.request("GET", "http://www.example.com",
 		[](ResponsePtr res) {
 			BOOST_REQUIRE(res);
-			BOOST_CHECK(res->status() == Response::ok);
+			BOOST_CHECK(res->getStatus() == Response::ok);
 		}
 	);
 	c.request("GET", "https://www.example.com",	
 		[](ResponsePtr res) {
 			BOOST_REQUIRE(res);
-			BOOST_CHECK(res->status() == Response::ok);
+			BOOST_CHECK(res->getStatus() == Response::ok);
 		}
 	);
 	c.apply();
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(client_request_chunked_body_test)
 	c.request("POST", "http://localhost:8888/echo",
 		[&](ResponsePtr res) {
 			BOOST_REQUIRE(res);
-			BOOST_CHECK(res->status() == Response::ok);
+			BOOST_CHECK(res->getStatus() == Response::ok);
 			std::stringstream ss;
 			ss << res->in().rdbuf();
 			BOOST_CHECK(ss.str() == "this is a chunked body");

@@ -11,13 +11,13 @@ struct EchoHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		auto auth_info = req->basicAuthInfo();
 		rep->out() << "method: " << req->getMethod() << std::endl;
-		rep->out() << "path: " << req->path() << std::endl;
-		rep->out() << "query: " << req->query() << std::endl;
-		rep->out() << "version: " << req->version() << std::endl;
+		rep->out() << "path: " << req->getPath() << std::endl;
+		rep->out() << "query: " << req->getQueryString() << std::endl;
+		rep->out() << "version: " << req->getVersion() << std::endl;
 		if(auth_info != "")
 			rep->out() << "basic auth infomation:[" << auth_info << "]" << std::endl;
 		rep->flush();
-		for(auto&& h : req->headerMap())
+		for(auto&& h : req->getHeaderMap())
 			rep->out() << h.name << ": " << h.value << std::endl;
 		rep->flush();
 		if(req->in().rdbuf()->in_avail())				/**< 判断是否有数据，[重要]*/

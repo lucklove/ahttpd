@@ -133,12 +133,12 @@ Client::request(const std::string& method, const std::string& url,
 				req->setMethod(method);
 				auto pos = path.find("?");
 				if(pos == path.npos) {
-					req->path() = path;
+					req->setPath(path);
 				} else {
-					req->path() = path.substr(0, pos); 
-					req->query() = path.substr(pos + 1, path.size());
+					req->setPath(path.substr(0, pos)); 
+					req->setQueryString(path.substr(pos + 1, path.size()));
 				}
-				req->version() = "HTTP/1.1";
+				req->setVersion("HTTP/1.1");
 				req->addHeader("Host", host);
 				if(enable_cookie_) {
 					std::unique_lock<std::mutex> lck(cookie_mutex_);
@@ -182,7 +182,7 @@ Client::add_cookie_to_request(RequestPtr req, const std::string& scheme, const s
 		}
 	}
 	for(auto& c : cookie_jar_) {
-		if(!is_path_security_ok(c.path, req->path()))
+		if(!is_path_security_ok(c.path, req->getPath()))
 			continue;
 		if(!is_domain_security_ok(c.domain, host))
 			continue;

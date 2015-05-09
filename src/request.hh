@@ -22,13 +22,26 @@ public :
  	 * \brief 获取请求的path
  	 * \return path
  	 */ 
-	std::string& path() { return path_; }
+	std::string getPath() { return path_; }
+
+ 	/**
+	 * \brief 设置path
+ 	 */ 
+	void setPath(const std::string& path) { path_ = path; }
+
 
 	/**
  	 * \brief 获取请求中的query string.
  	 * \return query string.
  	 */
-	std::string& query() { return query_; }
+	std::string getQueryString() { return query_; }
+
+ 	/** 
+	 * \brief 设置请求中的query string.
+ 	 * \return query string.
+ 	 */
+	void setQueryString(const std::string& query) { query_ = query; }
+ 
  
 	/**
  	 * \brief 获取请求方法
@@ -45,7 +58,12 @@ public :
  	 * \brief 获取http版本HTTP/1.0 HTTP1.1
  	 * \return 版本信息
  	 */  
-	std::string& version() override { return version_; }
+	std::string getVersion() override { return version_; }
+	
+	/**
+ 	 * \brief 设置http版本HTTP/1.0 HTTP1.1
+ 	 */  
+	void setVersion(const std::string& version) { version_ = version; }
 
 	void setCookie(const request_cookie_t& cookie) {
 		std::string header_val = cookie.key;
