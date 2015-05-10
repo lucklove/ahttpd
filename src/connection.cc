@@ -18,7 +18,7 @@ enqueue##op([=, ptr = shared_from_this()] {							\
 })
 
 void 
-Connection::async_read(result_of_t<decltype(&boost::asio::transfer_exactly)(size_t)> completion,
+Connection::async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
 	std::function<void(const boost::system::error_code &, size_t)> handler) 
 {
 	ASYNC_APPLY(Read, boost::asio::async_read, readBuffer(), completion);

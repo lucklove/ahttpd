@@ -19,9 +19,6 @@ class Server;
 class Connection : public std::enable_shared_from_this<Connection>
 {
 protected:
-        template<typename _type>
-        using result_of_t = typename std::result_of<_type>::type;
-
   	Server *server_;
 	enum class socket_type { ordinary, ssl };
 	struct socket_t {
@@ -76,7 +73,7 @@ public:
 	void async_read_until(const std::string& delim, 
 		std::function<void(const boost::system::error_code &, size_t)> handler);
 
-	void async_read(result_of_t<decltype(&boost::asio::transfer_exactly)(size_t)> completion,
+	void async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
 		std::function<void(const boost::system::error_code &, size_t)> handler);
 
 	void async_write(const std::string& msg,

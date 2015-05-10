@@ -1,0 +1,3 @@
+ADD_EXECUTABLE(proxy proxy.cc)
+INCLUDE_DIRECTORIES(../../src)
+TARGET_LINK_LIBRARIES(proxy ahttpd)

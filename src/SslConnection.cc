@@ -6,6 +6,10 @@
 void 
 SslConnection::stop()
 {
+	std::unique_lock<std::mutex> lck(stop_mutex_);
+	if(stoped_)
+		return;
+	stoped_ = true;
 	SslConnectionPtr sft = std::dynamic_pointer_cast<SslConnection>(shared_from_this());
 	socket_.async_shutdown(
 		std::bind(&SslConnection::stopNextLayer, sft, std::placeholders::_1));

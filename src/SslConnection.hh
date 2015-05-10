@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <mutex>
 #include <boost/asio/ssl.hpp>
 #include <iostream>
 #include <iostream>
@@ -29,4 +30,6 @@ private:
 	boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket_;
 	boost::asio::deadline_timer ssl_shutdown_timer_;
 	void stopNextLayer(const boost::system::error_code& ec);
+	bool stoped_;
+	std::mutex stop_mutex_;
 };

@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <mutex>
 #include <boost/asio.hpp>
 #include "connection.hh"
 
@@ -16,7 +17,11 @@ public:
   		: Connection(service), socket_(service), resolver_(service)
 	{}
 
-	void stop() override { 
+	void stop() override {
+		std::unique_lock<std::mutex> lck(stop_mutex_);
+		if(stoped_)
+			return;
+		stoped_ = true;
 		boost::system::error_code ignored_ec;
 		nativeSocket().cancel();
 		nativeSocket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
@@ -29,4 +34,6 @@ public:
 private:
 	boost::asio::ip::tcp::socket socket_;
 	boost::asio::ip::tcp::resolver resolver_;
+	bool stoped_;
+	std::mutex stop_mutex_;
 };

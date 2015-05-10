@@ -5,4 +5,5 @@ SUBDIRS(
 	HttpsTest
 	mail
 	StaticServer
+	proxy
 )

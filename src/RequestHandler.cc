@@ -13,7 +13,8 @@ const char *allowed_method[] = {
 	"GET",
 	"POST",
 	"PUT",
-	"DELETE"
+	"DELETE",
+	"CONNECT"
 };
 
 bool method_implemented(const std::string& method)

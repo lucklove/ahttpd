@@ -4,6 +4,20 @@
 #include "base64.hh"
 #include <regex>
 
+namespace {
+std::string
+auth_info(const std::string auth)
+{
+	static const std::regex basic_auth_reg("[Bb]asic ([[:print:]]*)");
+	std::smatch results;
+	if(std::regex_search(auth, results, basic_auth_reg)) {
+		return Base64::decode(results.str(1));
+	} else {
+		return {};
+	}
+}
+}
+
 void
 Request::flush()
 {
@@ -28,16 +42,16 @@ std::string
 Request::basicAuthInfo()
 {
 	auto auth = getHeader("Authorization"); 
-	if(auth) {
-		static const std::regex basic_auth_reg("[Bb]asic ([[:print:]]*)");
-		std::smatch results;
-		if(std::regex_search(*auth, results, basic_auth_reg)) {
-			return Base64::decode(results.str(1));
-		} else {
-			return {};
-		}
-	}
-	return {};
+	if(!auth) return {};
+	return auth_info(*auth);
+}
+
+std::string
+Request::proxyAuthInfo()
+{
+	auto auth = getHeader("Proxy-Authorization"); 
+	if(!auth) return {};
+	return auth_info(*auth);
 }
 
 void

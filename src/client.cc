@@ -6,6 +6,7 @@
 #include "TcpConnection.hh"
 #include <regex>
 #include <boost/asio/ssl.hpp>
+#include <boost/algorithm/string.hpp> 
 #include <cstdio>
 
 namespace {
@@ -93,13 +94,15 @@ Client::request(const std::string& method, const std::string& url,
 	std::function<void(ResponsePtr)> res_handler,
 	std::function<void(RequestPtr)> req_handler)
 {
-	static const std::regex url_reg("((http|https)(://))?((((?!@)[[:print:]])*)@)?"
+	static const std::regex url_reg("(([hH][tT][tT][pP][sS]?)(://))?((((?!@)[[:print:]])*)@)?"
 		"(((?![/\\?])[[:print:]])*)([[:print:]]+)?");	/**< http://user:pass@server:port/path?query */
 	std::smatch results;
 	if(std::regex_search(url, results, url_reg)) {
 		std::string scheme = "http";
-		if(results[2].matched) 
-			scheme = results.str(2);	
+		if(results[2].matched) {
+			scheme = results.str(2);
+			boost::to_lower(scheme);
+		}
 
 		std::string auth{};
 		if(results[5].matched)
@@ -124,6 +127,8 @@ Client::request(const std::string& method, const std::string& url,
 			connection = std::make_shared<TcpConnection>(service_);
 		} else if(scheme == "https") {
 			connection = std::make_shared<SslConnection>(service_, *ssl_context_);
+		} else {
+			assert(false);	
 		}
 
 		connection->async_connect(host, port, [=](ConnectionPtr conn) {
@@ -139,16 +144,25 @@ Client::request(const std::string& method, const std::string& url,
 					req->setQueryString(path.substr(pos + 1, path.size()));
 				}
 				req->setVersion("HTTP/1.1");
-				req->addHeader("Host", host);
 				if(enable_cookie_) {
 					std::unique_lock<std::mutex> lck(cookie_mutex_);
 					add_cookie_to_request(req, scheme, host);
 				}
-				req->addHeader("Connection", "close");
+				
+
 				if(auth != "")
 					req->basicAuth(auth);
 
 				req_handler(req);
+				if(!req->getHeader("Host"))
+					req->addHeader("Host", host);
+				/**
+ 				 * \note 
+ 				 * 	Client暂时没有保持连接的能力，不要使用keep-alive,
+ 				 * 	否则会给对端服务器造成不必要的麻烦
+ 				 */ 	
+				req->setHeader("Connection", "close");
+
 				parseResponse(res, [=](ResponsePtr response) {
 					res->discardConnection();
 					if(response) {

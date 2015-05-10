@@ -124,7 +124,15 @@ parse_body(Pac_t pac, Handle_t handler)
 			handler(pac);
 		}
 	} else {
-		size_t length = boost::lexical_cast<size_t>(*h);
+		size_t length = 0;
+		try {
+			length = boost::lexical_cast<size_t>(*h);
+		} catch(boost::bad_lexical_cast &e) {
+			Log("DEBUG") << __FILE__ << ":" << __LINE__;
+			Log("ERROR") << e.what();
+			handler(nullptr);
+			return;
+		}
 		if(length == 0) {
 			handler(pac);
 			return;
@@ -182,7 +190,7 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler
 			if(!first_line_st.hasMoreTokens())
 				goto bad_request;
 			url = first_line_st.nextToken();
-			if(!urlDecode(url) || url[0] != '/')
+			if(!urlDecode(url))
 				goto bad_request;
 			url_st = StringTokenizer(url, '?');
 			req->setPath(url_st.nextToken());
@@ -222,7 +230,12 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> hand
 			getline(in, line);
 			if(std::regex_search(line, results, first_line_reg)) {
 				res->setVersion(results.str(1));
-				res->setStatus(boost::lexical_cast<Response::status_t>(results.str(2)));
+				try {
+					res->setStatus(boost::lexical_cast<Response::status_t>(results.str(2)));
+				} catch(boost::bad_lexical_cast &e) {
+					handler(nullptr);
+					return;
+				}
 				res->setMessage(results.str(3));
 				handler(res);
 			} else {

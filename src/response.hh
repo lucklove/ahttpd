@@ -14,7 +14,7 @@ public:
 	enum {
 		ok = 200, created, accepted, non_authoritative_information, 
 			no_content, reset_content, partial_content, muti_status,
-		multiple_choices = 300, moved_permanently, moved_temporarily, not_modified,
+		multiple_choices = 300, moved_permanently, moved_temporarily, see_other, not_modified, 
 		bad_request = 400, unauthorized, forbidden = 403, not_found,
 		internal_server_error = 500, not_implemented, bad_gateway, service_unavailable 
 	};

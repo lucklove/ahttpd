@@ -100,6 +100,7 @@ public :
 	void flush();
 	void basicAuth(const std::string& auth);
 	std::string basicAuthInfo();
+	std::string proxyAuthInfo();
 
 private:
 	std::string method_;

@@ -61,6 +61,7 @@ main(int argc, char *argv[])
 |   client   | 异步客户端示例	           |				          |				      |
 |StaticServer| 静态文件服务器              | http://127.0.0.1:8888/[xxx]          | 其中的小游戏来自github用户kig)    |
 |   mail     | 使用smtp发送邮件		   |					  |				      |
+|   proxy    | http/https代理服务器	   | http://127.0.0.1:8888		  | 				      |  
 
 点击[这里](http://115.28.32.115:8888)访问静态文件服务器中的游戏
 

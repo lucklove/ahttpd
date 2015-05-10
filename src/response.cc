@@ -30,6 +30,8 @@
     			return moved_permanently;			\
   		case Response::moved_temporarily:			\
     			return moved_temporarily;			\
+  		case Response::see_other:				\
+    			return see_other;				\
   		case Response::not_modified:				\
     			return not_modified;				\
   		case Response::bad_request:				\
@@ -76,6 +78,8 @@ const char moved_permanently[] =
 	"HTTP/1.1 301 Moved Permanently";
 const char moved_temporarily[] =
 	"HTTP/1.1 302 Moved Temporarily";
+const char see_other[] =
+	"HTTP/1.1 303 See Other";
 const char not_modified[] =
 	"HTTP/1.1 304 Not Modified";
 const char bad_request[] =
@@ -156,6 +160,11 @@ const char moved_temporarily[] =
   "<head><title>Moved Temporarily</title></head>"
   "<body><h1>302 Moved Temporarily</h1></body>"
   "</html>";
+const char see_other[] =
+  "<html>"
+  "<head><title>See Other</title></head>"
+  "<body><h1>303 See Other</h1></body>"
+  "</html>";
 const char not_modified[] =
   "<html>"
   "<head><title>Not Modified</title></head>"
@@ -210,6 +219,16 @@ status_body(Response::status_t status)
 
 } // namespace stock_replies
 
+#define FLUSH_FIRST_LINE()									\
+do {												\
+	if(msg_ == "" || version_ == "" || !status_) {						\
+		connection()->async_write(status_strings::status_head(status_) + "\r\n");	\
+	} else {										\
+		connection()->async_write(version_ + " " +					\
+			boost::lexical_cast<std::string>(status_) + " "				\
+			+ version_ + "\r\n");							\
+	}											\
+} while(0)
 
 void
 Response::flush()
@@ -219,7 +238,7 @@ Response::flush()
 	if(!chunked()) {	/**< 说明是第一次手动调用flush */
 		/** 由于是第一次调用，说明第一行并未发送 */
 		setChunked(); 
-		connection()->async_write(status_strings::status_head(status_) + "\r\n");
+		FLUSH_FIRST_LINE();
 	}
 	flushPackage(); 
 }
@@ -231,7 +250,7 @@ Response::~Response()
 		return;
 	try {
 		if(!chunked()) {
-			connection()->async_write(status_strings::status_head(status_) + "\r\n");
+			FLUSH_FIRST_LINE();
 			if(status_ != ok && in().rdbuf()->in_avail() == 0)
 				out() << stock_replies::status_body(status_);
 		} else {
