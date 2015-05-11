@@ -166,6 +166,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_domain_test)
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1").setDomain("127.0.0.1").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setDomain(".localhost").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key3").setVal("val3").setMaxAge(10));
+	set_cookie->cookies.push_back(response_cookie_t().setKey("key4").setVal("val4").setDomain("host").setMaxAge(10));
 	Client c(s.service());
 	c.enableCookie();
 	c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {

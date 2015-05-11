@@ -22,7 +22,12 @@ read_client(ConnectionPtr c, ConnectionPtr s)
 			}
 			std::stringstream ss;
 			ss << &c->readBuffer();
-			s->async_write(ss.str());
+			s->async_write(ss.str(), [=](const boost::system::error_code& e, size_t n) {
+				if(e) {
+					s->stop();
+					c->stop();
+				}
+			});
 			read_client(c, s);
 		}
 	);
@@ -40,7 +45,12 @@ read_server(ConnectionPtr c, ConnectionPtr s)
 			}
 			std::stringstream ss;
 			ss << &s->readBuffer();
-			c->async_write(ss.str());
+			c->async_write(ss.str(), [=](const boost::system::error_code& e, size_t n) {
+				if(e) {
+					c->stop();
+					s->stop();
+				}
+			});
 			read_server(c, s);
 		}
 	);
@@ -51,6 +61,20 @@ proxy_ssl(ConnectionPtr c, ConnectionPtr s)
 {
 	read_client(c, s);
 	read_server(c, s);
+}
+
+const char* black_list[] = {
+	"google.com",
+};
+
+bool
+in_black_list(const std::string& host)
+{
+	for(const char *b : black_list) {
+		if(host.find(b) != host.npos)
+			return true;
+	}
+	return false;
 }
 }
 
@@ -72,7 +96,15 @@ ProxyHandler::handleRequest(RequestPtr req, ResponsePtr res)
 //	}
 	std::string url = req->getPath();
 	Log("NOTE") << "URL:" << url;
-	if(url.find("google.com") != url.npos) {			/**< 无意义的尝试 */
+	/**
+ 	 *  \note
+ 	 *  	禁用对已知不会成功的网站,
+ 	 *  	例如谷歌浏览器总是在后台对google发请求，
+ 	 *  	然而如果代理服务器在国内这是不会成功的，
+ 	 *  	然而这会增加代理服务器的负担，
+ 	 *  	所以干脆拉黑好了
+ 	 */  	
+	if(in_black_list(url)) {					
 		Log("NOTE") << "DROP " << url;
 		res->setStatus(500);
 		return;
