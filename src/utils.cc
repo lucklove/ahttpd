@@ -160,4 +160,116 @@ urlDecode(std::string& str)
 	}  
 	str = str_temp;
 	return true;
-}  		
+} 
+
+bool
+isValidIPAddress(const std::string& addr)
+{
+	if(addr.find(':') != addr.npos) {		/**< ipv6 */
+		const static std::string valid_ipv6_character("0123456789abcdefABCDEF");
+		size_t s_count = 0;			/**< 每个段中的字符数 	*/
+		size_t seg_count = 0;			/**< 段的个数-1		*/
+		bool compress_flag = false;		/**< 是否存在0压缩    	*/
+		for(auto c : addr) {
+			if(c == ':') {
+				if(s_count == 0) {
+					if(compress_flag)
+						return false;
+					compress_flag = true;	
+				}
+				s_count = 0; 
+				++seg_count;
+				continue;
+			}
+			if(valid_ipv6_character.find(c) == valid_ipv6_character.npos)
+				return false;
+			++s_count;
+			if(s_count > 4)
+				return false;
+		}
+		if(s_count == 0 && compress_flag)
+			return false;
+		if(seg_count < 8)
+			return true;
+	} else if(addr.find('.') != addr.npos) {	/**< ipv4 */
+		const static std::string number("0123456789");
+		size_t s_count = 0;
+		size_t dot_count = 0;
+		std::string ip_seg;
+		for(auto c : addr) {
+			if(c == '.') {
+				if(s_count == 0)
+					return false;
+				if(boost::lexical_cast<size_t>(ip_seg) > 255)
+					return false;
+				ip_seg = {};
+				s_count = 0;
+				++dot_count;
+				continue;
+			}
+			if(number.find(c) == number.npos)
+				return false;
+			ip_seg += c;
+			++s_count;
+			if(s_count > 3)
+				return false;
+		}
+		if(dot_count == 3 && s_count)
+			return true;
+	}
+	return false;
+}
+
+bool
+isDomainMatch(const std::string& url, std::string base)
+{
+	if(base[0] == '.')
+		base = base.substr(1, base.size());
+
+	if(base.size() > url.size()) 
+		return false;
+
+	if(strcasecmp(base.c_str(), url.substr(url.size() - base.size(), url.size()).c_str()))
+		return false;
+
+	if(base.size() == url.size())
+		return true;
+
+	if(isValidIPAddress(url))				/**< 如果是IP则必须完全匹配 */
+		return false;
+
+	if(url[url.size() - base.size() - 1] != '.')
+		return false;
+
+	return true;
+}
+
+bool
+isPathMatch(std::string path, std::string base)
+{
+	if(base == "")
+		return true;
+
+	if(base == "/" && path[0] == '/')
+		return true;
+
+	if(base.size() > 1 && base[base.size() - 1] == '/')
+		base = base.substr(0, base.size() - 1);
+
+	if(path != "/" && path[path.size() - 1] == '/')
+		path = path.substr(0, path.size() - 1);
+
+	if(base.size() > path.size())
+		return false;
+	
+	if(base != path.substr(0, base.size()))
+		return false;
+	
+	if(base.size() == path.size())
+		return true;
+
+	if(path[base.size()] == '/')
+		return true;
+
+	return false;
+}

@@ -138,3 +138,6 @@ private:
 time_t gmtToTime(const std::string& gmt_time);
 std::string urlEncode(const std::string& url);
 bool urlDecode(std::string& url);
+bool isValidIPAddress(const std::string& addr);
+bool isDomainMatch(const std::string& addr, std::string base);
+bool isPathMatch(std::string path, std::string base);

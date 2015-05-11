@@ -3,11 +3,13 @@
 #include "client.hh"
 
 struct TestServer : RequestHandler {
+	TestServer(const std::string& msg) : msg_(msg) {}
 	void handleRequest(RequestPtr req, ResponsePtr res) override {
 		BOOST_CHECK(req->connection() == nullptr);
 		BOOST_CHECK(res->connection() == nullptr);
-		req->setQueryString("ok");
+		req->setQueryString(msg_);
 	}
+	std::string msg_;
 };
 
 struct ChunkedTestServer : RequestHandler {
@@ -28,16 +30,23 @@ BOOST_AUTO_TEST_CASE(deliver_test)
 {
 	std::stringstream config("{}");
 	Server server(config);
-	server.addHandler("/test", new TestServer());
+	auto test = std::make_shared<TestServer>("test");
+	auto test_subdir = std::make_shared<TestServer>("test subdir");
+	server.addHandler("/test/subdir", test_subdir.get());
+	server.addHandler("/test", test.get());
 	RequestPtr req = std::make_shared<Request>(nullptr);
 	req->setMethod("GET");
 	req->setPath("/test");
 	server.deliverRequest(req);
-	BOOST_CHECK(req->getQueryString() == "ok");
+	BOOST_CHECK(req->getQueryString() == "test");
 	req->setQueryString("");
 	req->setPath("/test/subdir");
 	server.deliverRequest(req);
-	BOOST_CHECK(req->getQueryString() == "ok");
+	BOOST_CHECK(req->getQueryString() == "test subdir");
+	req->setQueryString("");
+	req->setPath("/test/sub");
+	server.deliverRequest(req);
+	BOOST_CHECK(req->getQueryString() == "test");
 }
 
 BOOST_AUTO_TEST_CASE(http_test)

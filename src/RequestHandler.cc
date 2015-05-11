@@ -2,6 +2,7 @@
 #include "response.hh"
 #include "request.hh"
 #include "server.hh"
+#include "utils.hh"
 #include "log.hh"
 #include "connection.hh"
 #include <fstream>
@@ -50,10 +51,9 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 	std::tuple<std::string, RequestHandler*> best;
 
 	for(auto handler : sub_handlers_) {
-		size_t cmp_size = std::get<0>(handler).size();
-		if(req->getPath().size() >= cmp_size && 
-			req->getPath().substr(0, cmp_size) == std::get<0>(handler))
-			best = handler;	
+		if(std::get<0>(handler).size() > std::get<0>(best).size() &&
+			isPathMatch(req->getPath(), std::get<0>(handler)))
+			best = handler;
 	}
 
 	if(std::get<1>(best) == nullptr)

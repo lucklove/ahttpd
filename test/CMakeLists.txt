@@ -10,12 +10,15 @@ SET(TEST_SOURCES
 	utils/string_tokenizer.cc
 	utils/params.cc
 	utils/url.cc
+	utils/ip.cc
+	utils/path.cc
+	utils/domain.cc
 	ThreadPool/ThreadPool.cc
 	request/request.cc
 	response/response.cc
 	server/server.cc
 	exception/exception.cc
-#	mail/mail.cc
+	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)

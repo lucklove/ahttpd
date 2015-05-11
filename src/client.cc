@@ -4,68 +4,11 @@
 #include "request.hh"
 #include "SslConnection.hh"
 #include "TcpConnection.hh"
+#include "utils.hh"
 #include <regex>
 #include <boost/asio/ssl.hpp>
 #include <boost/algorithm/string.hpp> 
 #include <cstdio>
-
-namespace {
-bool
-is_ip_address(const std::string& server)
-{
-	const static std::regex ip_reg("[[:number:]]{1,3}\\."
-		"[[:number:]]{1,3}\\.[[:number:]]{1,3}\\.[[:number:]]{1,3}");
-	std::smatch ignore_result;
-	return std::regex_match(server, ignore_result, ip_reg);
-}
-
-bool
-is_domain_security_ok(std::string domain, const std::string& server)
-{
-	if(domain[0] == '.')
-		domain = domain.substr(1, domain.size());
-
-	if(domain.size() > server.size()) 
-		return false;
-
-	if(strcasecmp(domain.c_str(), server.substr(server.size() - domain.size(), server.size()).c_str()))
-		return false;
-
-	if(domain.size() == server.size())
-		return true;
-
-	if(is_ip_address(server))
-		return false;
-
-	return true;
-}
-bool
-is_path_security_ok(std::string path, std::string real_path)
-{
-	if(path == "/")
-		return true;
-
-	if(path[path.size() - 1] == '/')
-		path = path.substr(0, path.size() - 1);
-
-	if(real_path != "/" && real_path[real_path.size() - 1] == '/')
-		real_path = real_path.substr(0, real_path.size() - 1);
-
-	if(path.size() > real_path.size())
-		return false;
-	
-	if(path != real_path.substr(0, path.size()))
-		return false;
-	
-	if(path.size() == real_path.size())
-		return true;
-
-	if(real_path[path.size()] == '/')
-		return true;
-
-	return false;
-}
-}
 
 Client::Client(boost::asio::io_service& service)
  	:service_(service) 
@@ -196,9 +139,9 @@ Client::add_cookie_to_request(RequestPtr req, const std::string& scheme, const s
 		}
 	}
 	for(auto& c : cookie_jar_) {
-		if(!is_path_security_ok(c.path, req->getPath()))
+		if(!isPathMatch(req->getPath(), c.path))
 			continue;
-		if(!is_domain_security_ok(c.domain, host))
+		if(!isDomainMatch(host, c.domain))
 			continue;
 		if(c.secure && scheme != "https")
 			continue;
