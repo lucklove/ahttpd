@@ -51,7 +51,7 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 	std::tuple<std::string, RequestHandler*> best;
 
 	for(auto handler : sub_handlers_) {
-		if(std::get<0>(handler).size() > std::get<0>(best).size() &&
+		if(std::get<0>(handler).size() >= std::get<0>(best).size() &&
 			isPathMatch(req->getPath(), std::get<0>(handler)))
 			best = handler;
 	}
