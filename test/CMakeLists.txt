@@ -17,7 +17,7 @@ SET(TEST_SOURCES
 	response/response.cc
 	server/server.cc
 	exception/exception.cc
-#	mail/mail.cc
+	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
