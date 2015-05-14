@@ -8,8 +8,8 @@ main(int argc, char* argv[])
 {
 	Client c;
 	c.enableCookie();
-	if(argc < 3) {
-		std::cout << "useage: client method url [body]" << std::endl;
+	if(argc != 3) {
+		std::cout << "useage: client method url" << std::endl;
 		return 0;
 	}
 	try {
@@ -18,13 +18,13 @@ main(int argc, char* argv[])
 				if(res) {
 					std::cout << res->out().rdbuf();
 				} else {
-					std::cout << "bad" << std::endl;
+					Log("ERROR") << "bad response";
 				}
 			},
 			[=](RequestPtr req) {
 				if(req) {
-					if(argc == 4)
-						req->out() << argv[3];
+					req->basicAuth("632541058@qq.com:123456");
+					req->out() << std::cin.rdbuf();
 				}
 			}
 		);

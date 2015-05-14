@@ -8,6 +8,8 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
+#define STACK_BUFF_SIZE	(64 * 1024)
+
 namespace {
 template<typename Pac_t, typename Handle_t>
 void
@@ -51,6 +53,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			size_t length = 0;
 			std::string ignore;
 			in >> std::hex >> length;
+//			in.ignore(0x7FFFFFFF, '\n');
 			getline(in, ignore);	/**< 比如A3\r\n, 读取A3后扔掉\r\n */
 
 			size_t already_read = pac->connection()->readBuffer().in_avail();
@@ -59,30 +62,30 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 				pac->connection()->async_read(boost::asio::transfer_exactly(need_read),
 					[=](const boost::system::error_code& err, size_t n) {
 						if(err || static_cast<int>(n) != need_read /**< 避免警告 */
-							|| length > 1024 * 1024) {
+							|| length > STACK_BUFF_SIZE) {
 							if(err) {
 								Log("DEBUG") << __FILE__ << ":" << __LINE__;
 								Log("ERROR") << err.message();
 							}
 							if(static_cast<int>(n) != need_read)
 								Log("ERROR") << "BUFFER HUNGERY";
-							if(length > 1024 * 1024)
+							if(length > STACK_BUFF_SIZE)
 								Log("ERROR") << "BUFFER OVERFLOW";
 							handler(nullptr);
 							return;
 						}
-						char buf[length];
+						char buf[length];	/**< XXX: VLA extension */
 						std::istream in(&pac->connection()->readBuffer());
 						in.read(buf, length);
 						pac->out().write(buf, length);
 				});
 			} else if(length > 0) {
-				if(length > 1024 * 1024) {
+				if(length > STACK_BUFF_SIZE) {
 					Log("ERROR") << "BUFFER OVERFLOW";
 					handler(nullptr);
 					return;
 				}
-				char buf[length];
+				char buf[length];			/**< XXX: VLA extension */
 				in.read(buf, length);
 				pac->out().write(buf, length);	
 			}
@@ -98,6 +101,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 					}
 					std::istream in(&pac->connection()->readBuffer());
 					std::string ignore;
+//					in.ignore(0x7FFFFFFF, '\n');
 					getline(in, ignore);
 					if(length == 0) {
 						handler(pac);
@@ -180,7 +184,7 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler
 			std::string line;
 			getline(in, line);
 			StringTokenizer first_line_st(line);
-			std::string url;
+			std::string url, path;
 			StringTokenizer url_st;
 
 			if(!first_line_st.hasMoreTokens())
@@ -190,13 +194,13 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler
 			if(!first_line_st.hasMoreTokens())
 				goto bad_request;
 			url = first_line_st.nextToken();
-			if(!urlDecode(url))
-				goto bad_request;
 			url_st = StringTokenizer(url, '?');
-			req->setPath(url_st.nextToken());
+			path = url_st.nextToken();
+			if(!urlDecode(path))
+				goto bad_request;
+			req->setPath(path);
 			if(url_st.hasMoreTokens())
 				req->setQueryString(url_st.nextToken());
-
 			if(!first_line_st.hasMoreTokens())
 				goto bad_request;
 			req->setVersion(first_line_st.nextToken());

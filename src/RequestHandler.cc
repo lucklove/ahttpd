@@ -33,11 +33,11 @@ RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
 {
 	try {
 		if(!method_implemented(req->getMethod())) {
-			rep->setStatus(Response::not_implemented);
+			rep->setStatus(Response::Not_Implemented);
 			return;
 		}
 		if(!deliverRequest(req, rep)) {
-			rep->setStatus(Response::not_found);
+			rep->setStatus(Response::Not_Found);
 			return;
 		}
 	} catch(std::exception& e) {

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 #include <sstream>
 #include "package.hh"
 #include "header.hh"
@@ -97,6 +98,32 @@ public :
 		}
 	}
 
+	void
+	parseParams(const std::string& param_list)
+	{
+		std::map<std::string, std::string> map;
+		StringTokenizer st(param_list, '&');
+		while(st.hasMoreTokens()) {
+			StringTokenizer key_val_st(st.nextToken(), '=');
+			if(!key_val_st.hasMoreTokens())
+				continue;
+			std::string key = key_val_st.nextToken();
+			urlDecode(key);
+			std::string val;
+			if(key_val_st.hasMoreTokens()) {
+				val = key_val_st.nextToken();
+				urlDecode(val);
+			}
+			map[key] = val;    
+		}
+		param_map_ = map;
+	}
+
+	std::string
+	getParamValue(const std::string& key) {
+		return param_map_[key];
+	}
+
 	void flush();
 	void basicAuth(const std::string& auth);
 	std::string basicAuthInfo();
@@ -106,6 +133,7 @@ private:
 	std::string method_;
 	std::string path_;
 	std::string query_;
+	std::map<std::string, std::string> param_map_;
 	std::string version_;
 	std::vector<request_cookie_t> cookie_jar_;	
 };

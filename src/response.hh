@@ -12,15 +12,16 @@ class Response : public Package,
 public:
 	typedef unsigned short status_t;
 	enum {
-		ok = 200, created, accepted, non_authoritative_information, 
-			no_content, reset_content, partial_content, muti_status,
-		multiple_choices = 300, moved_permanently, moved_temporarily, see_other, not_modified, 
-		bad_request = 400, unauthorized, forbidden = 403, not_found,
-		internal_server_error = 500, not_implemented, bad_gateway, service_unavailable 
+		Continue = 100, Switching, Processing,
+		Ok = 200, Created, Accepted, Non_Authoritative_Information, 
+			No_Content, Reset_Content, Partial_Content, Muti_Status,
+		Multiple_Choices = 300, Moved_Permanently, Moved_Temporarily, See_Other, Not_Modified, 
+		Bad_Request = 400, Unauthorized, Payment_Required, Forbidden, Not_Found,
+		Internal_Server_Error = 500, Not_Implemented, Bad_Gateway, Service_Unavailable 
 	};
 
 	Response(ConnectionPtr connection) :
-		Package(connection), status_(ok) {}
+		Package(connection), status_(Ok) {}
 	~Response() override;
 
 	void setMimeType(const std::string& mime) { 

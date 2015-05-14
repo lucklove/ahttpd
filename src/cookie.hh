@@ -61,7 +61,7 @@ struct response_cookie_t {
 	}
 };
 
-static inline std::vector<request_cookie_t>
+inline std::vector<request_cookie_t>
 parseRequestCookie(const std::string& cookie_header)
 {
 	std::vector<request_cookie_t> cookie_jar;
@@ -78,7 +78,7 @@ parseRequestCookie(const std::string& cookie_header)
 	return cookie_jar;
 }
 
-static inline response_cookie_t
+inline response_cookie_t
 parseResponseCookie(const std::string& cookie_header)
 {
 	response_cookie_t cookie = {};
@@ -125,7 +125,7 @@ parseResponseCookie(const std::string& cookie_header)
 	return cookie;	
 }
 
-static inline std::vector<response_cookie_t>
+inline std::vector<response_cookie_t>
 parseResponseCookie(const std::vector<std::string>& cookie_headers)
 {
 	std::vector<response_cookie_t> cookie_jar;

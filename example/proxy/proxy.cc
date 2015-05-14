@@ -71,8 +71,12 @@ bool
 in_black_list(const std::string& host)
 {
 	for(const char *b : black_list) {
-		if(host.find(b) != host.npos)
+		auto p = host.find('/');
+		if(p == host.npos && isDomainMatch(host, b)) {
 			return true;
+		} else if(isDomainMatch(host.substr(0, p), b)) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -142,8 +146,10 @@ ProxyHandler::handleRequest(RequestPtr req, ResponsePtr res)
 				if(response->getHeader("Transfer-Encoding") && 
 					*response->getHeader("Transfer-Encoding") == "chunked")
 					response->delHeader("Transfer-Encoding");
+				res->delHeader("Connection");
 				for(auto h : response->getHeaderMap())
 					res->addHeader(h.name, h.value);
+				res->addHeader("Proxy-Connection", "close");
 				if(response->in().rdbuf()->in_avail()) {
 					std::stringstream ss;
 					ss << response->in().rdbuf();
@@ -154,7 +160,6 @@ ProxyHandler::handleRequest(RequestPtr req, ResponsePtr res)
 				if(!request)
 					return;
 				req->delHeader("Proxy-Connection");
-				req->delHeader("Host");
 				for(auto h : req->getHeaderMap())
 					request->addHeader(h.name, h.value);
 				if(req->in().rdbuf()->in_avail()) {		/**< 判断是否有数据, [重要]*/

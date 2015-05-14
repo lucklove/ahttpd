@@ -40,3 +40,14 @@ BOOST_AUTO_TEST_CASE(basic_auth_test)
 	req.basicAuth("ahttpd:ahttpd");
 	BOOST_CHECK(req.basicAuthInfo() == "ahttpd:ahttpd");
 }
+
+BOOST_AUTO_TEST_CASE(param_test)
+{
+	Request req(nullptr);
+	req.parseParams(urlEncode("你好") + "=" + "Hello");
+	BOOST_CHECK(req.getParamValue("你好") == "Hello");
+	req.parseParams("你好=Hello");
+	BOOST_CHECK(req.getParamValue("你好") == "Hello");
+	req.parseParams("subject=你好");
+	BOOST_CHECK(req.getParamValue("subject") == "你好");
+}

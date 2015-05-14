@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(http_test)
 		std::this_thread::sleep_for(std::chrono::seconds(1));		/**< 等待server开始监听 */
 		Client c;
 		c.request("GET", "http://localhost:8888/something_not_exist", [&](ResponsePtr res) {
-			BOOST_CHECK(res->getStatus() == Response::not_found);
+			BOOST_CHECK(res->getStatus() == Response::Not_Found);
 			server.stop();
 		});
 		c.apply();
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(https_test)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		Client c;
 		c.request("GET", "https://localhost:9999/something_not_exist", [&](ResponsePtr res) {
-			BOOST_CHECK(res->getStatus() == Response::not_found);
+			BOOST_CHECK(res->getStatus() == Response::Not_Found);
 			server.stop();
 		});
 		c.apply();

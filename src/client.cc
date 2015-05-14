@@ -37,13 +37,15 @@ Client::request(const std::string& method, const std::string& url,
 	std::function<void(ResponsePtr)> res_handler,
 	std::function<void(RequestPtr)> req_handler)
 {
-	static const std::regex url_reg("(([hH][tT][tT][pP][sS]?)(://))?((((?!@)[[:print:]])*)@)?"
-		"(((?![/\\?])[[:print:]])*)([[:print:]]+)?");	/**< http://user:pass@server:port/path?query */
+	/** http://user:pass@server:port/path?query */
+	static const std::regex url_reg("(((http|https)://))?((((?!@).)*)@)?"
+		"(((?![/\\?]).)+)(.+)?", std::regex::icase);	
 	std::smatch results;
 	if(std::regex_search(url, results, url_reg)) {
 		std::string scheme = "http";
-		if(results[2].matched) {
-			scheme = results.str(2);
+
+		if(results[3].matched) {
+			scheme = results.str(3);
 			boost::to_lower(scheme);
 		}
 
@@ -56,10 +58,12 @@ Client::request(const std::string& method, const std::string& url,
 		std::string path = "/";
 		if(results[9].matched)
 			path = results.str(9);
+
 		if(path[0] != '/')
 			path = "/" + path;
+
 		std::string port = scheme;
-		static const std::regex host_port_reg("(((?!:)[[:print:]])*)(:([0-9]+))?");
+		static const std::regex host_port_reg("(((?!:).)*)(:([0-9]+))?");
 		if(std::regex_search(host, results, host_port_reg)) {
 			host = results.str(1);
 			if(results[4].matched)
@@ -73,7 +77,6 @@ Client::request(const std::string& method, const std::string& url,
 		} else {
 			assert(false);	
 		}
-
 		connection->async_connect(host, port, [=](ConnectionPtr conn) {
 			if(conn) {
 				auto req = std::make_shared<Request>(conn);
@@ -83,7 +86,7 @@ Client::request(const std::string& method, const std::string& url,
 				if(pos == path.npos) {
 					req->setPath(path);
 				} else {
-					req->setPath(path.substr(0, pos)); 
+					req->setPath(path.substr(0, pos));
 					req->setQueryString(path.substr(pos + 1, path.size()));
 				}
 				req->setVersion("HTTP/1.1");
@@ -97,6 +100,7 @@ Client::request(const std::string& method, const std::string& url,
 					req->basicAuth(auth);
 
 				req_handler(req);
+
 				if(!req->getHeader("Host"))
 					req->addHeader("Host", host);
 				/**
