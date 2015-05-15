@@ -42,13 +42,6 @@ public:
 		sub_handlers_.push_back(std::make_tuple(path, handler));
 	}
 
-	void setServer(Server *server) {
-		server_ = server;
-	}
-
-	Server* server() { return server_; }
 private:
-	Server *server_ = nullptr;
-
 	std::vector<std::tuple<const std::string, RequestHandler *>> sub_handlers_;
 };

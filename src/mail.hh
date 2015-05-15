@@ -41,7 +41,3 @@ private:
 	void sendData(const std::string& subject, const std::string& to_addr,
 		const std::string& body, ConnectionPtr conn, std::function<void(bool)> handler);	
 };
-/*
-bool sendMail(const std::string& from, const std::string& to,
-	const std::string& password, const std::string& server,
-	const std::string& port, const std::string& subject, const std::string& body);*/

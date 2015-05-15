@@ -18,15 +18,27 @@
  */	
 class Log {
 public:
+	/**
+ 	 * \brief ctor
+ 	 * \type 日志级别
+ 	 */ 
 	explicit Log(const std::string& type) {
 		buffer_ << "[\033[35m" << localTime(time(nullptr)) << "\033[0m] " 
 			<< "[\033[36m" <<std::this_thread::get_id() << "\033[0m] "
 			<< "[\033[37m" << type << "\033[0m] ";
 	}
+
+	/**
+ 	 * \brief 移动构造
+ 	 */ 
 	Log(Log&& log_) { 
 		if(log_.buffer_.rdbuf()->in_avail())
 			buffer_ << log_.buffer_.rdbuf();
 	}
+
+	/**
+ 	 * \brief 在析构中完成打印
+ 	 */ 
 	~Log() { 
 		try {
 			if(buffer_.rdbuf()->in_avail())
@@ -35,6 +47,7 @@ public:
 			fprintf(stderr, "%s\n", e.what());
 		}
 	}
+
 	template<typename T>
 	auto&& operator<<(T&& val) { return buffer_ << std::forward<T>(val); }
 private:

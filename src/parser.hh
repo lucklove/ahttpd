@@ -4,13 +4,19 @@
 #include "request.hh"
 
 /**
- * \brief 将http报文解析为Request
+ * \brief 将http请求报文解析为Request
  * \param req 指向(尚未成型的) Request的shared_ptr.
  * \param handler 
  * 	解析完成后的回调函数
- * 	第二个若第二个参数传入true,则表示正常解析，成型的Request通过第一个参数传入
- * 	否则，解析失败
+ * 	若解析失败则以nullptr为参数调用handler
  */ 	
 void parseRequest(RequestPtr req, std::function<void(RequestPtr)> handler);
 
-void parseResponse(ResponsePtr req, std::function<void(ResponsePtr)> handler);
+/**
+ * \brief 将http响应报文解析为Response
+ * \param res 指向(尚未成型的) Response的shared_ptr.
+ * \param handler 
+ * 	解析完成后的回调函数
+ * 	若解析失败则以nullptr为参数调用handler
+ */ 	
+void parseResponse(ResponsePtr res, std::function<void(ResponsePtr)> handler);
