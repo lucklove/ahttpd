@@ -110,5 +110,5 @@ private:
 	ThreadPool thread_pool_;
 	void startAccept();
 	void do_await_stop();
-	void handleRequest(RequestPtr req);
+	void handleRequest(ConnectionPtr req);
 };

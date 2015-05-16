@@ -57,12 +57,13 @@ public:
 		return cookie_jar_;
 	}
 	
-	void parseCookie() override {
-		cookie_jar_ = parseResponseCookie(getHeaders("Set-Cookie"));		
-	}
 private:
 	std::string version_;
 	status_t status_;
 	std::string msg_;
 	std::vector<response_cookie_t> cookie_jar_;
+	void parseCookie() override {
+		cookie_jar_ = parseResponseCookie(getHeaders("Set-Cookie"));		
+	}
+	friend void parseResponse(ConnectionPtr, std::function<void(ResponsePtr)>);
 };

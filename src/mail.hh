@@ -12,16 +12,53 @@ class io_service;
 }
 }
 
+/**
+ * \brief 邮件类，用于通过smtp发送邮件
+ */ 
 class Mail {
 public:
+	/**
+ 	 * \brief ctor
+ 	 * \param io_service 用于和其他组件共享同一个io_service
+ 	 * \param username 邮件用户名, 如xxx@example.com
+ 	 * \param password 邮箱密码(某些邮件服务商提供的专用与smtp的密码也可)
+ 	 * \param server smtp服务器，如smtp.example.com
+ 	 * \param port smtp服务器端口，默认为smtp端口(25)
+ 	 * \param use_ssl 是否使用ssl，默认为false
+ 	 */ 
 	Mail(boost::asio::io_service& io_service, const std::string& username, 
 		const std::string& password, const std::string& server, 
 		const std::string& port = "smtp", bool use_ssl = false);
+
+	/**
+ 	 * \brief ctor
+ 	 * \param username 邮件用户名, 如xxx@example.com
+ 	 * \param password 邮箱密码(某些邮件服务商提供的专用与smtp的密码也可)
+ 	 * \param server smtp服务器，如smtp.example.com
+ 	 * \param port smtp服务器端口，默认为smtp端口(25)
+ 	 * \param use_ssl 是否使用ssl，默认为false
+ 	 */ 
 	Mail(const std::string& username, const std::string& password, const std::string& server,
 		const std::string& port = "smtp", bool use_ssl = false);
+
+	/**
+ 	 * \biref dtor
+ 	 */
 	~Mail();
 
+	/**
+ 	 * \brief 执行io_service::run
+ 	 * \note 若和其他组件共用io_service则可在其他地方执行io_service::run而不必调用此函数
+ 	 */ 
 	void apply();
+
+	/**
+ 	 * \brief 异步发送邮件
+ 	 * \param to_addr 对端邮件地址，如xxx@example.com
+ 	 * \param subject 邮件主题
+ 	 * \param body 邮件主体
+ 	 * \param handler 异步handler，若成功则以true为参数调用handler，否则false
+ 	 */ 
 	void send(const std::string& to_addr, const std::string& subject, const std::string& body,
 		std::function<void(bool)> handler = [](bool){});
 private:

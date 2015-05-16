@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "request.hh"
+#include "ptrs.hh"
 
 /**
  * \brief 将http请求报文解析为Request
@@ -10,7 +10,7 @@
  * 	解析完成后的回调函数
  * 	若解析失败则以nullptr为参数调用handler
  */ 	
-void parseRequest(RequestPtr req, std::function<void(RequestPtr)> handler);
+void parseRequest(ConnectionPtr conn, std::function<void(RequestPtr)> handler);
 
 /**
  * \brief 将http响应报文解析为Response
@@ -19,4 +19,4 @@ void parseRequest(RequestPtr req, std::function<void(RequestPtr)> handler);
  * 	解析完成后的回调函数
  * 	若解析失败则以nullptr为参数调用handler
  */ 	
-void parseResponse(ResponsePtr res, std::function<void(ResponsePtr)> handler);
+void parseResponse(ConnectionPtr conn, std::function<void(ResponsePtr)> handler);

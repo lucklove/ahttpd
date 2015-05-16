@@ -13,8 +13,6 @@ SET(TEST_SOURCES
 	utils/path.cc
 	utils/domain.cc
 	ThreadPool/ThreadPool.cc
-	request/request.cc
-	response/response.cc
 	server/server.cc
 	exception/exception.cc
 	mail/mail.cc

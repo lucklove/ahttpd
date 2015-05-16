@@ -10,10 +10,8 @@ main(int argc, char *argv[])
 	}
 	Mail m("ahttpd@163.com", "qjhjhnevjghjdoml", "smtp.163.com");
 	m.send(argv[1], argv[2], argv[3], [=](bool good) {
-		if(!good) {
+		if(!good)
 			std::cout << "send mail to "<< argv[1] << " failed" << std::endl;
-			return -2;
-		}
 	});
 	m.apply();
 }

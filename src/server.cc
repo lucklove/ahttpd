@@ -65,16 +65,15 @@ private:
 	TcpConnectionPtr new_tcp_connection_;
 	SslConnectionPtr new_ssl_connection_;
 
-	void handleTcpAccept(std::function<void(RequestPtr)> request_handler, const boost::system::error_code& ec);
-	void handleSslAccept(std::function<void(RequestPtr)> request_handler, const boost::system::error_code& ec);
+	void handleTcpAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec);
+	void handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec);
 };
 
 void 
-ServerImpl::handleTcpAccept(std::function<void(RequestPtr)> request_handler, const boost::system::error_code& ec)
+ServerImpl::handleTcpAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec)
 {
 	if(!ec) {
-		RequestPtr req = std::make_shared<Request>(new_tcp_connection_);
-		request_handler(req);
+		request_handler(new_tcp_connection_);
 		new_tcp_connection_.reset(new TcpConnection(service_));
 		tcp_acceptor_.async_accept(new_tcp_connection_->nativeSocket(),
 			std::bind(&ServerImpl::handleTcpAccept, this, 
@@ -86,15 +85,14 @@ ServerImpl::handleTcpAccept(std::function<void(RequestPtr)> request_handler, con
 }
 
 void 
-ServerImpl::handleSslAccept(std::function<void(RequestPtr)> request_handler, const boost::system::error_code& ec)
+ServerImpl::handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec)
 {
 	if(!ec) {
 			new_ssl_connection_->async_handshake([=](const boost::system::error_code& e) {
 			if(e) {
 				Log("ERROR") << e.message();
 			} else {
-				RequestPtr req = std::make_shared<Request>(new_ssl_connection_);
-				request_handler(req);
+				request_handler(new_ssl_connection_);
 			}
 			new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
 			ssl_acceptor_.async_accept(new_ssl_connection_->nativeSocket(),
@@ -232,22 +230,20 @@ Server::stop()
 }
 
 void
-Server::handleRequest(RequestPtr req)
+Server::handleRequest(ConnectionPtr conn)
 {
-	assert(req->connection() != nullptr);
-	parseRequest(req, [=](RequestPtr request) {
+	assert(conn != nullptr);
+	parseRequest(conn, [=](RequestPtr request) {
 		if(request) {
 			if(request->keepAlive()) {
-				RequestPtr new_req = std::make_shared<Request>(request->connection());
-				handleRequest(new_req);
+				handleRequest(conn);
 			}
 			thread_pool_.wait_to_enqueue([this](std::unique_lock<std::mutex>&) {
 				if(thread_pool_.size_unlocked() > thread_pool_size_)
 					Log("WARNING") << "thread pool overload";
 			}, &Server::deliverRequest, this, request);
 		} else {
-			req->connection()->stop();
-			req->discardConnection();
+			conn->stop();
 		}
 	});
 }

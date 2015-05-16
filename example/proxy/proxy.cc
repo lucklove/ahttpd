@@ -68,15 +68,11 @@ const char* black_list[] = {
 };
 
 bool
-in_black_list(const std::string& host)
+in_black_list(const std::string& url)
 {
 	for(const char *b : black_list) {
-		auto p = host.find('/');
-		if(p == host.npos && isDomainMatch(host, b)) {
+		if(url.find(b) != url.npos)
 			return true;
-		} else if(isDomainMatch(host.substr(0, p), b)) {
-			return true;
-		}
 	}
 	return false;
 }
@@ -177,9 +173,9 @@ main(int argc, char* argv[])
 {
 	try {
 		std::stringstream config("{\"http port\":\"8888\"}");
-		Server server(config);						/**< 在8888端口监听 */
+		Server server(config, 1);						/**< 在8888端口监听 */
 		server.addHandler("", new ProxyHandler(server.service()));	/**< 监听所有路径上的报文 */
-		server.run(10);							/**< 给io_service 10个线程 */
+		server.run(1);							/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {
 		std::cerr << "exception: " << e.what() << "\n";
 	}

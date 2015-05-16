@@ -66,6 +66,11 @@ public :
  	 */  
 	void setVersion(const std::string& version) { version_ = version; }
 
+	/**
+ 	 * \brief 添加cookie
+ 	 * \example
+ 	 * 	setCookie({"key", "val"});
+ 	 */ 	
 	void setCookie(const request_cookie_t& cookie) {
 		std::string header_val = cookie.key;
 		if(cookie.val != "")
@@ -78,7 +83,13 @@ public :
 			addHeader("Cookie", header_val);
 		}
 	}
-
+	
+	/**
+ 	 * \brief 通过键获取cookie值
+ 	 * \param key 键
+ 	 * \return
+ 	 * 	如果存在该cookie,则返回指向值的指针，否则返回nullptr
+ 	 */ 	
 	const std::string* getCookieValue(const std::string& key) {
 		for(auto& rc : cookie_jar_) {
 			if(rc.key == key)
@@ -89,13 +100,6 @@ public :
 
 	const std::vector<request_cookie_t>& cookieJar() {
 		return cookie_jar_;
-	}
-
-	void parseCookie() override {
-		std::string* cookie_header = getHeader("Cookie");
-		if(cookie_header) {
-			cookie_jar_ = parseRequestCookie(*cookie_header);
-		}
 	}
 
 	void
@@ -136,4 +140,11 @@ private:
 	std::map<std::string, std::string> param_map_;
 	std::string version_;
 	std::vector<request_cookie_t> cookie_jar_;	
+	void parseCookie() override {
+		std::string* cookie_header = getHeader("Cookie");
+		if(cookie_header) {
+			cookie_jar_ = parseRequestCookie(*cookie_header);
+		}
+	}
+	friend void parseRequest(ConnectionPtr, std::function<void(RequestPtr)>);
 };

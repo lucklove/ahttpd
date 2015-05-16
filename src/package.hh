@@ -22,6 +22,7 @@ public:
 	std::istream& in() { return body; }
 	std::ostream& out() { return body; }
 	ConnectionPtr connection() { return connection_; }
+
 	void discardConnection() { connection_.reset(); }
 
 	std::vector<std::string> getHeaders(std::string h_name) {
@@ -77,7 +78,6 @@ public:
 	}
 
 	virtual std::string getVersion() = 0;
-	virtual void parseCookie() = 0;
 
 	size_t
 	contentLength()
@@ -100,4 +100,5 @@ private:
 	std::vector<header_t> headers_;
 	std::stringstream body;
 	ConnectionPtr connection_;
+	virtual void parseCookie() = 0;
 };

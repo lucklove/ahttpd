@@ -80,7 +80,6 @@ Client::request(const std::string& method, const std::string& url,
 		connection->async_connect(host, port, [=](ConnectionPtr conn) {
 			if(conn) {
 				auto req = std::make_shared<Request>(conn);
-				auto res = std::make_shared<Response>(conn);
 				req->setMethod(method);
 				auto pos = path.find("?");
 				if(pos == path.npos) {
@@ -110,9 +109,9 @@ Client::request(const std::string& method, const std::string& url,
  				 */ 	
 				req->setHeader("Connection", "close");
 
-				parseResponse(res, [=](ResponsePtr response) {
-					res->discardConnection();
+				parseResponse(conn, [=](ResponsePtr response) {
 					if(response) {
+						response->discardConnection();
 						if(enable_cookie_) {
 							std::unique_lock<std::mutex> lck(cookie_mutex_);
 							add_cookie_to_cookie_jar(response, host);

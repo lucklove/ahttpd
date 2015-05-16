@@ -8,7 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
-#define STACK_BUFF_SIZE	(64 * 1024)
+#define STACK_BUFF_SIZE	(128 * 1024)
 
 namespace {
 template<typename Pac_t, typename Handle_t>
@@ -41,7 +41,9 @@ template<typename Pac_t, typename Handle_t>
 void
 read_chunked_body(Pac_t pac, Handle_t handler)
 {
-	pac->connection()->async_read_until("\n",
+	auto conn = pac->connection();
+	if(!conn) return;
+	conn->async_read_until("\n",
 		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
@@ -49,17 +51,17 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 				handler(nullptr);
 				return;
 			}
+			if(!pac->connection())			/**< 判断在其他地方是否出现解析错误的情况 */
+				return;
 			std::istream in(&pac->connection()->readBuffer());
 			size_t length = 0;
-			std::string ignore;
 			in >> std::hex >> length;
-//			in.ignore(0x7FFFFFFF, '\n');
-			getline(in, ignore);	/**< 比如A3\r\n, 读取A3后扔掉\r\n */
+			in.ignore(0x7FFFFFFF, '\n');
 
 			size_t already_read = pac->connection()->readBuffer().in_avail();
 			int need_read = length - already_read;
 			if(need_read > 0) {
-				pac->connection()->async_read(boost::asio::transfer_exactly(need_read),
+				conn->async_read(boost::asio::transfer_exactly(need_read),
 					[=](const boost::system::error_code& err, size_t n) {
 						if(err || static_cast<int>(n) != need_read /**< 避免警告 */
 							|| length > STACK_BUFF_SIZE) {
@@ -74,7 +76,10 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 							handler(nullptr);
 							return;
 						}
-						char buf[length];	/**< XXX: VLA extension */
+						if(!pac->connection())
+							return;
+
+						char buf[STACK_BUFF_SIZE];
 						std::istream in(&pac->connection()->readBuffer());
 						in.read(buf, length);
 						pac->out().write(buf, length);
@@ -85,12 +90,12 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 					handler(nullptr);
 					return;
 				}
-				char buf[length];			/**< XXX: VLA extension */
+				char buf[STACK_BUFF_SIZE];
 				in.read(buf, length);
 				pac->out().write(buf, length);	
 			}
 
-			pac->connection()->async_read_until("\n",
+			conn->async_read_until("\n",
 				[=](const boost::system::error_code& err, size_t n) {
 					if(err) {
 						Log("DEBUG") << __FILE__ << ":" << __LINE__;
@@ -99,10 +104,10 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 						handler(nullptr);
 						return;
 					}
-					std::istream in(&pac->connection()->readBuffer());
-					std::string ignore;
-//					in.ignore(0x7FFFFFFF, '\n');
-					getline(in, ignore);
+					if(!pac->connection())
+						return;
+					std::istream in(&conn->readBuffer());
+					in.ignore(0x7FFFFFFF, '\n');
 					if(length == 0) {
 						handler(pac);
 						return;
@@ -252,36 +257,40 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> hand
 
 }
 
-#define PARSE(package, pac)						\
-do {									\
-	parse_##package##_first_line(pac,				\
-		[=](decltype(pac) pac) {				\
-			if(!pac) {					\
-				handler(nullptr);			\
-				return;					\
-			}						\
-			parse_headers(pac,				\
-				[=](decltype(pac) pac) {		\
-					if(!pac) {			\
-						handler(nullptr);	\
-						return;			\
-					}				\
-					pac->parseCookie();		\
-					parse_body(pac, handler);	\
-				}					\
-			);						\
-		}							\
-	);								\
+#define PARSE(package, pack)							\
+do {										\
+	parse_##package##_first_line(pack,					\
+		[=](decltype(pack) pac) {					\
+			if(!pac) {						\
+				pack->discardConnection();			\
+				handler(nullptr);				\
+				return;						\
+			}							\
+			parse_headers(pac,					\
+				[=](decltype(pac) pac) {			\
+					if(!pac) {				\
+						pack->discardConnection();	\
+						handler(nullptr);		\
+						return;				\
+					}					\
+					pac->parseCookie();			\
+					parse_body(pac, handler);		\
+				}						\
+			);							\
+		}								\
+	);									\
 } while(0)
 		
 void
-parseRequest(RequestPtr req, std::function<void(RequestPtr)> handler)
+parseRequest(ConnectionPtr conn, std::function<void(RequestPtr)> handler)
 {
+	RequestPtr req = std::make_shared<Request>(conn);	
 	PARSE(request, req);
 }
 
 void
-parseResponse(ResponsePtr res, std::function<void(ResponsePtr)> handler)
+parseResponse(ConnectionPtr conn, std::function<void(ResponsePtr)> handler)
 {
+	ResponsePtr res = std::make_shared<Response>(conn);	
 	PARSE(response, res);
 }
