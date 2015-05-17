@@ -28,7 +28,6 @@ public:
 		socket_.close(); 
 	}
 
-	socket_t socket() override { return socket_t{ &socket_ }; }
 	boost::asio::ip::tcp::socket& nativeSocket() override { return socket_; }
 
 private:
@@ -36,4 +35,5 @@ private:
 	boost::asio::ip::tcp::resolver resolver_;
 	bool stoped_;
 	std::mutex stop_mutex_;
+	socket_t socket() override { return socket_t{ &socket_ }; }
 };

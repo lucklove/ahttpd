@@ -87,7 +87,6 @@ public:
 			}
 	);
 
-	virtual socket_t socket() = 0;
 protected:
 	void enqueueRead(std::function<void()> read_func) {
 		{
@@ -183,4 +182,5 @@ private:
 			handler(nullptr);
 		}
 	}
+	virtual socket_t socket() = 0;
 };

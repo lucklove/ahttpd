@@ -21,7 +21,6 @@ public:
 	~SslConnection() {}
 
 	void stop() override;
-	socket_t socket() override { return socket_t{ &socket_ }; }
 	boost::asio::ip::tcp::socket& nativeSocket() override { return socket_.next_layer(); }
 	void async_handshake(std::function<void(const boost::system::error_code& e)> handle);
 	void async_connect(const std::string& host, const std::string& port,
@@ -32,4 +31,5 @@ private:
 	void stopNextLayer(const boost::system::error_code& ec);
 	bool stoped_;
 	std::mutex stop_mutex_;
+	socket_t socket() override { return socket_t{ &socket_ }; }
 };
