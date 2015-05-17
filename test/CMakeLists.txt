@@ -1,5 +1,6 @@
 SET(TEST_SOURCES
 	test.cc
+	request/request.cc
 	connection/connection.cc
 	client/client.cc
 	client/client_check_cookie.cc
