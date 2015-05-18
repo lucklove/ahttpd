@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE(client_request_chunked_body_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server s(config);
-	auto echo_body = new EchoBody();
-	s.addHandler("/echo", echo_body);
+	auto echo_body = std::make_shared<EchoBody>();
+	s.addHandler("/echo", echo_body.get());
 	Client c(s.service());
 	c.request("POST", "http://localhost:8888/echo",
 		[&](ResponsePtr res) {
@@ -82,10 +82,10 @@ BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server s(config);
-	auto set_cookie = new SetCookie();
-	auto echo_cookie = new EchoCookie();
-	s.addHandler("/", set_cookie);
-	s.addHandler("/echo", echo_cookie);
+	auto set_cookie = std::make_shared<SetCookie>();
+	auto echo_cookie = std::make_shared<EchoCookie>();
+	s.addHandler("/", set_cookie.get());
+	s.addHandler("/echo", echo_cookie.get());
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1"));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key3").setVal("val3").setMaxAge(10));
@@ -107,10 +107,10 @@ BOOST_AUTO_TEST_CASE(client_cookie_expires_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server s(config);
-	auto set_cookie = new SetCookie();
-	auto echo_cookie = new EchoCookie();
-	s.addHandler("/", set_cookie);
-	s.addHandler("/echo", echo_cookie);
+	auto set_cookie = std::make_shared<SetCookie>();
+	auto echo_cookie = std::make_shared<EchoCookie>();
+	s.addHandler("/", set_cookie.get());
+	s.addHandler("/echo", echo_cookie.get());
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1").setMaxAge(1));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setMaxAge(10));
 	Client c(s.service());
@@ -132,10 +132,10 @@ BOOST_AUTO_TEST_CASE(client_cookie_path_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server s(config);
-	auto set_cookie = new SetCookie();
-	auto echo_cookie = new EchoCookie();
-	s.addHandler("/", set_cookie);
-	s.addHandler("/echo", echo_cookie);
+	auto set_cookie = std::make_shared<SetCookie>();
+	auto echo_cookie = std::make_shared<EchoCookie>();
+	s.addHandler("/", set_cookie.get());
+	s.addHandler("/echo", echo_cookie.get());
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1").setPath("/echo").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setPath("/no_such_path").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key3").setVal("val3").setPath("/").setMaxAge(10));
@@ -159,10 +159,10 @@ BOOST_AUTO_TEST_CASE(client_cookie_domain_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server s(config);
-	auto set_cookie = new SetCookie();
-	auto echo_cookie = new EchoCookie();
-	s.addHandler("/", set_cookie);
-	s.addHandler("/echo", echo_cookie);
+	auto set_cookie = std::make_shared<SetCookie>();
+	auto echo_cookie = std::make_shared<EchoCookie>();
+	s.addHandler("/", set_cookie.get());
+	s.addHandler("/echo", echo_cookie.get());
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1").setDomain("127.0.0.1").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setDomain(".localhost").setMaxAge(10));
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key3").setVal("val3").setMaxAge(10));

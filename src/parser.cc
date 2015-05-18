@@ -60,19 +60,21 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 
 			size_t already_read = pac->connection()->readBuffer().in_avail();
 			int need_read = length - already_read;
+			if(length > STACK_BUFF_SIZE) {
+				Log("ERROR") << "BUFFER OVERFLOW";
+				handler(nullptr);
+				return;
+			}
 			if(need_read > 0) {
 				conn->async_read(boost::asio::transfer_exactly(need_read),
 					[=](const boost::system::error_code& err, size_t n) {
-						if(err || static_cast<int>(n) != need_read /**< 避免警告 */
-							|| length > STACK_BUFF_SIZE) {
+						if(err || static_cast<int>(n) < need_read) { /**< 避免警告 */
 							if(err) {
 								Log("DEBUG") << __FILE__ << ":" << __LINE__;
 								Log("ERROR") << err.message();
 							}
 							if(static_cast<int>(n) != need_read)
 								Log("ERROR") << "BUFFER HUNGERY";
-							if(length > STACK_BUFF_SIZE)
-								Log("ERROR") << "BUFFER OVERFLOW";
 							handler(nullptr);
 							return;
 						}
@@ -85,11 +87,6 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 						pac->out().write(buf, length);
 				});
 			} else if(length > 0) {
-				if(length > STACK_BUFF_SIZE) {
-					Log("ERROR") << "BUFFER OVERFLOW";
-					handler(nullptr);
-					return;
-				}
 				char buf[STACK_BUFF_SIZE];
 				in.read(buf, length);
 				pac->out().write(buf, length);	
@@ -257,40 +254,46 @@ parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> hand
 
 }
 
-#define PARSE(package, pack)							\
-do {										\
-	parse_##package##_first_line(pack,					\
-		[=](decltype(pack) pac) {					\
-			if(!pac) {						\
-				pack->discardConnection();			\
-				handler(nullptr);				\
-				return;						\
-			}							\
-			parse_headers(pac,					\
-				[=](decltype(pac) pac) {			\
-					if(!pac) {				\
-						pack->discardConnection();	\
-						handler(nullptr);		\
-						return;				\
-					}					\
-					pac->parseCookie();			\
-					parse_body(pac, handler);		\
-				}						\
-			);							\
-		}								\
-	);									\
+#define RETURN_IF_ERROR(result, pack, handler)							\
+do {												\
+	if(!result) {										\
+		pack->discardConnection();							\
+		handler(nullptr);								\
+		return;										\
+	}											\
+} while(0)
+
+#define PARSE(package, pack, handler)								\
+do {												\
+	parse_##package##_first_line(pack,							\
+		[=](decltype(pack) pac) {							\
+			RETURN_IF_ERROR(pac, pack, handler);					\
+			parse_headers(pac,							\
+				[=](decltype(pac) pac) {					\
+					RETURN_IF_ERROR(pac, pack, handler);			\
+					pac->parseCookie();					\
+					parse_body(pac, 					\
+						[=](decltype(pac) pac) {			\
+							RETURN_IF_ERROR(pac, pack, handler);	\
+							handler(pac);				\
+						}						\
+					);							\
+				}								\
+			);									\
+		}										\
+	);											\
 } while(0)
 		
 void
 parseRequest(ConnectionPtr conn, std::function<void(RequestPtr)> handler)
 {
 	RequestPtr req = std::make_shared<Request>(conn);	
-	PARSE(request, req);
+	PARSE(request, req, handler);
 }
 
 void
 parseResponse(ConnectionPtr conn, std::function<void(ResponsePtr)> handler)
 {
 	ResponsePtr res = std::make_shared<Response>(conn);	
-	PARSE(response, res);
+	PARSE(response, res, handler);
 }

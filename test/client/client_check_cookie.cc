@@ -15,8 +15,8 @@ BOOST_AUTO_TEST_CASE(client_cookie_simple_test)
 {
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server s(config);
-	auto set_cookie = new SetCookie();
-	s.addHandler("/", set_cookie);
+	auto set_cookie = std::make_shared<SetCookie>();
+	s.addHandler("/", set_cookie.get());
 	Client c(s.service());
 	c.enableCookie();
 	set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1"));

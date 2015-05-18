@@ -91,7 +91,8 @@ BOOST_AUTO_TEST_CASE(chunked_body_test)
 {
 	std::stringstream config("{\"http port\": \"8888\"}");
 	Server server(config);
-	server.addHandler("/chunked", new ChunkedTestServer());
+	auto chunked_test = std::make_shared<ChunkedTestServer>();
+	server.addHandler("/chunked", chunked_test.get());
 	server.enqueue([&]{
 		std::this_thread::sleep_for(std::chrono::seconds(1));		/**< 等待server开始监听 */
 		Client c;

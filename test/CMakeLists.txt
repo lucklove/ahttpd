@@ -16,6 +16,7 @@ SET(TEST_SOURCES
 	ThreadPool/ThreadPool.cc
 	server/server.cc
 	exception/exception.cc
+	parser/parser.cc
 	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
