@@ -63,6 +63,4 @@ main(int argc, char *argv[])
 |   mail     | 使用smtp发送邮件		   |					  |				      |
 |   proxy    | http/https代理服务器	   | http://127.0.0.1:8888		  | 				      |  
 
-点击[这里](http://115.28.32.115:8888)访问静态文件服务器中的游戏
-
 ##人丑bug多，欢迎找茬
