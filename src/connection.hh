@@ -45,6 +45,8 @@ public:
 
 	virtual void stop() = 0; 
 
+	virtual void stoped() = 0; 
+
 	buffer_t& readBuffer() { return read_buffer_; }
 
 	virtual boost::asio::ip::tcp::socket& nativeSocket() = 0;

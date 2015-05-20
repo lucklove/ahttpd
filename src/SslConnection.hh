@@ -21,6 +21,12 @@ public:
 	~SslConnection() {}
 
 	void stop() override;
+
+	/**
+ 	 * \note 非线程安全
+ 	 */ 
+	bool stoped() override { return stoped_; }
+
 	boost::asio::ip::tcp::socket& nativeSocket() override { return socket_.next_layer(); }
 	void async_handshake(std::function<void(const boost::system::error_code& e)> handle);
 	void async_connect(const std::string& host, const std::string& port,

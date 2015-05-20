@@ -28,6 +28,11 @@ public:
 		socket_.close(); 
 	}
 
+	/**
+ 	 * \note 非线程安全
+ 	 */ 
+	bool stoped() override { return stoped_; }
+
 	boost::asio::ip::tcp::socket& nativeSocket() override { return socket_; }
 
 private:
