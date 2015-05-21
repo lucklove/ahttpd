@@ -48,7 +48,7 @@ void
 SslConnection::async_connect(const std::string& host, const std::string& port,
 	std::function<void(ConnectionPtr)> handler)
 {
-	Connection::async_connect(host, port, 
+	low_level_connect(host, port, 
 		[this, handler, ptr = shared_from_this()](ConnectionPtr conn) {
 		if(conn) {
 			socket_.set_verify_mode(boost::asio::ssl::verify_peer);
