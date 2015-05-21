@@ -12,8 +12,7 @@
 
 class Server;
 
-class SslConnection : public Connection
-{
+class SslConnection : public Connection {
 public:
 	explicit SslConnection(boost::asio::io_service& service, boost::asio::ssl::context& context)
   		: Connection(service), socket_(service, context), ssl_shutdown_timer_(service)
@@ -35,7 +34,7 @@ private:
 	boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket_;
 	boost::asio::deadline_timer ssl_shutdown_timer_;
 	void stopNextLayer(const boost::system::error_code& ec);
-	bool stoped_;
+	bool stoped_{};
 	std::mutex stop_mutex_;
 	socket_t socket() override { return socket_t{ &socket_ }; }
 };

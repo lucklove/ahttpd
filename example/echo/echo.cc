@@ -5,7 +5,7 @@
  ********************************************************************************/ 	
 
 #include <iostream>
-#include "server.hh"
+#include "ahttpd.hh"
 
 struct EchoHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {

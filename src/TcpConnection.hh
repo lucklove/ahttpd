@@ -10,8 +10,7 @@
 
 class Server;
 
-class TcpConnection : public Connection
-{
+class TcpConnection : public Connection {
 public:
 	explicit TcpConnection(boost::asio::io_service& service)
   		: Connection(service), socket_(service), resolver_(service)
@@ -38,7 +37,7 @@ public:
 private:
 	boost::asio::ip::tcp::socket socket_;
 	boost::asio::ip::tcp::resolver resolver_;
-	bool stoped_;
+	bool stoped_{};
 	std::mutex stop_mutex_;
 	socket_t socket() override { return socket_t{ &socket_ }; }
 };

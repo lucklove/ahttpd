@@ -1,5 +1,4 @@
-#include "mail.hh"
-#include "log.hh"
+#include "ahttpd.hh"
 
 int
 main(int argc, char *argv[])

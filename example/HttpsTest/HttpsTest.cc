@@ -1,4 +1,4 @@
-#include "server.hh"
+#include "ahttpd.hh"
 #include <fstream>
 
 struct HttpsTest : public RequestHandler {

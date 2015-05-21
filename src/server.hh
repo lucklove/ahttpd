@@ -8,10 +8,6 @@
 #include "ThreadPool.hh"
 #include "ptrs.hh"
 
-namespace boost { namespace asio {
-class io_service;
-}
-}
 
 class ServerImpl;
 

@@ -5,64 +5,9 @@
  ********************************************************************************/ 	
 
 #include <iostream>
-#include "server.hh"
-#include "client.hh"
-#include "TcpConnection.hh"
+#include "ahttpd.hh"
 
 namespace {
-void
-read_client(ConnectionPtr c, ConnectionPtr s)
-{
-	c->async_read(boost::asio::transfer_at_least(1), 
-		[=](const boost::system::error_code& err, size_t n){
-			if(err) {
-				c->stop();
-				s->stop();
-				return;
-			}
-			std::stringstream ss;
-			ss << &c->readBuffer();
-			s->async_write(ss.str(), [=](const boost::system::error_code& e, size_t n) {
-				if(e) {
-					s->stop();
-					c->stop();
-				}
-			});
-			read_client(c, s);
-		}
-	);
-}
-
-void
-read_server(ConnectionPtr c, ConnectionPtr s)
-{
-	s->async_read(boost::asio::transfer_at_least(1), 
-		[=](const boost::system::error_code& err, size_t n){
-			if(err) {
-				c->stop();
-				s->stop();
-				return;
-			}
-			std::stringstream ss;
-			ss << &s->readBuffer();
-			c->async_write(ss.str(), [=](const boost::system::error_code& e, size_t n) {
-				if(e) {
-					c->stop();
-					s->stop();
-				}
-			});
-			read_server(c, s);
-		}
-	);
-}
-
-void
-proxy_ssl(ConnectionPtr c, ConnectionPtr s)
-{
-	read_client(c, s);
-	read_server(c, s);
-}
-
 const char* black_list[] = {
 	"google.com",
 };
@@ -79,11 +24,11 @@ in_black_list(const std::string& url)
 }
 
 struct ProxyHandler : public RequestHandler {
-	ProxyHandler(boost::asio::io_service& s) : service_(s), client_(s) {}
+	ProxyHandler(Server& s) : server_(s), client_(s.service()) {}
 
 	void handleRequest(RequestPtr req, ResponsePtr res) override; 
 private:
-	boost::asio::io_service& service_;	
+	Server& server_;	
 	Client client_;
 };
 
@@ -110,24 +55,23 @@ ProxyHandler::handleRequest(RequestPtr req, ResponsePtr res)
 		return;
 	}
 	if(req->getMethod() == "CONNECT") {				/**< ssl代理请求 */
-		std::string server;
+		std::string host;
 		std::string port = "https";							
 		StringTokenizer st(url, ':');
 		if(!st.hasMoreTokens()) {
 			res->setStatus(400);
 			return;
 		}
-		server = st.nextToken();
+		host = st.nextToken();
 		if(st.hasMoreTokens())
 			port = st.nextToken();
-		ConnectionPtr s = std::make_shared<TcpConnection>(service_);
-		s->async_connect(server, port, [=](ConnectionPtr conn) {
+		TcpConnect(server_.service(), host, port, [=](ConnectionPtr conn) {
 			if(!conn) {
-				Log("ERROR") << "Connect to " << server << ":" << port << " failed";
+				Log("ERROR") << "Connect to " << host << ":" << port << " failed";
 				res->setStatus(500);
 				return;
 			}
-			proxy_ssl(res->connection(), conn);
+			tunnel(res->connection(), conn);
 		});
 	} else {
 		if(req->getQueryString() != "")
@@ -174,7 +118,7 @@ main(int argc, char* argv[])
 	try {
 		std::stringstream config("{\"http port\":\"8888\"}");
 		Server server(config, 1);						/**< 在8888端口监听 */
-		server.addHandler("", new ProxyHandler(server.service()));	/**< 监听所有路径上的报文 */
+		server.addHandler("", new ProxyHandler(server));	/**< 监听所有路径上的报文 */
 		server.run(1);							/**< 给io_service 10个线程 */
 	} catch(std::exception& e) {
 		std::cerr << "exception: " << e.what() << "\n";

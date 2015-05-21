@@ -13,6 +13,7 @@ SET(SHTTPD_SRCS SHARED
 	base64.cc
 	mail.cc
 	utils.cc
+	net.cc
 )
 ADD_LIBRARY(ahttpd ${SHTTPD_SRCS})
 TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)
@@ -35,5 +36,6 @@ INSTALL(FILES
 	cookie.hh
 	utils.hh
 	params.hh
+	net.hh
 	DESTINATION include/ahttpd
 )

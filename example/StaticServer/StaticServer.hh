@@ -1,6 +1,6 @@
 #pragma once
 
-#include "server.hh"
+#include "ahttpd.hh"
 
 class StaticServer : public RequestHandler {
 public:

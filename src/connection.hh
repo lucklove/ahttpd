@@ -14,12 +14,8 @@
 #include "log.hh"
 #include "ptrs.hh"
 
-class Server;
-
-class Connection : public std::enable_shared_from_this<Connection>
-{
+class Connection : public std::enable_shared_from_this<Connection> {
 protected:
-  	Server *server_;
 	enum class socket_type { ordinary, ssl };
 	struct socket_t {
 		socket_t(boost::asio::ip::tcp::socket* ordinary_socket_) 
@@ -45,7 +41,7 @@ public:
 
 	virtual void stop() = 0; 
 
-	virtual void stoped() = 0; 
+	virtual bool stoped() = 0; 
 
 	buffer_t& readBuffer() { return read_buffer_; }
 
@@ -72,13 +68,13 @@ public:
 		);
 	}		
 	
-	void async_read_until(const std::string& delim, 
+	virtual void async_read_until(const std::string& delim, 
 		std::function<void(const boost::system::error_code &, size_t)> handler);
 
-	void async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
+	virtual void async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
 		std::function<void(const boost::system::error_code &, size_t)> handler);
 
-	void async_write(const std::string& msg,
+	virtual void async_write(const std::string& msg,
 		std::function<void(const boost::system::error_code&, size_t)> handler =
 			[](const boost::system::error_code& e, size_t n) {
 				if(e) {

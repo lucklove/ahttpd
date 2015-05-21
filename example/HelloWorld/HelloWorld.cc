@@ -1,4 +1,4 @@
-#include "server.hh"
+#include "ahttpd.hh"
 
 struct HelloWorldHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {

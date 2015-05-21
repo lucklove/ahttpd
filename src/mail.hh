@@ -5,13 +5,6 @@
 #include <memory>
 #include "ptrs.hh"
 
-namespace boost { namespace asio { namespace ssl {
-class context;
-}
-class io_service;
-}
-}
-
 /**
  * \brief 邮件类，用于通过smtp发送邮件
  */ 

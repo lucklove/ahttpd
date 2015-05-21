@@ -17,6 +17,7 @@ SET(TEST_SOURCES
 	server/server.cc
 	exception/exception.cc
 	parser/parser.cc
+	net/net.cc
 	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})

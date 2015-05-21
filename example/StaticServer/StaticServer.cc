@@ -1,5 +1,4 @@
 #include "StaticServer.hh"
-#include "MimeType.hh"
 #include <fstream>
 #include <regex>
 #include <algorithm>

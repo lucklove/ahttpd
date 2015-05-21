@@ -1,6 +1,4 @@
-#include "client.hh"
-#include "response.hh"
-#include "request.hh"
+#include "ahttpd.hh"
 #include <iostream>
 
 int 

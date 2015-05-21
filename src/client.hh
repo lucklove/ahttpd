@@ -7,13 +7,6 @@
 #include "log.hh"
 #include "cookie.hh"
 
-namespace boost { namespace asio { namespace ssl {
-class context;
-}
-class io_service;
-}
-}
-
 class Client {
 public:
 	Client(boost::asio::io_service& io_service);
