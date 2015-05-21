@@ -4,8 +4,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
 #include <mutex>
 #include <queue>
 #include <iostream>
@@ -15,28 +13,14 @@
 #include "ptrs.hh"
 
 class Connection : public std::enable_shared_from_this<Connection> {
-protected:
-	enum class socket_type { ordinary, ssl };
-	struct socket_t {
-		socket_t(boost::asio::ip::tcp::socket* ordinary_socket_) 
-			: type(socket_type::ordinary), ordinary_socket(ordinary_socket_)
-		{}
-		socket_t(boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* ssl_socket_)
-			: type(socket_type::ssl), ssl_socket(ssl_socket_)
-		{}
-		socket_type type;
-		union {
-			boost::asio::ip::tcp::socket* ordinary_socket;
-			boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* ssl_socket;
-		};
-	};
+private:
+	buffer_t read_buffer_;
+	std::queue<std::tuple<std::function<void()>, bool>> read_queue_;
+	std::queue<std::tuple<std::function<void()>, bool>> write_queue_;
+	std::mutex read_queue_mutex_{};
+	std::mutex write_queue_mutex_{};
 
 public:
-	Connection(const Connection&) = delete;
-	Connection& operator=(const Connection&) = delete;
-	Connection(boost::asio::io_service& service) 
-		: service_(service), resolver_(service) {}	
-
 	virtual ~Connection() {};
 
 	virtual void stop() = 0; 
@@ -45,16 +29,16 @@ public:
 
 	buffer_t& readBuffer() { return read_buffer_; }
 
-	virtual void async_connect(const std::string& host, const std::string& port,
+	virtual void asyncConnect(const std::string& host, const std::string& port,
 		std::function<void(ConnectionPtr)> handler) = 0;
 
-	virtual void async_read_until(const std::string& delim, 
+	void asyncReadUntil(const std::string& delim, 
 		std::function<void(const boost::system::error_code &, size_t)> handler);
 
-	virtual void async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
+	void asyncRead(std::function<size_t(const boost::system::error_code &, size_t)> completion,
 		std::function<void(const boost::system::error_code &, size_t)> handler);
 
-	virtual void async_write(const std::string& msg,
+	void asyncWrite(const std::string& msg,
 		std::function<void(const boost::system::error_code&, size_t)> handler =
 			[](const boost::system::error_code& e, size_t n) {
 				if(e) {
@@ -65,7 +49,8 @@ public:
 			}
 	);
 
-protected:
+
+private:
 	void enqueueRead(std::function<void()> read_func) {
 		{
 			std::unique_lock<std::mutex> lck(read_queue_mutex_);
@@ -136,13 +121,13 @@ protected:
 		func();
 	}
 
-private:
-	boost::asio::io_service& service_;
-	boost::asio::ip::tcp::resolver resolver_;
-	buffer_t read_buffer_;
-	std::queue<std::tuple<std::function<void()>, bool>> read_queue_;
-	std::queue<std::tuple<std::function<void()>, bool>> write_queue_;
-	std::mutex read_queue_mutex_{};
-	std::mutex write_queue_mutex_{};
-	virtual socket_t socket() = 0;
+	virtual void async_read_until(const std::string& delim, 
+		std::function<void(const boost::system::error_code &, size_t)> handler) = 0;
+
+	virtual void async_read(
+		std::function<size_t(const boost::system::error_code &, size_t)> completion,
+		std::function<void(const boost::system::error_code &, size_t)> handler) = 0;
+
+	virtual void async_write(const std::string& msg,
+		std::function<void(const boost::system::error_code&, size_t)> handler) = 0;
 };

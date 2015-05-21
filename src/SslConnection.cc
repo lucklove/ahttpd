@@ -35,7 +35,7 @@ SslConnection::stopNextLayer(const boost::system::error_code& ec)
  * \brief 作为服务端握手
  */ 
 void
-SslConnection::async_handshake(std::function<void (boost::system::error_code const&)> handler)
+SslConnection::asyncHandshake(std::function<void (boost::system::error_code const&)> handler)
 {
 	socket_.async_handshake(boost::asio::ssl::stream_base::server, 
 		[handler, ptr = shared_from_this()](const boost::system::error_code& e) {
@@ -45,10 +45,10 @@ SslConnection::async_handshake(std::function<void (boost::system::error_code con
 }
 	
 void 
-SslConnection::async_connect(const std::string& host, const std::string& port,
+SslConnection::asyncConnect(const std::string& host, const std::string& port,
 	std::function<void(ConnectionPtr)> handler)
 {
-	low_level_connect(host, port, 
+	TcpConnection::asyncConnect(host, port, 
 		[this, handler, ptr = shared_from_this()](ConnectionPtr conn) {
 		if(conn) {
 			socket_.set_verify_mode(boost::asio::ssl::verify_peer);
@@ -66,7 +66,6 @@ SslConnection::async_connect(const std::string& host, const std::string& port,
 				}
 			);
 		} else {
-			Log(__FILE__) << __LINE__;
 			handler(nullptr);
 		}
 	});

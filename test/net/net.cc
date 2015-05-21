@@ -2,6 +2,7 @@
 #include <boost/asio.hpp>
 #include <mutex>
 #include <queue>
+#include "connection.hh"
 #include "buffer.hh"
 #include "net.hh"
 #include "log.hh"
@@ -37,34 +38,57 @@ BOOST_AUTO_TEST_CASE(ssl_connect_test)
 	);
 	service.run();
 }
-/*
+
 struct MockConnection : Connection {
-	MockConnection(boost::asio::io_service& service, const std::string& to_send,
-		const std::string& to_recv) : Connection(service), send_(to_send), recv_(to_recv)
-	{}
-	std::string send_;
-	std::string recv_;
-	boost::asio::ip::tcp::socket socket_;
+	std::queue<std::string> send_queue;
+	std::queue<std::string> recv_queue;
 	bool stoped_{};
 	void stop() override { stoped_ = true; }
 	bool stoped() override { return stoped_; }
-	virtual boost::asio::ip::tcp::socket& nativeSocket() { return socket_; }
+	
+	void asyncConnect(const std::string& host, const std::string& port,
+		std::function<void(ConnectionPtr)> handler) override {
+		assert(false);
+	}
+
+	void async_read_until(const std::string& delim, 
+		std::function<void(const boost::system::error_code &, size_t)> handler) override {
+		assert(false);
+	}
+
 	void async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
 		std::function<void(const boost::system::error_code &, size_t)> handler) override {
+		if(send_queue.size() == 0) {
+			handler(boost::asio::error::broken_pipe, 0);
+			return;
+		}
 		std::ostream out(&readBuffer());
-		out << recv_;		
+		out << send_queue.front();		
+		send_queue.pop();
+		handler({}, 1);
 	}
+
 	void async_write(const std::string& msg, 
 		std::function<void(const boost::system::error_code&, size_t)> handler) override {
-		std::ostream out(&readBuffer());
-		out << recv_;		
+		if(recv_queue.size() == 0) {
+			handler(boost::asio::error::broken_pipe, 0);
+			return;
+		}
+		BOOST_CHECK(msg == recv_queue.front());
+		recv_queue.pop();
+		handler({}, 1);
 	}
 };
 
 BOOST_AUTO_TEST_CASE(tunnel_test)
 {
-	Log("DEBUG") << sizeof(Connection);
-	boost::asio::io_service service;
-	tunnel(std::make_shared<Connection>(service), std::make_shared<Connection>(service));		
+	const char *queue[] = { "queue1", "queue2", "queue3", "queue4" };
+
+	std::shared_ptr<MockConnection> conn1 = std::make_shared<MockConnection>();
+	std::shared_ptr<MockConnection> conn2 = std::make_shared<MockConnection>();
+	for(size_t i = 0; i < sizeof(queue) / sizeof(queue[0]); ++i) {
+		conn1->send_queue.push(queue[i]);
+		conn2->recv_queue.push(queue[i]);
+	}
+	tunnel(conn1, conn2);
 }
-*/

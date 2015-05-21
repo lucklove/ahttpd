@@ -44,6 +44,8 @@
     			return Bad_Request;				\
   		case Response::Unauthorized:				\
     			return Unauthorized;				\
+		case Response::Payment_Required:			\
+			return Payment_Required;			\
   		case Response::Forbidden:				\
    	 		return Forbidden;				\
   		case Response::Not_Found:				\
@@ -256,9 +258,9 @@ status_body(Response::status_t status)
 #define FLUSH_FIRST_LINE()									\
 do {												\
 	if(msg_ == "" || version_ == "" || !status_) {						\
-		connection()->async_write(status_strings::status_head(status_) + "\r\n");	\
+		connection()->asyncWrite(status_strings::status_head(status_) + "\r\n");	\
 	} else {										\
-		connection()->async_write(version_ + " " +					\
+		connection()->asyncWrite(version_ + " " +					\
 			boost::lexical_cast<std::string>(status_) + " "				\
 			+ version_ + "\r\n");							\
 	}											\
@@ -289,7 +291,7 @@ Response::~Response()
 				out() << stock_replies::status_body(status_);
 		} else {
 			flushPackage();
-			connection()->async_write("0\r\n\r\n");
+			connection()->asyncWrite("0\r\n\r\n");
 		}
 		flushPackage();
 	} catch(std::exception& e) {

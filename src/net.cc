@@ -8,7 +8,7 @@ transfer_data(ConnectionPtr conn1, ConnectionPtr conn2)
 {
 	if(conn1->stoped() || conn2->stoped())
 		return;
-	conn1->async_read(boost::asio::transfer_at_least(1), 
+	conn1->asyncRead(boost::asio::transfer_at_least(1), 
 		[=](const boost::system::error_code& err, size_t n){ 
 			if(err) {
 				conn1->stop();
@@ -17,7 +17,7 @@ transfer_data(ConnectionPtr conn1, ConnectionPtr conn2)
 			}
 			std::stringstream ss; 
 			ss << &conn1->readBuffer();
-			conn2->async_write(ss.str(), [=](const boost::system::error_code& e, size_t n) {
+			conn2->asyncWrite(ss.str(), [=](const boost::system::error_code& e, size_t n) {
 				if(e) {
 					conn1->stop();
 					conn2->stop();
@@ -32,7 +32,7 @@ void
 async_connect(ConnectionPtr conn, const std::string& host,
 	const std::string& port, std::function<void(ConnectionPtr)> handler)
 {
-	conn->async_connect(host, port, [=](ConnectionPtr c) {
+	conn->asyncConnect(host, port, [=](ConnectionPtr c) {
 		if(c) {
 			handler(c);
 		} else {

@@ -29,10 +29,10 @@ Request::flush()
 		setChunked();
 		if(query_ == "") {
 			Log("NOTE") << method_ << " " << path_ << " " << version_;
-			connection()->async_write(method_ + " " + path_ + " " + version_ + "\r\n");
+			connection()->asyncWrite(method_ + " " + path_ + " " + version_ + "\r\n");
 		} else {
 			Log("NOTE") << method_ << " " << path_ << "?" << query_ << " " << version_;
-			connection()->async_write(method_ + " " + path_ + "?" + query_ + " " + version_ + "\r\n");
+			connection()->asyncWrite(method_ + " " + path_ + "?" + query_ + " " + version_ + "\r\n");
 		}
 	}
 	flushPackage();
@@ -69,14 +69,14 @@ Request::~Request()
 		if(!chunked()) {
 			if(query_ == "") {
 				Log("NOTE") << method_ << " " << path_ << " " << version_;
-				connection()->async_write(method_ + " " + path_ + " " + version_ + "\r\n");
+				connection()->asyncWrite(method_ + " " + path_ + " " + version_ + "\r\n");
 			} else {
 				Log("NOTE") << method_ << " " << path_ << "?" << query_ << " " << version_;
-				connection()->async_write(method_ + " " + path_ + "?" + query_ + " " + version_ + "\r\n");
+				connection()->asyncWrite(method_ + " " + path_ + "?" + query_ + " " + version_ + "\r\n");
 			}
 		} else {
 			flushPackage();
-			connection()->async_write("0\r\n\r\n");
+			connection()->asyncWrite("0\r\n\r\n");
 		}
 		flushPackage();
 	} catch(std::exception& e) {

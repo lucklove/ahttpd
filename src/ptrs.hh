@@ -7,6 +7,9 @@ class context;
 }
 class io_service;
 }
+namespace system {
+class error_code;
+}
 }
 
 class Connection;

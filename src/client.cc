@@ -77,7 +77,7 @@ Client::request(const std::string& method, const std::string& url,
 		} else {
 			assert(false);	
 		}
-		connection->async_connect(host, port, [=](ConnectionPtr conn) {
+		connection->asyncConnect(host, port, [=](ConnectionPtr conn) {
 			if(conn) {
 				auto req = std::make_shared<Request>(conn);
 				req->setMethod(method);

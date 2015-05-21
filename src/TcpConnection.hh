@@ -13,7 +13,7 @@ class Server;
 class TcpConnection : public Connection {
 public:
 	explicit TcpConnection(boost::asio::io_service& service)
-  		: Connection(service), socket_(service), resolver_(service)
+  		: socket_(service), resolver_(service)
 	{}
 
 	void stop() override {
@@ -32,7 +32,7 @@ public:
  	 */ 
 	bool stoped() override { return stoped_; }
 	
-	void async_connect(const std::string& host, const std::string& port,
+	void asyncConnect(const std::string& host, const std::string& port,
 		std::function<void(ConnectionPtr)> handler) override {
 
 		boost::asio::ip::tcp::resolver::query query(host, port);
@@ -54,14 +54,13 @@ public:
 		);
 	}		
 
-	boost::asio::ip::tcp::socket& nativeSocket() { return socket_; }
+	virtual boost::asio::ip::tcp::socket& nativeSocket() { return socket_; }
 
 private:
 	boost::asio::ip::tcp::socket socket_;
 	boost::asio::ip::tcp::resolver resolver_;
 	bool stoped_{};
 	std::mutex stop_mutex_;
-	socket_t socket() override { return socket_t{ &socket_ }; }
 	void handle_connect(const boost::system::error_code& err, 
 		boost::asio::ip::tcp::resolver::iterator endpoint_iterator, 
 		std::function<void(ConnectionPtr)> handler,
@@ -77,5 +76,21 @@ private:
 			Log("ERROR") << "connect faild";
 			handler(nullptr);
 		}
+	}
+
+	void async_read_until(const std::string& delim, 
+		std::function<void(const boost::system::error_code &, size_t)> handler) override {
+		boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
+	}
+
+	void async_read(
+		std::function<size_t(const boost::system::error_code &, size_t)> completion,
+		std::function<void(const boost::system::error_code &, size_t)> handler) override {
+		boost::asio::async_read(socket_, readBuffer(), completion, handler);
+	}
+
+	void async_write(const std::string& msg,
+		std::function<void(const boost::system::error_code&, size_t)> handler) override {
+		boost::asio::async_write(socket_, boost::asio::buffer(msg), handler);
 	}
 };

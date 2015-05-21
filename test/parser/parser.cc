@@ -20,33 +20,33 @@ BOOST_AUTO_TEST_CASE(parse_chunked_body_test)
 	auto handler = std::make_shared<ReqHandler>();
 	s.addHandler("/", handler.get());
 	TcpConnectionPtr conn = std::make_shared<TcpConnection>(s.service());
-	conn->async_connect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
+	conn->asyncConnect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
 		BOOST_REQUIRE(conn_ptr);
-		conn_ptr->async_write("GET / HTTP/1.0\r\nTransfer-encoding: chunked\r\n\r\n", 
+		conn_ptr->asyncWrite("GET / HTTP/1.0\r\nTransfer-encoding: chunked\r\n\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("3\r\n", 
+		conn_ptr->asyncWrite("3\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("123\r\n", 
+		conn_ptr->asyncWrite("123\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("4\r\n", 
+		conn_ptr->asyncWrite("4\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("1234\r\n", 
+		conn_ptr->asyncWrite("1234\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("0\r\n\r\n", 
+		conn_ptr->asyncWrite("0\r\n\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_read_until("\n", 
+		conn_ptr->asyncReadUntil("\n", 
 			[=, &s](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 				std::istream in(&conn_ptr->readBuffer());
@@ -67,17 +67,17 @@ BOOST_AUTO_TEST_CASE(buffer_over_flow_chunked_body_test)
 	auto handler = std::make_shared<ReqHandler>();
 	s.addHandler("/", handler.get());
 	TcpConnectionPtr conn = std::make_shared<TcpConnection>(s.service());
-	conn->async_connect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
+	conn->asyncConnect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
 		BOOST_REQUIRE(conn_ptr);
-		conn_ptr->async_write("GET / HTTP/1.0\r\nTransfer-encoding: chunked\r\n\r\n", 
+		conn_ptr->asyncWrite("GET / HTTP/1.0\r\nTransfer-encoding: chunked\r\n\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("20001\r\n", 		/**< OVERFLOW */
+		conn_ptr->asyncWrite("20001\r\n", 		/**< OVERFLOW */
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_read_until("\n", 
+		conn_ptr->asyncReadUntil("\n", 
 			[=, &s](const boost::system::error_code& e, size_t n) {
 				BOOST_CHECK(e);
 				s.stop();
@@ -94,13 +94,13 @@ BOOST_AUTO_TEST_CASE(abort_chunked_body_test)
 	auto handler = std::make_shared<ReqHandler>();
 	s.addHandler("/", handler.get());
 	TcpConnectionPtr conn = std::make_shared<TcpConnection>(s.service());
-	conn->async_connect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
+	conn->asyncConnect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
 		BOOST_REQUIRE(conn_ptr);
-		conn_ptr->async_write("GET / HTTP/1.0\r\nTransfer-encoding: chunked\r\n\r\n", 
+		conn_ptr->asyncWrite("GET / HTTP/1.0\r\nTransfer-encoding: chunked\r\n\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("1\r\n", 
+		conn_ptr->asyncWrite("1\r\n", 
 			[&s](const boost::system::error_code& e, size_t n) {
 				BOOST_CHECK(!e);
 				s.stop();			/**< abort */
@@ -117,13 +117,13 @@ BOOST_AUTO_TEST_CASE(bad_content_length_test)
 	auto handler = std::make_shared<ReqHandler>();
 	s.addHandler("/", handler.get());
 	TcpConnectionPtr conn = std::make_shared<TcpConnection>(s.service());
-	conn->async_connect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
+	conn->asyncConnect("localhost", "8888", [&](ConnectionPtr conn_ptr) {
 		BOOST_REQUIRE(conn_ptr);
-		conn_ptr->async_write("GET / HTTP/1.0\r\nContent-Length: not number\r\n\r\n", 
+		conn_ptr->asyncWrite("GET / HTTP/1.0\r\nContent-Length: not number\r\n\r\n", 
 			[](const boost::system::error_code& e, size_t n) {
 				BOOST_REQUIRE(!e);
 		});
-		conn_ptr->async_write("1\r\n", 
+		conn_ptr->asyncWrite("1\r\n", 
 			[&s](const boost::system::error_code& e, size_t n) {
 				BOOST_CHECK(!e);
 				s.stop();

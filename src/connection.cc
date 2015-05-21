@@ -1,12 +1,15 @@
 #include "connection.hh"
 
-#define ASYNC_APPLY(op, func, ...)								\
+#define ASYNC_APPLY(op, func, handler, ...)								\
 enqueue##op([=, ptr = shared_from_this()] {							\
-	socket_t sock = socket();								\
 	auto handle = [this, handler, ptr](const boost::system::error_code& e, size_t n) {	\
 		handler(e, n);									\
 		dequeue##op();									\
 	};											\
+	func(__VA_ARGS__, handle);								\
+})
+	
+/*
 	if(sock.type == socket_type::ordinary) {						\
 		func(*sock.ordinary_socket, __VA_ARGS__, handle);				\
 	} else if(sock.type == socket_type::ssl) {						\
@@ -16,24 +19,24 @@ enqueue##op([=, ptr = shared_from_this()] {							\
 		assert(false && "unknown socket type");						\
 	}											\
 })
-
+*/
 void 
-Connection::async_read(std::function<size_t(const boost::system::error_code &, size_t)> completion,
+Connection::asyncRead(std::function<size_t(const boost::system::error_code &, size_t)> completion,
 	std::function<void(const boost::system::error_code &, size_t)> handler) 
 {
-	ASYNC_APPLY(Read, boost::asio::async_read, readBuffer(), completion);
+	ASYNC_APPLY(Read, async_read, handler, completion);
 }
 
 void 
-Connection::async_read_until(const std::string& delim, 
+Connection::asyncReadUntil(const std::string& delim, 
 	std::function<void(const boost::system::error_code &, size_t)> handler)
 {
-	ASYNC_APPLY(Read, boost::asio::async_read_until, readBuffer(), delim);
+	ASYNC_APPLY(Read, async_read_until, handler, delim);
 }
 	
 void 
-Connection::async_write(const std::string& msg, 
+Connection::asyncWrite(const std::string& msg, 
 	std::function<void(const boost::system::error_code&, size_t)> handler)
 {
-	ASYNC_APPLY(Write, boost::asio::async_write, boost::asio::buffer(msg));
+	ASYNC_APPLY(Write, async_write, handler, msg);
 }

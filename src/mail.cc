@@ -26,9 +26,9 @@ step(const std::string& message,
 	ConnectionPtr conn, 
 	std::function<void(bool)> handler) 
 {				
-	conn->async_write(message, [=](const boost::system::error_code& ec, size_t) {
+	conn->asyncWrite(message, [=](const boost::system::error_code& ec, size_t) {
 		if(!ec) {										
-			conn->async_read_until("\n", [=](const boost::system::error_code& ec, size_t) {	
+			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {	
 				if(!ec) {
 					handler(response_code(conn->readBuffer()) == expected_code);
 				} else {								
@@ -98,16 +98,16 @@ Mail::send(const std::string& to_addr, const std::string& subject,
 	} else {
 		conn = std::make_shared<TcpConnection>(service_);
 	}
-	conn->async_connect(server_, port_, [=](ConnectionPtr conn) {
+	conn->asyncConnect(server_, port_, [=](ConnectionPtr conn) {
 		CHECK(conn);
-		conn->async_read_until("\n", [=](const boost::system::error_code& ec, size_t) {
+		conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {
 			if(ec) {
 				Log("DEBUG") << __LINE__;
 				Log("ERROR") << ec.message();
 				handler(false);
 				return;
 			}
-			conn->async_read_until("\n", [=](const boost::system::error_code& ec, size_t) {
+			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {
 				CHECK(response_code(conn->readBuffer()) == 220);
 				sayHello(conn, [=](bool good) {
 					CHECK(good);

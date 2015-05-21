@@ -15,7 +15,7 @@ template<typename Pac_t, typename Handle_t>
 void
 parse_headers(Pac_t pac, Handle_t handler)
 {
-	pac->connection()->async_read_until("\n",
+	pac->connection()->asyncReadUntil("\n",
 		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
 				handler(nullptr);
@@ -43,7 +43,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 {
 	auto conn = pac->connection();
 	if(!conn) return;
-	conn->async_read_until("\n",
+	conn->asyncReadUntil("\n",
 		[=](const boost::system::error_code& err, size_t) {
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
@@ -66,7 +66,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 				return;
 			}
 			if(need_read > 0) {
-				conn->async_read(boost::asio::transfer_exactly(need_read),
+				conn->asyncRead(boost::asio::transfer_exactly(need_read),
 					[=](const boost::system::error_code& err, size_t n) {
 						if(err || static_cast<int>(n) < need_read) { /**< 避免警告 */
 							if(err) {
@@ -92,7 +92,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 				pac->out().write(buf, length);	
 			}
 
-			conn->async_read_until("\n",
+			conn->asyncReadUntil("\n",
 				[=](const boost::system::error_code& err, size_t n) {
 					if(err) {
 						Log("DEBUG") << __FILE__ << ":" << __LINE__;
@@ -160,7 +160,7 @@ parse_body(Pac_t pac, Handle_t handler)
 			return;
 		}
 
-		pac->connection()->async_read(boost::asio::transfer_exactly(need_read),
+		pac->connection()->asyncRead(boost::asio::transfer_exactly(need_read),
 			[=](const boost::system::error_code& err, size_t n) {
 				if(err || static_cast<int>(n) != need_read) {	/**< 避免警告 */
 					handler(nullptr);
@@ -176,7 +176,7 @@ parse_body(Pac_t pac, Handle_t handler)
 void
 parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler)
 {
-	req->connection()->async_read_until("\n", 
+	req->connection()->asyncReadUntil("\n", 
 		[req, handler](const boost::system::error_code& err, size_t n) {
 			if(err) {
 				handler(nullptr);
@@ -221,7 +221,7 @@ parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler
 void
 parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> handler)
 {
-	res->connection()->async_read_until("\n", 
+	res->connection()->asyncReadUntil("\n", 
 		[=](const boost::system::error_code& err, size_t n) {
 			if(err) {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;

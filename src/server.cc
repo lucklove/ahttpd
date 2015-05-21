@@ -88,7 +88,7 @@ void
 ServerImpl::handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec)
 {
 	if(!ec) {
-			new_ssl_connection_->async_handshake([=](const boost::system::error_code& e) {
+			new_ssl_connection_->asyncHandshake([=](const boost::system::error_code& e) {
 			if(e) {
 				Log("ERROR") << e.message();
 			} else {
