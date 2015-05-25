@@ -17,7 +17,7 @@ public:
 	Package(ConnectionPtr connection) :
 		connection_(connection) {}
 
-	virtual ~Package() {};
+	virtual ~Package() =default;
 
 	std::istream& in() { return body; }
 	std::ostream& out() { return body; }
@@ -63,22 +63,6 @@ public:
 
 	std::vector<header_t>& getHeaderMap() { return headers_; }
 
-	bool keepAlive() {		
-		std::string* connection_opt = getHeader("Connection");
-		if(connection_opt) {
-			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-		if(getVersion() == "HTTP/1.1")
-			return true; 
-		return false;
-	}
-
-	virtual std::string getVersion() = 0;
-
 	size_t
 	contentLength()
 	{
@@ -100,5 +84,4 @@ private:
 	std::vector<header_t> headers_;
 	std::stringstream body;
 	ConnectionPtr connection_;
-	virtual void parseCookie() = 0;
 };

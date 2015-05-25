@@ -59,8 +59,22 @@ public :
  	 * \brief 获取http版本HTTP/1.0 HTTP1.1
  	 * \return 版本信息
  	 */  
-	std::string getVersion() override { return version_; }
+	std::string getVersion() { return version_; }
 	
+	bool keepAlive() {		
+		std::string* connection_opt = getHeader("Connection");
+		if(connection_opt) {
+			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		if(getVersion() == "HTTP/1.1")
+			return true; 
+		return false;
+	}
+
 	/**
  	 * \brief 设置http版本HTTP/1.0 HTTP1.1
  	 */  
@@ -140,7 +154,7 @@ private:
 	std::map<std::string, std::string> param_map_;
 	std::string version_;
 	std::vector<request_cookie_t> cookie_jar_;	
-	void parseCookie() override {
+	void parseCookie() {
 		std::string* cookie_header = getHeader("Cookie");
 		if(cookie_header) {
 			cookie_jar_ = parseRequestCookie(*cookie_header);

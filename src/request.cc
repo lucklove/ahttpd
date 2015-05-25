@@ -62,7 +62,6 @@ Request::basicAuth(const std::string& auth)
 
 Request::~Request()
 {
-
 	if(connection() == nullptr)
 		return;
 	try {

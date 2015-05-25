@@ -28,7 +28,7 @@ public:
 		delHeader("Content-Type");
 		addHeader("Content-Type", mime);
 	}
-	std::string getVersion() override { return version_; }
+	std::string getVersion() { return version_; }
 	void setVersion(const std::string& version) { version_ = version; }
 	status_t getStatus() { return status_; }
 	void setStatus(status_t status) { status_ = status; }
@@ -62,7 +62,7 @@ private:
 	status_t status_;
 	std::string msg_;
 	std::vector<response_cookie_t> cookie_jar_;
-	void parseCookie() override {
+	void parseCookie() {
 		cookie_jar_ = parseResponseCookie(getHeaders("Set-Cookie"));		
 	}
 	friend void parseResponse(ConnectionPtr, std::function<void(ResponsePtr)>);

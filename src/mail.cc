@@ -47,7 +47,13 @@ step(const std::string& message,
 
 }
 
-
+MailPkg::~MailPkg() {
+	if(!connection())
+		return;
+	flushPackage();
+	connection()->asyncWrite("\r\n.\r\n");	
+};
+	
 Mail::Mail(boost::asio::io_service& io_service, const std::string& username, 
 	const std::string& password, const std::string& server, const std::string& port, bool use_ssl)
 	: service_(io_service), username_(username), password_(password), server_(server), port_(port)
@@ -88,8 +94,9 @@ do {								\
 } while(0)
 
 void
-Mail::send(const std::string& to_addr, const std::string& subject, 
-	const std::string& body, std::function<void(bool)> handler)
+Mail::send(const std::string& to_addr, 
+	std::function<void(MailPkgPtr)> send_handler, 
+	std::function<void(bool)> handler)
 {
 	ConnectionPtr conn;
 	CHECK(username_.find('@') != username_.npos);
@@ -113,9 +120,9 @@ Mail::send(const std::string& to_addr, const std::string& subject,
 					CHECK(good);
 					rcptTo(to_addr, conn, [=](bool good) {
 						CHECK(good);
-						sendData(subject, to_addr, body, conn, [=](bool good) {
-							conn->stop();
-							handler(good);
+						sendData(conn, send_handler, [=](bool good) {
+							CHECK(good);
+							step("", 250, conn, handler);
 						});
 					});
 				});
@@ -124,7 +131,6 @@ Mail::send(const std::string& to_addr, const std::string& subject,
 	});
 }
 						
-
 void
 Mail::sayHello(ConnectionPtr conn, std::function<void(bool)> handler)
 {
@@ -187,15 +193,16 @@ Mail::rcptTo(const std::string& to_addr, ConnectionPtr conn, std::function<void(
 }
 
 void
-Mail::sendData(const std::string& subject, const std::string& to_addr, 
-	const std::string& body, ConnectionPtr conn, std::function<void(bool)> handler)
+Mail::sendData(ConnectionPtr conn, 
+	std::function<void(MailPkgPtr)> send_handler,
+	std::function<void(bool)> res_handler)
 {
 	step("DATA\r\n", 354, conn, [=](bool good) {
 		if(good) {
-			step("subject: " + subject + "\r\n" + "from: " + username_ + "\r\n" +
-				+ "to: " + to_addr + "\r\n\r\n" + body + "\r\n.\r\n", 250, conn, handler);
+			auto mpkg = std::make_shared<MailPkg>(conn);
+			send_handler(mpkg);
 		} else {
-			handler(false);
+			res_handler(false);
 		}
 	});
 }

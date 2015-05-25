@@ -29,3 +29,6 @@ using RequestPtr = std::shared_ptr<Request>;
 
 class Response;
 using ResponsePtr = std::shared_ptr<Response>;
+
+class MailPkg;
+using MailPkgPtr = std::shared_ptr<MailPkg>;

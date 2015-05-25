@@ -4,6 +4,15 @@
 #include <functional>
 #include <memory>
 #include "ptrs.hh"
+#include "package.hh"
+
+struct MailPkg : Package {
+	MailPkg(ConnectionPtr conn) : Package(conn) {}
+	void flush() {
+		flushPackage();
+	}
+	~MailPkg();
+};
 
 /**
  * \brief 邮件类，用于通过smtp发送邮件
@@ -52,8 +61,11 @@ public:
  	 * \param body 邮件主体
  	 * \param handler 异步handler，若成功则以true为参数调用handler，否则false
  	 */ 
-	void send(const std::string& to_addr, const std::string& subject, const std::string& body,
-		std::function<void(bool)> handler = [](bool){});
+	void send(const std::string& to_addr, 
+		std::function<void(MailPkgPtr)> send_handler,
+		std::function<void(bool)> result_handler = [](bool){});
+
+
 private:
 	boost::asio::io_service& service_;
 	std::shared_ptr<boost::asio::io_service> service_holder_;
@@ -68,6 +80,7 @@ private:
 	void sendPass(ConnectionPtr conn, std::function<void(bool)> handler);
 	void mailFrom(ConnectionPtr conn, std::function<void(bool)> handler);
 	void rcptTo(const std::string& to_addr, ConnectionPtr conn, std::function<void(bool)> handler);
-	void sendData(const std::string& subject, const std::string& to_addr,
-		const std::string& body, ConnectionPtr conn, std::function<void(bool)> handler);	
+	void sendData(ConnectionPtr conn, 
+		std::function<void(MailPkgPtr)> send_handler,
+		std::function<void(bool)> handler);	
 };

@@ -35,7 +35,7 @@ error while loading shared libraries: libahttpd.so: cannot open shared object fi
 
 ##示例
 ```c++
-#include "server.hh"
+#include <ahttpd.hh>
 struct TestHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		rep->out() << "hello world!" << std::endl;

@@ -30,5 +30,6 @@ Package::flushPackage()
 			send_buf << body.rdbuf();
 		}	
 	}
+
 	connection()->asyncWrite(send_buf.str());
 }
