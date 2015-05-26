@@ -12,5 +12,5 @@ main(int argc, char *argv[])
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server server(config);
 	server.addHandler("/HelloWorld", new HelloWorldHandler());
-	server.run();
+	server.run(10);
 }

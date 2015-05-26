@@ -19,6 +19,7 @@ ADD_LIBRARY(ahttpd ${SHTTPD_SRCS})
 TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)
 INSTALL(TARGETS ahttpd LIBRARY DESTINATION lib)
 INSTALL(FILES
+	ahttpd.hh
 	log.hh
 	header.hh
 	package.hh
@@ -35,7 +36,6 @@ INSTALL(FILES
 	mail.hh
 	cookie.hh
 	utils.hh
-	params.hh
 	net.hh
 	DESTINATION include/ahttpd
 )
