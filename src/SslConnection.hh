@@ -40,8 +40,8 @@ public:
 		std::function<void(ConnectionPtr)> handler) override;
 
 	void asyncHandshake(std::function<void(const boost::system::error_code& e)> handle);
-private:
 
+protected:
 	void async_read_until(const std::string& delim, 
 		std::function<void(const boost::system::error_code &, size_t)> handler) override {
 		boost::asio::async_read_until(socket_, readBuffer(), delim, handler);

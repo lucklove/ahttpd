@@ -56,6 +56,23 @@ public:
 
 	virtual boost::asio::ip::tcp::socket& nativeSocket() { return socket_; }
 
+protected:
+	void async_read_until(const std::string& delim, 
+		std::function<void(const boost::system::error_code &, size_t)> handler) override {
+		boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
+	}
+
+	void async_read(
+		std::function<size_t(const boost::system::error_code &, size_t)> completion,
+		std::function<void(const boost::system::error_code &, size_t)> handler) override {
+		boost::asio::async_read(socket_, readBuffer(), completion, handler);
+	}
+
+	void async_write(const std::string& msg,
+		std::function<void(const boost::system::error_code&, size_t)> handler) override {
+		boost::asio::async_write(socket_, boost::asio::buffer(msg), handler);
+	}
+
 private:
 	boost::asio::ip::tcp::socket socket_;
 	boost::asio::ip::tcp::resolver resolver_;
@@ -76,21 +93,5 @@ private:
 			Log("ERROR") << "connect faild";
 			handler(nullptr);
 		}
-	}
-
-	void async_read_until(const std::string& delim, 
-		std::function<void(const boost::system::error_code &, size_t)> handler) override {
-		boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
-	}
-
-	void async_read(
-		std::function<size_t(const boost::system::error_code &, size_t)> completion,
-		std::function<void(const boost::system::error_code &, size_t)> handler) override {
-		boost::asio::async_read(socket_, readBuffer(), completion, handler);
-	}
-
-	void async_write(const std::string& msg,
-		std::function<void(const boost::system::error_code&, size_t)> handler) override {
-		boost::asio::async_write(socket_, boost::asio::buffer(msg), handler);
 	}
 };
