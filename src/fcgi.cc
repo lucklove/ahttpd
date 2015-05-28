@@ -3,6 +3,7 @@
 #include "request.hh"
 #include "response.hh"
 #include <string>
+#include <boost/lexical_cast.hpp>
 
 #define STACK_BUFF_SIZE (128 * 1024)
 
@@ -28,12 +29,6 @@ key_value(const std::string& name, const std::string& value)
 	}
 	return ret + name + value;
 }
-
-/**
- * Number of bytes in a FCGI_Header.  Future versions of the protocol
- * will not reduce this number.
- */
-#define FCGI_HEADER_LEN  8
 
 /**
  * Value for version component of FCGI_Header
@@ -164,7 +159,6 @@ end_request(unsigned char status, ResponsePtr res)
 	while(true) {
 		if(!getline(res->in(), line) || line == "\r" || line == "")
 			break;
-		Log("LINE DEBUG") << line;
 		trim_line(line);
 		auto pos = line.find(':');
 		if(pos == line.npos)
@@ -216,6 +210,7 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 			conn->asyncRead(boost::asio::transfer_exactly(need_read),
 				[=](const boost::system::error_code &err, size_t n) {
 					if(err) {
+						Log("DEBUG") << __FILE__ << ":" << __LINE__;
 						Log("ERROR") << err;
 						res->setStatus(Response::Internal_Server_Error);
 						return;
@@ -233,15 +228,12 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 							end_request(buff[4], res);
 							break;
 						case FCGI_STDOUT:
-							Log("DEBUG") << "FCGI_STDOUT";
-							res->out() << buff;
+							res->out().write(buff, (content_length1 << 8) + content_length0);
 							break;
 						case FCGI_STDERR:
-							Log("DEBUG") << "FCGI_STDERR";
 							Log("WARNING") << buff;
 							break;
 						default:
-							Log("DEBUG") << "UNKONW TYPE";
 							res->setStatus(500);
 					}
 					if(type != FCGI_END_REQUEST)
@@ -251,10 +243,24 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 		}
 	);
 }
+
+void
+add_param(ConnectionPtr conn, const std::string& key, const std::string& val)
+{
+	conn->asyncWrite(record(FCGI_PARAMS, key_value(key, val)));
 }
 
-void fcgi(boost::asio::io_service& service, const std::string& host, 
-	const std::string& port, RequestPtr req, ResponsePtr res)
+void
+add_param_if(RequestPtr req, ConnectionPtr conn, const std::string& header_name, const std::string& name)
+{
+	std::string *p = req->getHeader(header_name);
+	if(p)
+		conn->asyncWrite(record(FCGI_PARAMS, key_value(name, *p)));
+}
+}
+
+void fcgi(boost::asio::io_service& service, const std::string& host, const std::string& port, 
+	const std::string& script_path, RequestPtr req, ResponsePtr res)
 {
 	TcpConnectionPtr conn = std::make_shared<TcpConnection>(service);
 	conn->asyncConnect(host, port, [=](ConnectionPtr conn) {
@@ -262,15 +268,26 @@ void fcgi(boost::asio::io_service& service, const std::string& host,
 			res->setStatus(Response::Internal_Server_Error);
 			return;
 		}
-
 		conn->asyncWrite(begin_request());
-
-		conn->asyncWrite(record(FCGI_PARAMS, key_value("REQUEST_METHOD", req->getMethod())));
-		conn->asyncWrite(record(FCGI_PARAMS, key_value("SCRIPT_FILENAME", req->getPath())));
-		conn->asyncWrite(record(FCGI_PARAMS, key_value("QUERY_STRING", req->getQueryString())));
-		conn->asyncWrite(record(FCGI_PARAMS, key_value("SERVER_PROTOCOL", req->getVersion())));
+		add_param(conn, "REQUEST_METHOD", req->getMethod());
+		add_param(conn, "SCRIPT_FILENAME", script_path);
+		add_param(conn, "QUERY_STRING", req->getQueryString());
+		add_param(conn, "SERVER_PROTOCOL", req->getVersion());
+		add_param(conn, "SERVER_SOFTWARE", "ahttpd");
+		add_param(conn, "CONTENT_LENGTH", boost::lexical_cast<std::string>(req->contentLength()));
+		add_param(conn, "HTTP_CONTENT_LENGTH", boost::lexical_cast<std::string>(req->contentLength()));
+		add_param_if(req, conn, "Host", "HTTP_HOST");
+		add_param_if(req, conn, "Cookie", "HTTP_COOKIE");
+		add_param_if(req, conn, "Content-Type", "CONTENT_TYPE");
+		add_param_if(req, conn, "Content-Type", "HTTP_CONTENT_TYPE");
+		add_param_if(req, conn, "Accept", "HTTP_ACCEPT");
 		conn->asyncWrite(record(FCGI_PARAMS, ""));
 
+		if(req->in().rdbuf()->in_avail()) {
+			std::stringstream ss;
+			ss << req->in().rdbuf();
+			conn->asyncWrite(record(FCGI_STDIN, ss.str()));
+		}
 		conn->asyncWrite(record(FCGI_STDIN, ""));
 		
 		read_record(conn, res);
