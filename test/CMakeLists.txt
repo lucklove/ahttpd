@@ -5,7 +5,7 @@ SET(TEST_SOURCES
 #	client/client.cc
 #	client/client_check_cookie.cc
 #	mime/mime.cc
-#	base64/base64.cc
+	base64/base64.cc
 #	cookie/cookie.cc
 #	utils/time.cc
 #	utils/string_tokenizer.cc
@@ -19,7 +19,7 @@ SET(TEST_SOURCES
 #	parser/parser.cc
 #	net/net.cc
 #	mail/mail.cc
-	fcgi/fcgi.cc
+#	fcgi/fcgi.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)
