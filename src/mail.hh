@@ -6,7 +6,8 @@
 #include "ptrs.hh"
 #include "package.hh"
 
-struct MailPkg : Package {
+class MailPkg : public Package {
+public:
 	MailPkg(ConnectionPtr conn) : Package(conn) {}
 	void flush() {
 		flushPackage();

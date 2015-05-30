@@ -43,6 +43,7 @@ public:
 				if(err) {
 					Log("DEBUG") << __FILE__ << ":" << __LINE__;
 					Log("ERROR") << err.message();
+					Log("DEBUG") << "host: " << host << " port: " << port;
 					handler(nullptr);
 				} else {
 					boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;

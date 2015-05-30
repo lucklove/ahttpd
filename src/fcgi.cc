@@ -7,6 +7,17 @@
 
 #define STACK_BUFF_SIZE (128 * 1024)
 
+struct FCGI_Header {
+	unsigned char version;
+	unsigned char type;
+	unsigned char requestIdB1;
+	unsigned char requestIdB0;
+	unsigned char contentLengthB1;
+	unsigned char contentLengthB0;
+	unsigned char paddingLength;
+	unsigned char reserved;
+};
+
 std::string
 key_value(const std::string& name, const std::string& value)
 {
@@ -182,7 +193,7 @@ end_request(unsigned char status, ResponsePtr res)
 void
 read_record(ConnectionPtr conn, ResponsePtr res)
 {
-	int need_read = 8 - conn->readBuffer().in_avail();
+	int need_read = sizeof(FCGI_Header) - conn->readBuffer().in_avail();
 	need_read = need_read < 0 ? 0 : need_read;
 	conn->asyncRead(boost::asio::transfer_at_least(need_read),
 		[=](const boost::system::error_code& err, size_t n){
@@ -192,21 +203,18 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 				res->setStatus(Response::Internal_Server_Error);
 				return;					
 			}
+
+			FCGI_Header header;
 			std::istream in(&conn->readBuffer());
-			in.ignore();			/**< version */
-			unsigned char type;
-			in >> type;
-			in.ignore(2);			/**< requestID */
-			unsigned char content_length1;
-			unsigned char content_length0;
-			unsigned char padding_length;
-			in >> content_length1;
-			in >> content_length0;
-			in >> padding_length;
-			in.ignore();			/**< reserved */
-			int need_read = (content_length1 << 8) + 
-				content_length0 + padding_length - conn->readBuffer().in_avail();
+
+			in.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+			int need_read = (header.contentLengthB1 << 8) + 
+				header.contentLengthB0 + header.paddingLength - 
+				conn->readBuffer().in_avail();
+
 			need_read = need_read < 0 ? 0 : need_read;
+
 			conn->asyncRead(boost::asio::transfer_exactly(need_read),
 				[=](const boost::system::error_code &err, size_t n) {
 					if(err) {
@@ -216,19 +224,21 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 						return;
 					}
 					std::istream in(&conn->readBuffer());
-					if((content_length1 << 8) + content_length0 > STACK_BUFF_SIZE - 1) {
+					if((header.contentLengthB1 << 8) + header.contentLengthB0 > STACK_BUFF_SIZE - 1) {
 						res->setStatus(500);
 						return;
 					}
 					char buff[STACK_BUFF_SIZE] = { 0 };
-					in.read(buff, (content_length1 << 8) + content_length0);
-					in.ignore(padding_length);
-					switch(type) {
+					in.read(buff, (header.contentLengthB1 << 8) + header.contentLengthB0);
+					in.ignore(header.paddingLength);
+					switch(header.type) {
 						case FCGI_END_REQUEST:
 							end_request(buff[4], res);
 							break;
 						case FCGI_STDOUT:
-							res->out().write(buff, (content_length1 << 8) + content_length0);
+							res->out().write(buff, 
+								(header.contentLengthB1 << 8) + 
+								header.contentLengthB0);
 							break;
 						case FCGI_STDERR:
 							Log("WARNING") << buff;
@@ -236,7 +246,7 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 						default:
 							res->setStatus(500);
 					}
-					if(type != FCGI_END_REQUEST)
+					if(header.type != FCGI_END_REQUEST)
 						read_record(conn, res);
 				}		
 			);
@@ -259,9 +269,17 @@ add_param_if(RequestPtr req, ConnectionPtr conn, const std::string& header_name,
 }
 }
 
-void fcgi(boost::asio::io_service& service, const std::string& host, const std::string& port, 
-	const std::string& script_path, RequestPtr req, ResponsePtr res)
+void fcgi(boost::asio::io_service& service, const std::string& host, 
+	const std::string& port, std::string doc_root, RequestPtr req, ResponsePtr res)
 {
+	if(!doc_root.size()) {
+		res->setStatus(500);
+		return;
+	}
+
+	if(doc_root[doc_root.size()-1] == '/')
+		doc_root.resize(doc_root.size() - 1);
+
 	TcpConnectionPtr conn = std::make_shared<TcpConnection>(service);
 	conn->asyncConnect(host, port, [=](ConnectionPtr conn) {
 		if(!conn) {
@@ -269,11 +287,16 @@ void fcgi(boost::asio::io_service& service, const std::string& host, const std::
 			return;
 		}
 		conn->asyncWrite(begin_request());
+		add_param(conn, "DOCUMENT_ROOT", doc_root);
 		add_param(conn, "REQUEST_METHOD", req->getMethod());
-		add_param(conn, "SCRIPT_FILENAME", script_path);
+		add_param(conn, "SCRIPT_FILENAME", doc_root + req->getPath());
+		add_param(conn, "SCRIPT_NAME", req->getPath());
 		add_param(conn, "QUERY_STRING", req->getQueryString());
 		add_param(conn, "SERVER_PROTOCOL", req->getVersion());
+		add_param(conn, "GATEWAY_INTERFACE", "CGI/1.1");
 		add_param(conn, "SERVER_SOFTWARE", "ahttpd");
+		add_param(conn, "REQUEST_URI", req->getPath() + 
+			(req->getQueryString() == "" ? "" : "?" + req->getQueryString()));
 		add_param(conn, "CONTENT_LENGTH", boost::lexical_cast<std::string>(req->contentLength()));
 		add_param(conn, "HTTP_CONTENT_LENGTH", boost::lexical_cast<std::string>(req->contentLength()));
 		add_param_if(req, conn, "Host", "HTTP_HOST");
@@ -281,6 +304,7 @@ void fcgi(boost::asio::io_service& service, const std::string& host, const std::
 		add_param_if(req, conn, "Content-Type", "CONTENT_TYPE");
 		add_param_if(req, conn, "Content-Type", "HTTP_CONTENT_TYPE");
 		add_param_if(req, conn, "Accept", "HTTP_ACCEPT");
+		add_param_if(req, conn, "Connection", "HTTP_CONNECTION");
 		conn->asyncWrite(record(FCGI_PARAMS, ""));
 
 		if(req->in().rdbuf()->in_avail()) {

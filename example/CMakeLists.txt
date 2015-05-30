@@ -4,6 +4,6 @@ SUBDIRS(
 	HelloWorld
 	HttpsTest
 	mail
-	StaticServer
+	WebServer
 	proxy
 )

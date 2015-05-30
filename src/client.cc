@@ -62,7 +62,7 @@ Client::request(const std::string& method, const std::string& url,
 		if(path[0] != '/')
 			path = "/" + path;
 
-		std::string port = scheme;
+		std::string port = scheme == "https" ? "443" : "80";
 		static const std::regex host_port_reg("(((?!:).)*)(:([0-9]+))?");
 		if(std::regex_search(host, results, host_port_reg)) {
 			host = results.str(1);
@@ -101,7 +101,7 @@ Client::request(const std::string& method, const std::string& url,
 				req_handler(req);
 
 				if(!req->getHeader("Host"))
-					req->addHeader("Host", host);
+					req->addHeader("Host", host + ":" + port);
 				/**
  				 * \note 
  				 * 	Client暂时没有保持连接的能力，不要使用keep-alive,
