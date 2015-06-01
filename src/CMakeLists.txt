@@ -38,5 +38,6 @@ INSTALL(FILES
 	cookie.hh
 	utils.hh
 	net.hh
+	fcgi.hh
 	DESTINATION include/ahttpd
 )

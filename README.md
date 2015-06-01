@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 |   echo     | 显示客户端请求包的详细信息  | http://127.0.0.1:8888/echo           |	              		      |
 | HttpsTest  | https的示例		   | https://127.0.0.1:9999/HttpsTest     |  需要输入创建密钥时的密码         |
 |   client   | 异步客户端示例	           |				          |				      |
-|StaticServer| 静态文件服务器              | http://127.0.0.1:8888/[xxx]          | 				      |
+|  WebServer | 一个支持php的webserver      | http://127.0.0.1:8888/[xxx]          | 				      |
 |   mail     | 使用smtp发送邮件		   |					  |				      |
 |   proxy    | http/https代理服务器	   | http://127.0.0.1:8888		  | 				      |  
 

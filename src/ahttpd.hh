@@ -6,3 +6,4 @@
 #include <MimeType.hh>
 #include <net.hh>
 #include <log.hh>
+#include <fcgi.hh>
