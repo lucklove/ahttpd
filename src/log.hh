@@ -48,6 +48,10 @@ public:
 		}
 	}
 
+	/**
+ 	 * \brief 输出符号重载，向Log类输入信息
+ 	 * \param val 任意可以通过输出流输出的实例
+ 	 */ 
 	template<typename T>
 	auto&& operator<<(T&& val) { return buffer_ << std::forward<T>(val); }
 private:

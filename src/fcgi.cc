@@ -191,7 +191,7 @@ end_request(unsigned char status, ResponsePtr res)
 }
 
 void
-read_record(ConnectionPtr conn, ResponsePtr res)
+read_record(ConnectionPtr conn, ResponsePtr res, std::function<void(void)> finish_handler)
 {
 	int need_read = sizeof(FCGI_Header) - conn->readBuffer().in_avail();
 	need_read = need_read < 0 ? 0 : need_read;
@@ -246,8 +246,11 @@ read_record(ConnectionPtr conn, ResponsePtr res)
 						default:
 							res->setStatus(500);
 					}
-					if(header.type != FCGI_END_REQUEST)
-						read_record(conn, res);
+					if(header.type != FCGI_END_REQUEST) {
+						read_record(conn, res, finish_handler);
+					} else {
+						finish_handler();
+					}
 				}		
 			);
 		}
@@ -270,7 +273,8 @@ add_param_if(RequestPtr req, ConnectionPtr conn, const std::string& header_name,
 }
 
 void fcgi(boost::asio::io_service& service, const std::string& host, 
-	const std::string& port, std::string doc_root, RequestPtr req, ResponsePtr res)
+	const std::string& port, std::string doc_root, RequestPtr req, 
+	ResponsePtr res, std::function<void(void)> handler)
 {
 	if(!doc_root.size()) {
 		res->setStatus(500);
@@ -314,6 +318,6 @@ void fcgi(boost::asio::io_service& service, const std::string& host,
 		}
 		conn->asyncWrite(record(FCGI_STDIN, ""));
 		
-		read_record(conn, res);
+		read_record(conn, res, handler);
 	});
 }
