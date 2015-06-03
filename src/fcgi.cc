@@ -153,8 +153,10 @@ trim_line(std::string& line)
 void
 end_request(unsigned char status, ResponsePtr res)
 {
-	if(status != FCGI_REQUEST_COMPLETE)
+	if(status != FCGI_REQUEST_COMPLETE) {
+		Log("DEBUG") << "UNCOMPLETE FCGI REQUEST";
 		res->setStatus(500);
+	}
 	switch(status) {
 		case FCGI_CANT_MPX_CONN:
 			Log("ERROR") << "FCGI_CANT_MPX_CONN";
@@ -225,6 +227,7 @@ read_record(ConnectionPtr conn, ResponsePtr res, std::function<void(void)> finis
 					}
 					std::istream in(&conn->readBuffer());
 					if((header.contentLengthB1 << 8) + header.contentLengthB0 > STACK_BUFF_SIZE - 1) {
+						Log("DEBUG") << "BUFFER OVERFLOW";
 						res->setStatus(500);
 						return;
 					}
@@ -244,6 +247,7 @@ read_record(ConnectionPtr conn, ResponsePtr res, std::function<void(void)> finis
 							Log("WARNING") << buff;
 							break;
 						default:
+							Log("DEBUG") << "unknow type";
 							res->setStatus(500);
 					}
 					if(header.type != FCGI_END_REQUEST) {
@@ -277,6 +281,7 @@ void fcgi(boost::asio::io_service& service, const std::string& host,
 	ResponsePtr res, std::function<void(void)> handler)
 {
 	if(!doc_root.size()) {
+		Log("DEBUG") << "doc_root can not be empty";
 		res->setStatus(500);
 		return;
 	}
