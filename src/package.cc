@@ -2,6 +2,8 @@
 #include "connection.hh"
 #include <boost/lexical_cast.hpp>
 
+namespace ahttpd {
+
 void
 Package::flushPackage()
 {
@@ -13,7 +15,7 @@ Package::flushPackage()
 		} else {
 			auto h = getHeader("Content-Length");
 			if(h == nullptr) {
-				addHeader("Content-Length", boost::lexical_cast<std::string>(contentLength()));
+				addHeader("Content-Length", ::boost::lexical_cast<std::string>(contentLength()));
 			}
 		}
 		for(auto h : getHeaderMap())
@@ -33,3 +35,5 @@ Package::flushPackage()
 
 	connection()->asyncWrite(send_buf.str());
 }
+
+}	/**< namespace ahttpd */

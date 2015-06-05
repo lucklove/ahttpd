@@ -7,6 +7,8 @@
 #include <iostream>
 #include "ahttpd.hh"
 
+using namespace ahttpd;
+
 namespace {
 const char* black_list[] = {
 	"google.com",

@@ -3,6 +3,8 @@
 #include "TcpConnection.hh"
 #include "SslConnection.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(tcp_connection_test)
 {
 	boost::asio::io_service service;

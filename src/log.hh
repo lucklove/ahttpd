@@ -9,6 +9,8 @@
 #include <cstdio>
 #include "utils.hh"
 
+namespace ahttpd {
+
 /**
  *\brief 
  *	日志记录类，打印日志信息到控制台，信息包括日志级别，
@@ -57,3 +59,5 @@ public:
 private:
 	std::stringstream buffer_;
 };
+
+}	/**< namespace ahttpd */

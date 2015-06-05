@@ -7,6 +7,8 @@
 #include "request.hh"
 #include "response.hh"
 
+namespace ahttpd {
+
 class Server;
 
 /**
@@ -45,3 +47,5 @@ public:
 private:
 	std::vector<std::tuple<const std::string, RequestHandler *>> sub_handlers_;
 };
+
+}	/**< namespace ahttpd */

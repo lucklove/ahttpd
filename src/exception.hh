@@ -3,6 +3,8 @@
 #include <exception>
 #include <ostream>
 
+namespace ahttpd {
+
 class Exception : public std::exception {
 private:
 	const char *const xm_pszFile;
@@ -44,6 +46,8 @@ operator<<(std::ostream& os, const Exception& e)
 	return os << "Exception in " << e.getFile() << " line: " 
 		<< e.getLine() << ":" << e.what();
 }
+
+}	/**< namespace ahttpd */
 
 #define DEBUG_THROW(etype_, ...)			\
 do {							\

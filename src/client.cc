@@ -10,6 +10,8 @@
 #include <boost/algorithm/string.hpp> 
 #include <cstdio>
 
+namespace ahttpd {
+
 Client::Client(boost::asio::io_service& service)
  	:service_(service) 
 {
@@ -172,3 +174,5 @@ Client::add_cookie_to_cookie_jar(ResponsePtr res, const std::string& host)
 			cookie_jar_.push_back(c);
 	}
 }
+
+}	/**< namespace ahttpd */

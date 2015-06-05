@@ -2,6 +2,8 @@
 #include "TcpConnection.hh"
 #include "SslConnection.hh"
 
+namespace ahttpd {
+
 namespace {
 void 
 transfer_data(ConnectionPtr conn1, ConnectionPtr conn2)
@@ -65,3 +67,5 @@ tunnel(ConnectionPtr conn1, ConnectionPtr conn2)
 	transfer_data(conn1, conn2);
 	transfer_data(conn2, conn1);
 }
+
+}	/**< namespace ahttpd */

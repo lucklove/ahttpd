@@ -7,6 +7,8 @@
 #include "log.hh"
 #include "cookie.hh"
 
+namespace ahttpd {
+
 class Client {
 public:
 	Client(boost::asio::io_service& io_service);
@@ -40,3 +42,5 @@ private:
 	bool enable_cookie_{};
 	std::mutex cookie_mutex_{};
 };
+
+}	/**< namespace ahttpd */

@@ -1,5 +1,7 @@
 #include "MimeType.hh"
 
+namespace ahttpd {
+
 namespace {
 struct map_t {
 	const char* extension;
@@ -47,3 +49,5 @@ guessMimeType(const std::string& path)
 	
 	return "text/plain";
 }
+
+}	/**< namespace ahttpd */

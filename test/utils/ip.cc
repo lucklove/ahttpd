@@ -1,6 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "utils.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(ipv4_test)
 {
 	BOOST_CHECK(isValidIPAddress("192.168.1.1"));

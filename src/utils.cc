@@ -3,6 +3,8 @@
 #include "utils.hh"
 #include "log.hh"
 
+namespace ahttpd {
+
 namespace {
 
 struct map_t {
@@ -273,3 +275,5 @@ isPathMatch(std::string path, std::string base)
 
 	return false;
 }
+
+}	/**< namespace ahttpd */

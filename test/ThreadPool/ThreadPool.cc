@@ -2,6 +2,8 @@
 #include "ThreadPool.hh"
 #include "log.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(thread_pool_test)
 {
 	ThreadPool pool(1, []{ 

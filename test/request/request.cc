@@ -1,6 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "request.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(auth_test)
 {
 	Request req(nullptr);

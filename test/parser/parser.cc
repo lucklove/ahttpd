@@ -6,6 +6,8 @@
 #include "client.hh"
 #include <fstream>
 
+using namespace ahttpd;
+
 struct  ReqHandler : RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr res) {
 		/**< do nothing */

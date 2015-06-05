@@ -6,6 +6,8 @@
 #include <exception>
 #include <cstdio>
 
+namespace ahttpd {
+
 #define PARSE_STATUS(ststus)						\
 	switch (status) {						\
 		case Response::Continue:				\
@@ -261,7 +263,7 @@ do {												\
 		connection()->asyncWrite(status_strings::status_head(status_) + "\r\n");	\
 	} else {										\
 		connection()->asyncWrite(version_ + " " +					\
-			boost::lexical_cast<std::string>(status_) + " "				\
+			::boost::lexical_cast<std::string>(status_) + " "				\
 			+ version_ + "\r\n");							\
 	}											\
 } while(0)
@@ -298,3 +300,5 @@ Response::~Response()
 		fprintf(stderr, "%s\n", e.what());
 	}
 }
+
+}	/**< namespace ahttpd */

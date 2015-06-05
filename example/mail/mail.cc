@@ -1,5 +1,7 @@
 #include "ahttpd.hh"
 
+using namespace ahttpd;
+
 int
 main(int argc, char *argv[])
 {

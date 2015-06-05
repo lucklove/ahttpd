@@ -5,6 +5,8 @@
 #include <cstdio>
 #include "exception.hh"
 
+namespace ahttpd {
+
 struct BufferOverflow : Exception {
 	using Exception::Exception;
 };
@@ -141,3 +143,5 @@ bool urlDecode(std::string& url);
 bool isValidIPAddress(const std::string& addr);
 bool isDomainMatch(const std::string& addr, std::string base);
 bool isPathMatch(std::string path, std::string base);
+
+}	/**< namespace ahttpd */

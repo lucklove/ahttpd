@@ -3,6 +3,8 @@
 #include "fcgi.hh"
 #include "client.hh"
 
+using namespace ahttpd;
+
 struct FcgiTestServer : RequestHandler {
 	FcgiTestServer(Server *s) : server_(s) {}
 	void handleRequest(RequestPtr req, ResponsePtr res) override {

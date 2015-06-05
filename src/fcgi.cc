@@ -7,6 +7,8 @@
 
 #define STACK_BUFF_SIZE (128 * 1024)
 
+namespace ahttpd {
+
 struct FCGI_Header {
 	unsigned char version;
 	unsigned char type;
@@ -326,3 +328,5 @@ void fcgi(boost::asio::io_service& service, const std::string& host,
 		read_record(conn, res, handler);
 	});
 }
+
+}	/**< namespace ahttpd */

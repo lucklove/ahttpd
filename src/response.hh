@@ -7,6 +7,8 @@
 #include "package.hh"
 #include "ptrs.hh"
 
+namespace ahttpd {
+
 class Response : public Package, 
 	public std::enable_shared_from_this<Response> {
 public:
@@ -67,3 +69,5 @@ private:
 	}
 	friend void parseResponse(ConnectionPtr, std::function<void(ResponsePtr)>);
 };
+
+}	/**< namespace ahttpd */

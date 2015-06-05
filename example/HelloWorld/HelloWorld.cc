@@ -1,5 +1,7 @@
 #include "ahttpd.hh"
 
+using namespace ahttpd;
+
 struct HelloWorldHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		rep->out() << "hello world!" << std::endl;

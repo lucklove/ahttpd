@@ -2,6 +2,8 @@
 #include "exception.hh"
 #include "log.hh"
 
+using namespace ahttpd;
+
 struct TestException : Exception {
 	using Exception::Exception;
 };

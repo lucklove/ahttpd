@@ -3,6 +3,8 @@
 #include "ptrs.hh"
 #include <functional>
 
+namespace ahttpd {
+
 void fcgi(boost::asio::io_service& service, 
 	const std::string& host, 
 	const std::string& port, 
@@ -10,3 +12,5 @@ void fcgi(boost::asio::io_service& service,
 	RequestPtr req, 
 	ResponsePtr res,
 	std::function<void(void)> handler = [] {});
+
+}	/**< namespace ahttpd */

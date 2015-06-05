@@ -3,6 +3,8 @@
 #include <functional>
 #include "ptrs.hh"
 
+namespace ahttpd {
+
 /**
  * \brief 将http请求报文解析为Request
  * \param conn Connection的shared_ptr.
@@ -20,3 +22,5 @@ void parseRequest(ConnectionPtr conn, std::function<void(RequestPtr)> handler);
  * 	若解析失败则以nullptr为参数调用handler
  */ 	
 void parseResponse(ConnectionPtr conn, std::function<void(ResponsePtr)> handler);
+
+}	/**< namespace ahttpd */

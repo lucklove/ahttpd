@@ -3,6 +3,8 @@
 #include <utility>
 #include <boost/asio.hpp>
 
+namespace ahttpd {
+
 void 
 SslConnection::stop()
 {
@@ -70,3 +72,5 @@ SslConnection::asyncConnect(const std::string& host, const std::string& port,
 		}
 	});
 }
+
+}	/**< namespace ahttpd */

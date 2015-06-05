@@ -2,6 +2,7 @@
 #include <cassert>
 #include "ThreadPool.hh"
 
+namespace ahttpd {
 
 ThreadPool::ThreadPool(size_t n, std::function<void()> on_enter, std::function<void()> on_exit)
 	: workers(n)
@@ -79,3 +80,5 @@ ThreadPool::size() const
 
 	return size_unlocked();
 }
+
+}	/**< namespace ahttpd */

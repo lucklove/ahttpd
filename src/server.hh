@@ -8,6 +8,7 @@
 #include "ThreadPool.hh"
 #include "ptrs.hh"
 
+namespace ahttpd {
 
 class ServerImpl;
 
@@ -108,3 +109,5 @@ private:
 	void do_await_stop();
 	void handleRequest(ConnectionPtr req);
 };
+
+}	/**< namespace ahttpd */

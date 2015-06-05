@@ -9,6 +9,8 @@
 #include "ptrs.hh"
 #include "cookie.hh"
 
+namespace ahttpd {
+
 class Server;
 
 class Package
@@ -85,3 +87,5 @@ private:
 	std::stringstream body;
 	ConnectionPtr connection_;
 };
+
+}	/**< namespace ahttpd */

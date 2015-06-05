@@ -6,6 +6,8 @@
 #include "ptrs.hh"
 #include "package.hh"
 
+namespace ahttpd {
+
 class MailPkg : public Package {
 public:
 	MailPkg(ConnectionPtr conn) : Package(conn) {}
@@ -85,3 +87,5 @@ private:
 		std::function<void(MailPkgPtr)> send_handler,
 		std::function<void(bool)> handler);	
 };
+
+}	/**< namespace ahttpd */

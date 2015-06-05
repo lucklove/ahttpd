@@ -3,6 +3,8 @@
 #define private public
 #include "client.hh"
 
+using namespace ahttpd;
+
 struct SetCookie : RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr res) {
 		for(auto c : cookies)

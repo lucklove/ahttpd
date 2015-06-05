@@ -10,6 +10,8 @@
 #include "cookie.hh"
 #include "log.hh"
 
+namespace ahttpd {
+
 /**
  * \breif 包含http client的请求信息
  */
@@ -162,3 +164,5 @@ private:
 	}
 	friend void parseRequest(ConnectionPtr, std::function<void(RequestPtr)>);
 };
+
+}	/**< namespace ahttpd */

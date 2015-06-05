@@ -2,6 +2,8 @@
 #include "server.hh"
 #include "client.hh"
 
+using namespace ahttpd;
+
 struct TestServer : RequestHandler {
 	TestServer(const std::string& msg) : msg_(msg) {}
 	void handleRequest(RequestPtr req, ResponsePtr res) override {

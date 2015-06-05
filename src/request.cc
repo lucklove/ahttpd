@@ -4,6 +4,8 @@
 #include "base64.hh"
 #include <regex>
 
+namespace ahttpd {
+
 namespace {
 std::string
 auth_info(const std::string auth)
@@ -82,4 +84,5 @@ Request::~Request()
 		fprintf(stderr, "%s\n", e.what());
 	}
 }
-		
+
+}	/**< namespace ahttpd */		

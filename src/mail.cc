@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iostream>
 
+namespace ahttpd {
+
 namespace {
 
 static int
@@ -206,3 +208,5 @@ Mail::sendData(ConnectionPtr conn,
 		}
 	});
 }
+
+}	/**< namespace ahttpd */

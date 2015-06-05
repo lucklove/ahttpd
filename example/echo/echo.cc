@@ -7,6 +7,8 @@
 #include <iostream>
 #include "ahttpd.hh"
 
+using namespace ahttpd;
+
 struct EchoHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
 		auto auth_info = req->basicAuthInfo();

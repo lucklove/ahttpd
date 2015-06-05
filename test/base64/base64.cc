@@ -4,6 +4,8 @@
 #include "base64.hh"
 #include <iostream>
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(base64_test)
 {
 	BOOST_CHECK(Base64::decode(Base64::encode("")) == "");	

@@ -7,6 +7,8 @@
 #include "net.hh"
 #include "log.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(tcp_connect_test)
 {
 	boost::asio::io_service service;

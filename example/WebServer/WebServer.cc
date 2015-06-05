@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <typeinfo>
 
+using namespace ahttpd;
+
 namespace {
 /**
  * \biref 查找index文件，目前仅支持index.html和index.php

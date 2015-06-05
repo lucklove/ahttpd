@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace ahttpd {
+
 class Base64 {
 private:
 	const static std::string base64_chars;
@@ -126,3 +128,5 @@ public:
     		return ret;
 	}
 };
+
+}	/**< namespace ahttpd */

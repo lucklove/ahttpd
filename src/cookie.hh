@@ -6,6 +6,8 @@
 #include "utils.hh"
 #include "log.hh"
 
+namespace ahttpd {
+
 struct request_cookie_t {
 	std::string key;
 	std::string val;
@@ -107,8 +109,8 @@ parseResponseCookie(const std::string& cookie_header)
 				cookie.expires = gmtToTime(val);
 		} else if(strcasecmp(key.c_str(), "max-age") == 0) {
 			try {
-				cookie.expires = time(nullptr) + boost::lexical_cast<long>(val);
-			} catch(boost::bad_lexical_cast &e) {
+				cookie.expires = time(nullptr) + ::boost::lexical_cast<long>(val);
+			} catch(::boost::bad_lexical_cast &e) {
 				Log("ERROR") << e.what();
 				cookie.expires = 0;
 			}
@@ -133,3 +135,5 @@ parseResponseCookie(const std::vector<std::string>& cookie_headers)
 		cookie_jar.push_back(parseResponseCookie(h));
 	return cookie_jar;
 }
+
+}	/**< namespace ahttpd */

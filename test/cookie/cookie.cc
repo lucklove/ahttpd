@@ -1,6 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "cookie.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(request_cookie_single_test)
 {
 	auto cookies = parseRequestCookie("user=username");

@@ -1,6 +1,8 @@
 #include "ahttpd.hh"
 #include <fstream>
 
+using namespace ahttpd;
+
 struct HttpsTest : public RequestHandler {
     void handleRequest(RequestPtr req, ResponsePtr rep) override {
         rep->out() << "this should be accessed through HTTPS!" << std::endl;

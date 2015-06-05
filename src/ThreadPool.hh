@@ -9,6 +9,8 @@
 #include <utility>
 #include <cassert>
 
+namespace ahttpd {
+
 /**
  * \brief 线程池。
  * \note 除非另行约定，所有公开成员函数线程安全。
@@ -108,3 +110,5 @@ public:
 		return std::move(res);
 	}
 };
+
+}	/**< namespace ahttpd */

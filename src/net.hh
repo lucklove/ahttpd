@@ -4,6 +4,8 @@
 #include <functional>
 #include "ptrs.hh"
 
+namespace ahttpd {
+
 /**
  * \biref TcpConnection的工具函数，用于发起tcp连接并生成ConnectionPtr
  * \param service io_service的引用
@@ -30,3 +32,5 @@ void SslConnect(boost::asio::io_service& service, const std::string& host,
  * \param conn2 第二个连接
  */ 
 void tunnel(ConnectionPtr conn1, ConnectionPtr conn2);
+
+}	/**< namespace ahttpd */

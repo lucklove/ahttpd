@@ -9,6 +9,8 @@
 #include <sstream>
 #include <string>
 
+namespace ahttpd {
+
 namespace {
 const char *allowed_method[] = {
 	"GET",
@@ -62,3 +64,5 @@ RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 	std::get<1>(best)->handleRequest(req, rep);
 	return true;
 }
+
+}	/**< namespace ahttpd */

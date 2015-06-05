@@ -3,6 +3,8 @@
 #include "server.hh"
 #include "response.hh"
 
+using namespace ahttpd;
+
 struct SetCookie : RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr res) {
 		for(auto c : cookies)

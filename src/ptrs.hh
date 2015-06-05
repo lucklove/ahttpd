@@ -12,6 +12,7 @@ class error_code;
 }
 }
 
+namespace ahttpd {
 class Connection;
 using ConnectionPtr = std::shared_ptr<Connection>;
 
@@ -32,3 +33,5 @@ using ResponsePtr = std::shared_ptr<Response>;
 
 class MailPkg;
 using MailPkgPtr = std::shared_ptr<MailPkg>;
+
+}	/**< namespace ahttpd */
