@@ -2,6 +2,8 @@
 #include "mail.hh"
 #include "utils.hh"
 
+using namespace ahttpd;
+
 BOOST_AUTO_TEST_CASE(mail_test)
 {
 	Mail m("ahttpd@163.com", "qjhjhnevjghjdoml", "smtp.163.com", "465", true);
