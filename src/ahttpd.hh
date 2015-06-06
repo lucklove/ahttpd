@@ -7,3 +7,4 @@
 #include <net.hh>
 #include <log.hh>
 #include <fcgi.hh>
+#include <base64.hh>
