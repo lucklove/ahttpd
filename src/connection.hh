@@ -28,6 +28,8 @@ public:
 	virtual void stop() = 0; 
 
 	virtual bool stoped() = 0; 
+	
+	virtual const char* type() = 0; 
 
 	buffer_t& readBuffer() { return read_buffer_; }
 

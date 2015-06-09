@@ -33,6 +33,8 @@ public:
  	 * \note 非线程安全
  	 */ 
 	bool stoped() override { return stoped_; }
+
+	const char* type() override { return "tcp"; }
 	
 	void asyncConnect(const std::string& host, const std::string& port,
 		std::function<void(ConnectionPtr)> handler) override {

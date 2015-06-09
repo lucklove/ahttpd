@@ -35,6 +35,8 @@ public:
  	 * \note 非线程安全
  	 */ 
 	bool stoped() override { return stoped_; }
+	
+	const char* type() override { return "ssl"; }
 
 	::boost::asio::ip::tcp::socket& nativeSocket() override { return socket_.next_layer(); }
 

@@ -47,7 +47,8 @@ struct MockConnection : Connection {
 	bool stoped_{};
 	void stop() override { stoped_ = true; }
 	bool stoped() override { return stoped_; }
-	
+	const char* type() { return "test"; }	
+
 	void asyncConnect(const std::string& host, const std::string& port,
 		std::function<void(ConnectionPtr)> handler) override {
 		assert(false);

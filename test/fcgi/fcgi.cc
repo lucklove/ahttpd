@@ -20,7 +20,6 @@ BOOST_AUTO_TEST_CASE(fcgi_test)
 	auto test = std::make_shared<FcgiTestServer>(&server);
 	server.addHandler("/", test.get());
 	Client c(server.service());
-	system("sudo killall php-fpm");	
 	c.request("GET", "localhost:8888/no_such_file.php", 
 		[&](ResponsePtr res) {
 			BOOST_CHECK(res->getStatus() == 500);
@@ -29,6 +28,7 @@ BOOST_AUTO_TEST_CASE(fcgi_test)
 				[&](ResponsePtr res) {
 					BOOST_CHECK(res->getStatus() == 404);
 					server.stop();
+					system("sudo killall php-fpm");
 				}
 			);
 		}
