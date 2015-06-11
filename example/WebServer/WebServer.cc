@@ -50,7 +50,7 @@ WebServer::handleRequest(RequestPtr req, ResponsePtr res)
 
 	if(is_dir(doc_root + path) && path[path.size()-1] != '/') {
 		res->setStatus(302);
-		if(strcmp(res->connection()->type(), "ssl") == 0) {
+		if(strcmp(res->connectionType(), "ssl") == 0) {
 			res->addHeader("Location", "https://" + *host + path + "/");
 		} else {
 			res->addHeader("Location", "http://" + *host + path + "/");

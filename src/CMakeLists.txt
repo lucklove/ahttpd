@@ -37,7 +37,6 @@ INSTALL(FILES
 	mail.hh
 	cookie.hh
 	utils.hh
-	connection.hh
 	net.hh
 	fcgi.hh
 	DESTINATION include/ahttpd

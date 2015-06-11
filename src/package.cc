@@ -36,4 +36,9 @@ Package::flushPackage()
 	connection()->asyncWrite(send_buf.str());
 }
 
+const char*
+Package::connectionType()
+{
+	return connection_->type();
+}
 }	/**< namespace ahttpd */

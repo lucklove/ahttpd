@@ -8,4 +8,3 @@
 #include <log.hh>
 #include <fcgi.hh>
 #include <base64.hh>
-#include <connection.hh>

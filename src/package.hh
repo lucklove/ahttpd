@@ -19,10 +19,15 @@ public:
 	Package(ConnectionPtr connection) :
 		connection_(connection) {}
 
+	const char* connectionType();
+
+
 	virtual ~Package() =default;
 
 	std::istream& in() { return body; }
+
 	std::ostream& out() { return body; }
+
 	ConnectionPtr connection() { return connection_; }
 
 	void discardConnection() { connection_.reset(); }
