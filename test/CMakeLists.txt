@@ -1,24 +1,24 @@
 SET(TEST_SOURCES
 	test.cc
-	request/request.cc
-	connection/connection.cc
-	client/client.cc
-	client/client_check_cookie.cc
-	mime/mime.cc
-	base64/base64.cc
-	cookie/cookie.cc
-	utils/time.cc
-	utils/string_tokenizer.cc
-	utils/url.cc
-	utils/ip.cc
-	utils/path.cc
-	utils/domain.cc
-	ThreadPool/ThreadPool.cc
-	server/server.cc
-	exception/exception.cc
-	parser/parser.cc
-	net/net.cc
-	fcgi/fcgi.cc
+#	request/request.cc
+#	connection/connection.cc
+#	client/client.cc
+#	client/client_check_cookie.cc
+#	mime/mime.cc
+#	base64/base64.cc
+#	cookie/cookie.cc
+#	utils/time.cc
+#	utils/string_tokenizer.cc
+#	utils/url.cc
+#	utils/ip.cc
+#	utils/path.cc
+#	utils/domain.cc
+#	ThreadPool/ThreadPool.cc
+#	server/server.cc
+#	exception/exception.cc
+#	parser/parser.cc
+#	net/net.cc
+#	fcgi/fcgi.cc
 	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})

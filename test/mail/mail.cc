@@ -13,6 +13,7 @@ BOOST_AUTO_TEST_CASE(mail_test)
 			pkg->out() << "A new test passed at " + gmtTime(time(nullptr)) + " GMT";
 		},
 		[=](bool good) {
+			Log("NOTE") << "check mail result";
 			BOOST_CHECK(good);
 		}
 	);

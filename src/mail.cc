@@ -40,7 +40,7 @@ step(const std::string& message,
 				}									
 			});										
 		} else {										
-			Log("DEBUG") << __LINE__;
+			Log("DEBUG") << __FILE__ << ":" << __LINE__;
 			Log("ERROR") << ec.message();					
 			handler(false);									
 		}											
@@ -111,7 +111,7 @@ Mail::send(const std::string& to_addr,
 		CHECK(conn);
 		conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {
 			if(ec) {
-				Log("DEBUG") << __LINE__;
+				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << ec.message();
 				handler(false);
 				return;
@@ -203,6 +203,7 @@ Mail::sendData(ConnectionPtr conn,
 		if(good) {
 			auto mpkg = std::make_shared<MailPkg>(conn);
 			send_handler(mpkg);
+			res_handler(true);
 		} else {
 			res_handler(false);
 		}
