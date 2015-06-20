@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/lucklove/ahttpd.svg?branch=master)](https://travis-ci.org/lucklove/ahttpd)
 [![Coverage Status](https://coveralls.io/repos/lucklove/ahttpd/badge.svg?branch=master)](https://coveralls.io/r/lucklove/ahttpd?branch=master)
-app server框架
+http框架
 ===================
 
 ##当前特性
