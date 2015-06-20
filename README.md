@@ -63,6 +63,6 @@ main(int argc, char *argv[])
 |   mail     | 使用smtp发送邮件		   |					  |				      |
 |   proxy    | http/https代理服务器	   | http://127.0.0.1:8888		  | 				      |  
 
-http代理服务器地址: 115.28.32.115:8888 
+http代理服务器地址: 115.28.32.115:1994 
 
 ##人丑bug多，欢迎找茬
