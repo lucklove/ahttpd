@@ -69,9 +69,9 @@ namespace status_strings {
 const char Continue[] =
 	"HTTP/1.1 100 Continue";
 const char Switching[] =
-	"HTTP/1.1 101 Continue";
+	"HTTP/1.1 101 Switching Protocols";
 const char Processing[] =
-	"HTTP/1.1 102 Continue";
+	"HTTP/1.1 102 Processing";
 const char Ok[] =
  	"HTTP/1.1 200 OK";
 const char Created[] =
