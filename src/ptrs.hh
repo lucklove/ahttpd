@@ -23,7 +23,7 @@ class SslConnection;
 using SslConnectionPtr = std::shared_ptr<SslConnection>;
 
 class Package;
-using PakagePtr = std::shared_ptr<Package>;
+using PackagePtr = std::shared_ptr<Package>;
 
 class Request;
 using RequestPtr = std::shared_ptr<Request>;
