@@ -23,7 +23,7 @@ main(int argc, char* argv[])
 			},
 			[=](RequestPtr req) {
 				if(req) {
-					req->basicAuth("632541058@qq.com:123456");
+					std::cout << "Input http body, end with [^D]:" << std::endl;
 					req->out() << std::cin.rdbuf();
 				}
 			}
