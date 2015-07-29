@@ -9,7 +9,7 @@ main(int argc, char *argv[])
 		std::cout << "USEAGE: ./mail dest@destdomain.com subject body" << std::endl;
 		return -1;
 	}
-	Mail m("ahttpd@163.com", "qjhjhnevjghjdoml", "smtp.163.com");
+	Mail m("ahttpd@163.com", "jybhsrapkkjeeddu", "smtp.163.com");
 	m.send(argv[1], 
 		[=](MailPkgPtr pkg) {
 			pkg->addHeader("Content-Type", "text/html");

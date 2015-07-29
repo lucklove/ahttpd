@@ -6,7 +6,7 @@ using namespace ahttpd;
 
 BOOST_AUTO_TEST_CASE(mail_test)
 {
-	Mail m("ahttpd@163.com", "qjhjhnevjghjdoml", "smtp.163.com", "465", true);
+	Mail m("ahttpd@163.com", "jybhsrapkkjeeddu", "smtp.163.com", "465", true);
 	m.send("1041324091@qq.com", 
 		[=](MailPkgPtr pkg) {
 			pkg->addHeader("subject", "TEST REPORT");

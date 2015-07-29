@@ -13,13 +13,17 @@ namespace ahttpd {
 namespace {
 
 static int
-response_code(boost::asio::streambuf& buf)
+check_response_code(boost::asio::streambuf& buf, int expected_code)
 {
 	std::stringstream ss;
 	ss << &buf;
 	int code;
 	ss >> code;
-	return code;
+	if(code != expected_code) {
+		Log("ERROR") << ss.str();
+		return false;
+	}
+	return true;
 }
 
 void 
@@ -32,7 +36,7 @@ step(const std::string& message,
 		if(!ec) {										
 			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {	
 				if(!ec) {
-					handler(response_code(conn->readBuffer()) == expected_code);
+					handler(check_response_code(conn->readBuffer(), expected_code));
 				} else {								
 					Log("DEBUG") << __FILE__ << ":" << __LINE__;			
 					Log("ERROR") << ec.message();					
@@ -117,7 +121,7 @@ Mail::send(const std::string& to_addr,
 				return;
 			}
 			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {
-				CHECK(response_code(conn->readBuffer()) == 220);
+				CHECK(check_response_code(conn->readBuffer(), 220));
 				sayHello(conn, [=](bool good) {
 					CHECK(good);
 					rcptTo(to_addr, conn, [=](bool good) {
