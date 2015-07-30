@@ -26,25 +26,27 @@ public:
  	 * \brief ctor
  	 * \param io_service 用于和其他组件共享同一个io_service
  	 * \param username 邮件用户名, 如xxx@example.com
- 	 * \param password 邮箱密码(某些邮件服务商提供的专用与smtp的密码也可)
  	 * \param server smtp服务器，如smtp.example.com
- 	 * \param port smtp服务器端口，默认为smtp端口(25)
+ 	 * \param port smtp服务器端口
  	 * \param use_ssl 是否使用ssl，默认为false
  	 */ 
 	Mail(boost::asio::io_service& io_service, const std::string& username, 
-		const std::string& password, const std::string& server, 
-		const std::string& port = "smtp", bool use_ssl = false);
+		const std::string& server, const std::string& port = "smtp", bool use_ssl = false);
 
 	/**
  	 * \brief ctor
  	 * \param username 邮件用户名, 如xxx@example.com
- 	 * \param password 邮箱密码(某些邮件服务商提供的专用与smtp的密码也可)
  	 * \param server smtp服务器，如smtp.example.com
- 	 * \param port smtp服务器端口，默认为smtp端口(25)
+ 	 * \param port smtp服务器端口
  	 * \param use_ssl 是否使用ssl，默认为false
  	 */ 
-	Mail(const std::string& username, const std::string& password, const std::string& server,
+	Mail(const std::string& username, const std::string& server, 
 		const std::string& port = "smtp", bool use_ssl = false);
+
+	Mail& pass(const std::string& password) {
+		password_ = password;
+		return *this;
+	}
 
 	/**
  	 * \biref dtor
@@ -64,7 +66,7 @@ public:
  	 * \param body 邮件主体
  	 * \param handler 异步handler，若成功则以true为参数调用handler，否则false
  	 */ 
-	void send(const std::string& to_addr, 
+	Mail& send(const std::string& to_addr, 
 		std::function<void(MailPkgPtr)> send_handler,
 		std::function<void(bool)> result_handler = [](bool){});
 
@@ -73,8 +75,8 @@ private:
 	boost::asio::io_service& service_;
 	std::shared_ptr<boost::asio::io_service> service_holder_;
 	boost::asio::ssl::context* ssl_context_ = nullptr;
-	std::string username_;
-	std::string password_;
+	std::string username_{};
+	std::string password_{};
 	std::string server_;
 	std::string port_;
 	void sayHello(ConnectionPtr conn, std::function<void(bool)> handler);

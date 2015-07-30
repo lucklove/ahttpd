@@ -60,9 +60,9 @@ MailPkg::~MailPkg() {
 	connection()->asyncWrite("\r\n.\r\n");	
 };
 	
-Mail::Mail(boost::asio::io_service& io_service, const std::string& username, 
-	const std::string& password, const std::string& server, const std::string& port, bool use_ssl)
-	: service_(io_service), username_(username), password_(password), server_(server), port_(port)
+Mail::Mail(boost::asio::io_service& io_service, const std::string& username,
+	const std::string& server, const std::string& port, bool use_ssl)
+	: service_(io_service), username_(username), server_(server), port_(port)
 {
 	if(use_ssl) {
 		ssl_context_ = new boost::asio::ssl::context(boost::asio::ssl::context::sslv23);
@@ -70,9 +70,8 @@ Mail::Mail(boost::asio::io_service& io_service, const std::string& username,
 	}
 }
 
-Mail::Mail(const std::string& username, const std::string& password, 
-	const std::string& server, const std::string& port, bool use_ssl)
-	: Mail(*(new boost::asio::io_service()), username, password, server, port, use_ssl)
+Mail::Mail(const std::string& username, const std::string& server, const std::string& port, bool use_ssl)
+	: Mail(*(new boost::asio::io_service()), username, server, port, use_ssl)
 {
 	service_holder_.reset(&service_);
 }
@@ -99,13 +98,12 @@ do {								\
 	}							\
 } while(0)
 
-void
+Mail&
 Mail::send(const std::string& to_addr, 
 	std::function<void(MailPkgPtr)> send_handler, 
 	std::function<void(bool)> handler)
 {
 	ConnectionPtr conn;
-	CHECK(username_.find('@') != username_.npos);
 	if(ssl_context_) {
 		conn = std::make_shared<SslConnection>(service_, *ssl_context_);
 	} else {
@@ -135,6 +133,7 @@ Mail::send(const std::string& to_addr,
 			});
 		});
 	});
+	return *this;
 }
 						
 void
@@ -142,7 +141,11 @@ Mail::sayHello(ConnectionPtr conn, std::function<void(bool)> handler)
 {
 	step("HELO " + server_ + "\r\n", 250, conn, [=](bool good) {
 		if(good) {
-			loginRequest(conn, handler);
+			if(password_.size()) {
+				loginRequest(conn, handler);
+			} else {
+				mailFrom(conn, handler);	
+			}
 		} else {
 			handler(false);
 		}
