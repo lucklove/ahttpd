@@ -14,12 +14,12 @@ SET(TEST_SOURCES
 #	utils/path.cc
 #	utils/domain.cc
 #	ThreadPool/ThreadPool.cc
-	server/server.cc
+#	server/server.cc
 #	exception/exception.cc
 #	parser/parser.cc
 #	net/net.cc
 #	fcgi/fcgi.cc
-#	mail/mail.cc
+	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)

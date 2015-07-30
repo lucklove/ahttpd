@@ -9,7 +9,7 @@
 #include <iostream>
 
 
-#define STACK_BUFF_SIZE	(128 * 1024)
+#define STACK_BUFF_SIZE	(1024 * 1024)
 
 namespace ahttpd {
 
@@ -65,6 +65,7 @@ read_chunked_body(Pac_t pac, Handle_t handler)
 			int need_read = length - already_read;
 			if(length > STACK_BUFF_SIZE) {
 				Log("ERROR") << "BUFFER OVERFLOW";
+				Log("NOTE") << "LENGTH: " << length;
 				handler(nullptr);
 				return;
 			}
