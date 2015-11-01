@@ -6,18 +6,20 @@
 #include <exception>
 #include <cstdio>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
-#define PARSE_STATUS(ststus)						\
-	switch (status) {						\
+#define PARSE_STATUS(ststus)					\
+	switch (status)                             \
+    {						                    \
 		case Response::Continue:				\
     			return Continue;				\
 		case Response::Switching:				\
     			return Switching;				\
 		case Response::Processing:				\
     			return Processing;				\
-		case Response::Ok:					\
-    			return Ok;					\
+		case Response::Ok:					    \
+    			return Ok;					    \
   		case Response::Created:					\
     			return Created;					\
   		case Response::Accepted:				\
@@ -64,7 +66,8 @@ namespace ahttpd {
     			return Internal_Server_Error;			\
   	}
 
-namespace status_strings {
+namespace status_strings 
+{
 
 const char Continue[] =
 	"HTTP/1.1 100 Continue";
@@ -117,15 +120,15 @@ const char Bad_Gateway[] =
 const char Service_Unavailable[] =
 	"HTTP/1.1 503 Service Unavailable";
 
-std::string
-status_head(Response::status_t status)
+std::string status_head(Response::status_t status)
 {
 	PARSE_STATUS(status);
 }
 
 } // namespace status_strings
 
-namespace stock_replies {
+namespace stock_replies 
+{
 
 const char Continue[] =
 	"<html>"
@@ -249,8 +252,7 @@ const char Service_Unavailable[] =
 	"<body><h1>503 Service Unavailable</h1></body>"
 	"</html>";
 
-std::string
-status_body(Response::status_t status)
+std::string status_body(Response::status_t status)
 {
 	PARSE_STATUS(status);
 }
@@ -273,7 +275,8 @@ Response::flush()
 {
 	if(connection() == nullptr)
 		return;
-	if(!chunked()) {	/**< 说明是第一次手动调用flush */
+	if(!chunked()) 	/**< 说明是第一次手动调用flush */
+    {
 		/** 由于是第一次调用，说明第一行并未发送 */
 		setChunked(); 
 		FLUSH_FIRST_LINE();
@@ -286,17 +289,23 @@ Response::~Response()
 {
 	if(connection() == nullptr)
 		return;
-	try {
-		if(!chunked()) {
+	try 
+    {
+		if(!chunked()) 
+        {
 			FLUSH_FIRST_LINE();
 			if(status_ != Ok && in().rdbuf()->in_avail() == 0)
 				out() << stock_replies::status_body(status_);
-		} else {
+		} 
+        else 
+        {
 			flushPackage();
 			connection()->asyncWrite("0\r\n\r\n");
 		}
 		flushPackage();
-	} catch(std::exception& e) {
+	} 
+    catch(std::exception& e) 
+    {
 		fprintf(stderr, "%s\n", e.what());
 	}
 }

@@ -2,7 +2,8 @@
 
 #include <boost/asio.hpp>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 /**
  * \brief 用于asio接收/发送数据

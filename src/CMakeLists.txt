@@ -15,6 +15,8 @@ SET(SHTTPD_SRCS SHARED
 	utils.cc
 	net.cc
 	fcgi.cc
+    TcpConnection.cc
+    exception.cc
 )
 ADD_LIBRARY(ahttpd ${SHTTPD_SRCS})
 TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)

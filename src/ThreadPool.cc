@@ -2,7 +2,8 @@
 #include <cassert>
 #include "ThreadPool.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 ThreadPool::ThreadPool(size_t n, std::function<void()> on_enter, std::function<void()> on_exit)
 	: workers(n)
@@ -73,8 +74,7 @@ ThreadPool::~ThreadPool() noexcept
 	}
 }
 
-size_t
-ThreadPool::size() const
+size_t ThreadPool::size() const
 {
 	std::unique_lock<std::mutex> lck(queue_mutex);
 

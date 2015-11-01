@@ -9,7 +9,8 @@
 #include "ptrs.hh"
 #include "cookie.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 class Server;
 
@@ -22,7 +23,7 @@ public:
 	const char* connectionType();
 
 
-	virtual ~Package() =default;
+	virtual ~Package();
 
 	std::istream& in() { return body; }
 
@@ -32,37 +33,48 @@ public:
 
 	void discardConnection() { connection_.reset(); }
 
-	std::vector<std::string> getHeaders(std::string h_name) {
+	std::vector<std::string> getHeaders(std::string h_name) 
+    {
 		std::vector<std::string> dst_header;
-		for(auto h : headers_) {
+		for(auto h : headers_) 
+        {
 			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				dst_header.push_back(h.value);
 		}
 		return dst_header;
 	}
 
-	std::string* getHeader(std::string h_name) {
-		for(auto& h : headers_) {
+	std::string* getHeader(std::string h_name) 
+    {
+		for(auto& h : headers_) 
+        {
 			if(strcasecmp(h.name.c_str(), h_name.c_str()) == 0)
 				return &h.value;
 		}
 		return nullptr;
 	}
 
-	void addHeader(const std::string& h_name, const std::string& h_value) {
+	void addHeader(const std::string& h_name, const std::string& h_value) 
+    {
 		headers_.push_back(header_t{h_name, h_value});
 	}
 
-	void setHeader(const std::string h_name, const std::string& h_value) {
+	void setHeader(const std::string h_name, const std::string& h_value) 
+    {
 		delHeader(h_name);
 		addHeader(h_name, h_value);
 	}
 
-	void delHeader(const std::string& h_name) {
-		for(std::vector<header_t>::iterator it = headers_.begin(); it != headers_.end();) {
-			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0) {
+	void delHeader(const std::string& h_name) 
+    {
+		for(std::vector<header_t>::iterator it = headers_.begin(); it != headers_.end();) 
+        {
+			if(strcasecmp(it->name.c_str(), h_name.c_str()) == 0) 
+            {
 				it = headers_.erase(it);
-			} else {
+			} 
+            else 
+            {
 				++it;
 			}
 		}
@@ -70,8 +82,7 @@ public:
 
 	std::vector<header_t>& getHeaderMap() { return headers_; }
 
-	size_t
-	contentLength()
+	size_t contentLength()
 	{
 		auto cur = body.tellg();
 		body.seekg(0, std::ios_base::end);
@@ -80,7 +91,6 @@ public:
 		return res;
 	}
 protected:
-
 	bool chunked() { return chunked_; }
 	void setChunked() { chunked_ = true; }
 	void flushPackage();

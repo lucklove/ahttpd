@@ -24,7 +24,8 @@ public:
  	 * \brief ctor
  	 * \type 日志级别
  	 */ 
-	explicit Log(const std::string& type) {
+	explicit Log(const std::string& type) 
+    {
 		buffer_ << "[\033[35m" << localTime(time(nullptr)) << "\033[0m] " 
 			<< "[\033[36m" <<std::this_thread::get_id() << "\033[0m] "
 			<< "[\033[37m" << type << "\033[0m] ";
@@ -33,7 +34,8 @@ public:
 	/**
  	 * \brief 移动构造
  	 */ 
-	Log(Log&& log_) { 
+	Log(Log&& log_) 
+    { 
 		if(log_.buffer_.rdbuf()->in_avail())
 			buffer_ << log_.buffer_.rdbuf();
 	}
@@ -41,7 +43,8 @@ public:
 	/**
  	 * \brief 在析构中完成打印
  	 */ 
-	~Log() { 
+	~Log() 
+    { 
 		try {
 			if(buffer_.rdbuf()->in_avail())
 				std::cout << buffer_.rdbuf() << std::endl; 
@@ -55,7 +58,12 @@ public:
  	 * \param val 任意可以通过输出流输出的实例
  	 */ 
 	template<typename T>
-	auto&& operator<<(T&& val) { return buffer_ << std::forward<T>(val); }
+
+	auto&& operator<<(T&& val) 
+    { 
+        return buffer_ << std::forward<T>(val); 
+    }
+
 private:
 	std::stringstream buffer_;
 };

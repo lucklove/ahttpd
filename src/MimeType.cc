@@ -2,8 +2,10 @@
 
 namespace ahttpd {
 
-namespace {
-struct map_t {
+namespace 
+{
+struct map_t 
+{
 	const char* extension;
 	const char* mime_type;
 } maps[] = {

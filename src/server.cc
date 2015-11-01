@@ -14,32 +14,34 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-namespace ahttpd {
-
-namespace {
-
+namespace ahttpd 
+{
+namespace 
+{
 using ::boost::property_tree::read_json;
 using ::boost::property_tree::ptree;
 
 template<typename T>
-T
-parse_config(const ptree& t, const std::string& key, 
+T parse_config(const ptree& t, const std::string& key, 
 	std::function<void(std::exception& e, T&)> exception_callback = 
-	[](std::exception& e, T& retval) {
+	[](std::exception& e, T& retval) 
+    {
 		retval = T{};
 	})
 {
 	T ret{};
-	try {
+	try 
+    {
 		ret = t.get<T>(key);
-	} catch(std::exception& e) {
+	} 
+    catch(std::exception& e) 
+    {
 		exception_callback(e, ret);
 	}
 	return ret;
 }
 
-std::string
-generateId(size_t max_size)
+std::string generateId(size_t max_size)
 {
 	std::string ret;
 	std::default_random_engine e(time(nullptr));
@@ -52,7 +54,8 @@ generateId(size_t max_size)
 }	
 }
 
-class ServerImpl {
+class ServerImpl 
+{
 	friend class Server;
 public:
 	ServerImpl(::boost::asio::io_service& service) 
@@ -72,29 +75,35 @@ private:
 	void handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const ::boost::system::error_code& ec);
 };
 
-void 
-ServerImpl::handleTcpAccept(std::function<void(ConnectionPtr)> request_handler, const ::boost::system::error_code& ec)
+void ServerImpl::handleTcpAccept(std::function<void(ConnectionPtr)> request_handler, const ::boost::system::error_code& ec)
 {
-	if(!ec) {
+	if(!ec) 
+    {
 		request_handler(new_tcp_connection_);
 		new_tcp_connection_.reset(new TcpConnection(service_));
 		tcp_acceptor_.async_accept(new_tcp_connection_->nativeSocket(),
 			std::bind(&ServerImpl::handleTcpAccept, this, 
 			request_handler, std::placeholders::_1));
-	} else {
+	} 
+    else 
+    {
 		if(ec != ::boost::asio::error::operation_aborted)
 			Log("ERROR") << ec.message();
 	}
 }
 
-void 
-ServerImpl::handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const ::boost::system::error_code& ec)
+void ServerImpl::handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const ::boost::system::error_code& ec)
 {
-	if(!ec) {
-			new_ssl_connection_->asyncHandshake([=](const ::boost::system::error_code& e) {
-			if(e) {
+	if(!ec) 
+    {
+		new_ssl_connection_->asyncHandshake([=](const ::boost::system::error_code& e) 
+        {
+			if(e) 
+            {
 				Log("ERROR") << e.message();
-			} else {
+			} 
+            else 
+            {
 				request_handler(new_ssl_connection_);
 			}
 			new_ssl_connection_.reset(new SslConnection(service_, ssl_context_));
@@ -102,7 +111,9 @@ ServerImpl::handleSslAccept(std::function<void(ConnectionPtr)> request_handler, 
 				std::bind(&ServerImpl::handleSslAccept, this, 
 				request_handler, std::placeholders::_1));
 		});
-	} else {
+	} 
+    else 
+    {
 		if(ec != ::boost::asio::error::operation_aborted)
 			Log("ERROR") << ec.message();
 	}
@@ -128,18 +139,22 @@ Server::Server(::boost::asio::io_service& service, std::istream& config, size_t 
 	ptree conf;
 	read_json(config, conf);
 	std::string http_port = parse_config<std::string>(conf, "http port",
-		[](std::exception&, std::string&) {
+		[](std::exception&, std::string&) 
+        {
 			Log("NOTE") << "no http port provide in config, disable http";
 		}
 	);
 	std::string https_port = parse_config<std::string>(conf, "https port",
-		[](std::exception&, std::string&) {
+		[](std::exception&, std::string&) 
+        {
 			Log("NOTE") << "no https port provide in config, disable https";
 		}
 	);
-	if(http_port != "") {
+	if(http_port != "") 
+    {
 		std::string http_server = parse_config<std::string>(conf, "http server",
-			[](std::exception&, std::string& server) {
+			[](std::exception&, std::string& server) 
+            {
 				server = "0.0.0.0";
 			}
 		);
@@ -152,35 +167,40 @@ Server::Server(::boost::asio::io_service& service, std::istream& config, size_t 
 		pimpl_->new_tcp_connection_.reset(new TcpConnection(service_));
 	}
 
-	if(https_port != "") {
+	if(https_port != "") 
+    {
 		int sslOptions = ::boost::asio::ssl::context::default_workarounds
 			| ::boost::asio::ssl::context::no_sslv2
 			| ::boost::asio::ssl::context::single_dh_use;
 		pimpl_->ssl_context_.set_options(sslOptions);
 		pimpl_->ssl_context_.set_verify_mode(::boost::asio::ssl::context::verify_none);
 		pimpl_->ssl_context_.load_verify_file(parse_config<std::string>(conf, "verify file",
-			[](std::exception& e, std::string&) {
+			[](std::exception& e, std::string&) 
+            {
 				Log("ERROR") << "can't peek verify file path in config";
 				Log("ERROR") << e.what();
 				abort();
 			}
 		)); //csr
 		pimpl_->ssl_context_.use_certificate_chain_file(parse_config<std::string>(conf, "certificate chain file",
-			[](std::exception& e, std::string&) {
+			[](std::exception& e, std::string&) 
+            {
 				Log("ERROR") << "can't peek certificate chain file path in config";
 				Log("ERROR") << e.what();
 				abort();
 			}
 		));//crt
 		pimpl_->ssl_context_.use_private_key_file(parse_config<std::string>(conf, "private key",
-			[](std::exception& e, std::string&) {
+			[](std::exception& e, std::string&) 
+            {
 				Log("ERROR") << "can't peek certificate private key path in config";
 				Log("ERROR") << e.what();
 				abort();
 			}
 		), ::boost::asio::ssl::context::pem);
 		pimpl_->ssl_context_.use_tmp_dh_file(parse_config<std::string>(conf, "tmp dh file",
-			[](std::exception& e, std::string&) {
+			[](std::exception& e, std::string&) 
+            {
 				Log("ERROR") << "can't peek tmp dh file path in config";
 				Log("ERROR") << e.what();
 				abort();
@@ -191,7 +211,8 @@ Server::Server(::boost::asio::io_service& service, std::istream& config, size_t 
 		SSL_CTX_set_session_id_context(native_ctx,
 			reinterpret_cast<const unsigned char *>(sessionId.c_str()), sessionId.size());
 		std::string https_server = parse_config<std::string>(conf, "https server",
-			[](std::exception&, std::string& server) {
+			[](std::exception&, std::string& server) 
+            {
 				server = "0.0.0.0";
 			}
 		);
@@ -209,14 +230,15 @@ Server::Server(::boost::asio::io_service& service, std::istream& config, size_t 
 
 Server::~Server() {}
 
-void 
-Server::run(size_t thread_number)
+void Server::run(size_t thread_number)
 {
 	if(!thread_number)
 		return;
 	std::vector<std::thread> threads;
-	for(size_t i = 0; i < thread_number; ++i) {
-		threads.push_back(std::thread([this] {
+	for(size_t i = 0; i < thread_number; ++i) 
+    {
+		threads.push_back(std::thread([this] 
+        {
 			service_.run();
 		}));
 	}
@@ -225,38 +247,43 @@ Server::run(size_t thread_number)
 	service_.reset();
 }
 
-void
-Server::stop()
+void Server::stop()
 {
 	Log("NOTE") << "BYE";
 	service_.stop();		/**< XXX:简单粗暴 */
 }
 
-void
-Server::handleRequest(ConnectionPtr conn)
+void Server::handleRequest(ConnectionPtr conn)
 {
 	assert(conn != nullptr);
-	parseRequest(conn, [=](RequestPtr request) {
-		if(request) {
-			if(request->keepAlive()) {
+	parseRequest(conn, [=](RequestPtr request) 
+    {
+		if(request) 
+        {
+			if(request->keepAlive()) 
+            {
 				handleRequest(conn);
 			}
-			thread_pool_.wait_to_enqueue([this](std::unique_lock<std::mutex>&) {
+			thread_pool_.wait_to_enqueue([this](std::unique_lock<std::mutex>&) 
+            {
 				if(thread_pool_.size_unlocked() > thread_pool_size_)
 					Log("WARNING") << "thread pool overload";
 			}, &Server::deliverRequest, this, request);
-		} else {
+		} 
+        else 
+        {
 			conn->stop();
 		}
 	});
 }
 
-void 
-Server::startAccept()
+void Server::startAccept()
 {
-	if(pimpl_->new_tcp_connection_) {
+	if(pimpl_->new_tcp_connection_) 
+    {
 		pimpl_->tcp_acceptor_.async_accept(pimpl_->new_tcp_connection_->nativeSocket(),
-			[this](const ::boost::system::error_code& ec) {
+			[this](const ::boost::system::error_code& ec) 
+            {
 				pimpl_->handleTcpAccept(
 					std::bind(&Server::handleRequest, this, std::placeholders::_1),
 					ec
@@ -264,9 +291,12 @@ Server::startAccept()
 			}
 		);
 	}
-	if(pimpl_->new_ssl_connection_) {
+
+	if(pimpl_->new_ssl_connection_) 
+    {
 		pimpl_->ssl_acceptor_.async_accept(pimpl_->new_ssl_connection_->nativeSocket(),
-			[this](const ::boost::system::error_code& ec) {
+			[this](const ::boost::system::error_code& ec) 
+            {
 				pimpl_->handleSslAccept(
 					std::bind(&Server::handleRequest, this, std::placeholders::_1),
 					ec
@@ -276,12 +306,12 @@ Server::startAccept()
 	}
 }	
 
-void 
-Server::do_await_stop()
+void Server::do_await_stop()
 {
-	pimpl_->signals_.async_wait([this](::boost::system::error_code /*ec*/, int /*signo*/) {
+	pimpl_->signals_.async_wait([this](::boost::system::error_code /*ec*/, int /*signo*/) 
+    {
 		stop();
-      	});
+    });
 }
 
 }	/**< namespace ahttpd */

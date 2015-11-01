@@ -3,8 +3,8 @@
 #include <functional>
 #include "ptrs.hh"
 
-namespace ahttpd {
-
+namespace ahttpd 
+{
 /**
  * \brief 将http请求报文解析为Request
  * \param conn Connection的shared_ptr.

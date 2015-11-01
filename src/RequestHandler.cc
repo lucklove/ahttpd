@@ -9,10 +9,13 @@
 #include <sstream>
 #include <string>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
-namespace {
-const char *allowed_method[] = {
+namespace 
+{
+const char *allowed_method[] = 
+{
 	"GET",
 	"POST",
 	"PUT",
@@ -22,7 +25,8 @@ const char *allowed_method[] = {
 
 bool method_implemented(const std::string& method)
 {
-	for(const char* m : allowed_method) {
+	for(const char* m : allowed_method) 
+    {
 		if(m == method)
 			return true;
 	}
@@ -30,29 +34,37 @@ bool method_implemented(const std::string& method)
 }
 }
 
-void 
-RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
+RequestHandler::~RequestHandler()
 {
-	try {
-		if(!method_implemented(req->getMethod())) {
+}
+
+void RequestHandler::handleRequest(RequestPtr req, ResponsePtr rep)
+{
+	try 
+    {
+		if(!method_implemented(req->getMethod())) 
+        {
 			rep->setStatus(Response::Not_Implemented);
 			return;
 		}
-		if(!deliverRequest(req, rep)) {
+		if(!deliverRequest(req, rep)) 
+        {
 			rep->setStatus(Response::Not_Found);
 			return;
 		}
-	} catch(std::exception& e) {
+	} 
+    catch(std::exception& e) 
+    {
 		Log("WARNING") << "EXCEPTION FROM USER HANDLER: " << e.what();
 	}
 }
 
-bool
-RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
+bool RequestHandler::deliverRequest(RequestPtr req, ResponsePtr rep)
 {
 	std::tuple<std::string, RequestHandler*> best;
 
-	for(auto handler : sub_handlers_) {
+	for(auto handler : sub_handlers_) 
+    {
 		if(std::get<0>(handler).size() >= std::get<0>(best).size() &&
 			isPathMatch(req->getPath(), std::get<0>(handler)))
 			best = handler;

@@ -3,9 +3,11 @@
 #include <exception>
 #include <ostream>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
-class Exception : public std::exception {
+class Exception : public std::exception 
+{
 private:
 	const char *const xm_pszFile;
 	const unsigned long xm_ulLine;
@@ -19,29 +21,30 @@ public:
 		: xm_pszFile(pszFile), xm_ulLine(ulLine), xm_pszMessage(pszMessage), xm_ulCode(ulCode) {}
 
 public:
-	const char *what() const noexcept override {
-		return xm_pszMessage;
-	}
+	const char *what() const noexcept override;
 
-	const char *getFile() const noexcept {
+	const char *getFile() const noexcept 
+    {
 		return xm_pszFile;
 	}
 
-	unsigned long getLine() const noexcept {
+	unsigned long getLine() const noexcept 
+    {
 		return xm_ulLine;
 	}
 
-	const char *getMessage() const noexcept {
+	const char *getMessage() const noexcept 
+    {
 		return xm_pszMessage;
 	}
 
-	unsigned long getCode() const noexcept {
+	unsigned long getCode() const noexcept 
+    {
 		return xm_ulCode;
 	}
 };
 
-inline std::ostream& 
-operator<<(std::ostream& os, const Exception& e)
+inline std::ostream& operator<<(std::ostream& os, const Exception& e)
 {
 	return os << "Exception in " << e.getFile() << " line: " 
 		<< e.getLine() << ":" << e.what();

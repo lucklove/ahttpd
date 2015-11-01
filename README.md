@@ -28,7 +28,7 @@ error while loading shared libraries: libahttpd.so: cannot open shared object fi
 请确保libahttpd.so所在目录在ld的搜索路径中,对于linux系统, libahttpd.so所在的目录一般为/usr/local/lib  
 若发现改目录不在ld的搜索路径中,以下步骤可让libahttpd.so被ld找到:  
 - 修改/etc/ld.so.conf, 加入一行/usr/local/lib  
-- 执行sudo ldconfig更新配置  
+- 执行sudo ldconfig更新配置   
 
 ###gcc-4.8 workaround：
 经测试在gcc-4.8下能编译通过,但是运行时抛出std::regex_error异常, 执行`sh gcc-4.8-fix.sh`可修复问题  

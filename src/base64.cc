@@ -1,6 +1,7 @@
 #include "base64.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 const std::string Base64::base64_chars = 
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"

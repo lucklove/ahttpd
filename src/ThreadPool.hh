@@ -9,14 +9,16 @@
 #include <utility>
 #include <cassert>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 /**
  * \brief 线程池。
  * \note 除非另行约定，所有公开成员函数线程安全。
  * \note 未控制线程队列的长度。
  */
-class ThreadPool {
+class ThreadPool 
+{
 private:
 	template<typename _type>
 	using result_of_t = typename std::result_of<_type>::type;

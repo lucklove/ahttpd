@@ -2,17 +2,24 @@
 
 #include <memory>
 
-namespace boost { namespace asio { namespace ssl {
+namespace boost 
+{ 
+namespace asio 
+{ 
+namespace ssl 
+{
 class context;
 }
 class io_service;
 }
-namespace system {
+namespace system 
+{
 class error_code;
 }
 }
 
-namespace ahttpd {
+namespace ahttpd 
+{
 class Connection;
 using ConnectionPtr = std::shared_ptr<Connection>;
 

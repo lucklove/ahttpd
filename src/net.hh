@@ -4,7 +4,8 @@
 #include <functional>
 #include "ptrs.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 /**
  * \biref TcpConnection的工具函数，用于发起tcp连接并生成ConnectionPtr

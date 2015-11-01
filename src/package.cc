@@ -4,6 +4,10 @@
 
 namespace ahttpd {
 
+Package::~Package()
+{
+}
+
 void
 Package::flushPackage()
 {

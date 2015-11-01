@@ -10,15 +10,17 @@
 #include "cookie.hh"
 #include "log.hh"
 
-namespace ahttpd {
-
+namespace ahttpd 
+{
 /**
  * \breif 包含http client的请求信息
  */
 class Request : public Package, 
-	public std::enable_shared_from_this<Request> {
+	public std::enable_shared_from_this<Request> 
+{
 public :
 	using Package::Package;
+
 	~Request() override;
 			
 	/**
@@ -63,12 +65,16 @@ public :
  	 */  
 	std::string getVersion() { return version_; }
 	
-	bool keepAlive() {		
+	bool keepAlive() 
+    {		
 		std::string* connection_opt = getHeader("Connection");
 		if(connection_opt) {
-			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) {
+			if(strcasecmp(connection_opt->c_str(), "Keep-alive") == 0) 
+            {
 				return true;
-			} else {
+			}  
+            else 
+            {
 				return false;
 			}
 		}
@@ -87,15 +93,19 @@ public :
  	 * \example
  	 * 	setCookie({"key", "val"});
  	 */ 	
-	void setCookie(const request_cookie_t& cookie) {
+	void setCookie(const request_cookie_t& cookie) 
+    {
 		std::string header_val = cookie.key;
 		if(cookie.val != "")
 			header_val += "=" + cookie.val;
 
 		std::string *h = getHeader("Cookie");
-		if(h) {
+		if(h) 
+        {
 			*h += "; " + header_val;
-		} else {
+		} 
+        else 
+        {
 			addHeader("Cookie", header_val);
 		}
 	}
@@ -106,31 +116,35 @@ public :
  	 * \return
  	 * 	如果存在该cookie,则返回指向值的指针，否则返回nullptr
  	 */ 	
-	const std::string* getCookieValue(const std::string& key) {
-		for(auto& rc : cookie_jar_) {
+	const std::string* getCookieValue(const std::string& key) 
+    {
+		for(auto& rc : cookie_jar_) 
+        {
 			if(rc.key == key)
 				return &rc.val;
 		}
 		return nullptr;
 	}
 
-	const std::vector<request_cookie_t>& cookieJar() {
+	const std::vector<request_cookie_t>& cookieJar() 
+    {
 		return cookie_jar_;
 	}
 
-	void
-	parseParams(const std::string& param_list)
+	void parseParams(const std::string& param_list)
 	{
 		std::map<std::string, std::string> map;
 		StringTokenizer st(param_list, '&');
-		while(st.hasMoreTokens()) {
+		while(st.hasMoreTokens()) 
+        {
 			StringTokenizer key_val_st(st.nextToken(), '=');
 			if(!key_val_st.hasMoreTokens())
 				continue;
 			std::string key = key_val_st.nextToken();
 			urlDecode(key);
 			std::string val;
-			if(key_val_st.hasMoreTokens()) {
+			if(key_val_st.hasMoreTokens()) 
+            {
 				val = key_val_st.nextToken();
 				urlDecode(val);
 			}
@@ -139,26 +153,37 @@ public :
 		param_map_ = map;
 	}
 
-	std::string
-	getParamValue(const std::string& key) {
+	std::string getParamValue(const std::string& key) 
+    {
 		return param_map_[key];
 	}
 
 	void flush();
+
 	void basicAuth(const std::string& auth);
+
 	std::string basicAuthInfo();
+
 	std::string proxyAuthInfo();
 
 private:
 	std::string method_;
+
 	std::string path_;
+
 	std::string query_;
+
 	std::map<std::string, std::string> param_map_;
+
 	std::string version_;
+
 	std::vector<request_cookie_t> cookie_jar_;	
-	void parseCookie() {
+
+	void parseCookie() 
+    {
 		std::string* cookie_header = getHeader("Cookie");
-		if(cookie_header) {
+		if(cookie_header) 
+        {
 			cookie_jar_ = parseRequestCookie(*cookie_header);
 		}
 	}

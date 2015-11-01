@@ -3,7 +3,8 @@
 #include "ptrs.hh"
 #include <functional>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 void fcgi(boost::asio::io_service& service, 
 	const std::string& host, 

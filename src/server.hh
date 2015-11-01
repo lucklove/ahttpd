@@ -8,7 +8,8 @@
 #include "ThreadPool.hh"
 #include "ptrs.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 class ServerImpl;
 
@@ -16,7 +17,8 @@ class ServerImpl;
  * \brief 
  * 	Server类，服务器主要类
  */ 
-class Server {
+class Server 
+{
 public:
 	/** 不允许复制 */
 	Server(const Server&) = delete;
@@ -59,7 +61,8 @@ public:
  	 * 	Server s(conofig);
  	 * 	s.addHandler("/", main_handler);
  	 */ 
-	void addHandler(const std::string& path, RequestHandler* handle) {
+	void addHandler(const std::string& path, RequestHandler* handle) 
+    {
 		request_handler_.addSubHandler(path, handle);
 	}
 
@@ -67,7 +70,8 @@ public:
  	 * \brief 转发请求到request handler.
  	 * \param req 解析完后的请求，其path指向请求路径
  	 */ 
-	void deliverRequest(RequestPtr req) {
+	void deliverRequest(RequestPtr req) 
+    {
 		auto res = std::make_shared<Response>(req->connection());
 		req->discardConnection();
 		request_handler_.handleRequest(req, res);
@@ -84,7 +88,8 @@ public:
  	 * 	Client c(s.service());
  	 * 	c.request(...);
  	 */ 	
-	boost::asio::io_service& service() {
+	boost::asio::io_service& service() 
+    {
 		return service_;
 	}
 	
@@ -95,9 +100,11 @@ public:
  	 * \return std::future
  	 */ 
 	template<typename _fCallable, typename... _tParams>
-	auto enqueue(_fCallable&& f, _tParams&&... args) {
+	auto enqueue(_fCallable&& f, _tParams&&... args) 
+    {
 		return thread_pool_.enqueue(std::forward<_fCallable>(f), std::forward<_tParams>(args)...);
 	}
+
 private:
 	std::shared_ptr<ServerImpl> pimpl_;
 	boost::asio::io_service& service_;

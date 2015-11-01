@@ -7,7 +7,8 @@
 #include "request.hh"
 #include "response.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 class Server;
 
@@ -15,12 +16,13 @@ class Server;
  * \brief 请求处理类，处理Request, 生成Resposne, 后则被返回给客户端
  * \note USER API 
  */
-class RequestHandler {
+class RequestHandler 
+{
 public:
 	RequestHandler() = default;
 	RequestHandler(const RequestHandler&) = delete;
 	RequestHandler& operator=(const RequestHandler&) = delete;
-	virtual ~RequestHandler() = default;
+	virtual ~RequestHandler();
 
 	/**
  	 * \brief Request处理函数
@@ -40,7 +42,8 @@ public:
  	 * \brief 添加子handler, 由deliverRequest使用
  	 * \param path 子handler所处路径
  	 */
-	void addSubHandler(const std::string& path, RequestHandler * handler) {
+	void addSubHandler(const std::string& path, RequestHandler * handler) 
+    {
 		sub_handlers_.push_back(std::make_tuple(path, handler));
 	}
 

@@ -9,10 +9,12 @@ namespace ahttpd {
 
 struct BufferOverflow : Exception {
 	using Exception::Exception;
+    ~BufferOverflow() override;
 };
 
 struct TokenError : Exception {
 	using Exception::Exception;
+    ~TokenError() override;
 };
 
 inline std::string

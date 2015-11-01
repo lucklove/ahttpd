@@ -12,9 +12,11 @@
 #include "log.hh"
 #include "ptrs.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
-class Connection : public std::enable_shared_from_this<Connection> {
+class Connection : public std::enable_shared_from_this<Connection> 
+{
 private:
 	buffer_t read_buffer_;
 	std::queue<std::tuple<std::function<void()>, bool>> read_queue_;
@@ -23,7 +25,7 @@ private:
 	std::mutex write_queue_mutex_{};
 
 public:
-	virtual ~Connection() {};
+	virtual ~Connection();
 
 	virtual void stop() = 0; 
 
@@ -44,18 +46,20 @@ public:
 
 	void asyncWrite(const std::string& msg,
 		std::function<void(const ::boost::system::error_code&, size_t)> handler =
-			[](const ::boost::system::error_code& e, size_t n) {
-				if(e) {
-					Log("DEBUG") << __FILE__ << ":" << __LINE__;
-					Log("ERROR") << "WRITE ERROR:" << e.message() << ", "
-						<< n << " bytes writen";
-				}
-			}
-	);
+			[](const ::boost::system::error_code& e, size_t n) 
+    {
+	    if(e) 
+        {
+		    Log("DEBUG") << __FILE__ << ":" << __LINE__;
+		    Log("ERROR") << "WRITE ERROR:" << e.message() << ", "
+				<< n << " bytes writen";
+		}
+    });
 
 
 private:
-	void enqueueRead(std::function<void()> read_func) {
+	void enqueueRead(std::function<void()> read_func) 
+    {
 		{
 			std::unique_lock<std::mutex> lck(read_queue_mutex_);
 			read_queue_.push(std::make_tuple(read_func, false));
@@ -63,7 +67,8 @@ private:
 		doRead();
 	}
 
-	void dequeueRead() {
+	void dequeueRead() 
+    {
 		{
 			std::unique_lock<std::mutex> lck(read_queue_mutex_);
 			read_queue_.pop();
@@ -72,7 +77,8 @@ private:
 		doRead();
 	}
 
-	void doRead() {
+	void doRead() 
+    {
 		std::function<void()> func;
 
 		{
@@ -89,7 +95,8 @@ private:
 		func();
 	}
 
-	void enqueueWrite(std::function<void()> write_func) {
+	void enqueueWrite(std::function<void()> write_func) 
+    {
 		{
 			std::unique_lock<std::mutex> lck(write_queue_mutex_);
 			write_queue_.push(std::make_tuple(write_func, false));
@@ -98,7 +105,8 @@ private:
 		doWrite();	
 	}
 
-	void dequeueWrite() {
+	void dequeueWrite() 
+    {
 		{
 			std::unique_lock<std::mutex> lck(write_queue_mutex_);
 			write_queue_.pop();
@@ -108,7 +116,8 @@ private:
 	}
 	
 
-	void doWrite() {
+	void doWrite() 
+    {
 		std::function<void()> func;
 
 		{

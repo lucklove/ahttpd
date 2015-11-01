@@ -8,9 +8,11 @@
 #include <sstream>
 #include <iostream>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
-namespace {
+namespace 
+{
 
 static int
 check_response_code(boost::asio::streambuf& buf, int expected_code)
@@ -32,18 +34,25 @@ step(const std::string& message,
 	ConnectionPtr conn, 
 	std::function<void(bool)> handler) 
 {				
-	conn->asyncWrite(message, [=](const boost::system::error_code& ec, size_t) {
+	conn->asyncWrite(message, [=](const boost::system::error_code& ec, size_t) 
+    {
 		if(!ec) {										
-			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {	
-				if(!ec) {
+			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
+            {	
+				if(!ec) 
+                {
 					handler(check_response_code(conn->readBuffer(), expected_code));
-				} else {								
+				} 
+                else 
+                {								
 					Log("DEBUG") << __FILE__ << ":" << __LINE__;			
 					Log("ERROR") << ec.message();					
 					handler(false);							
 				}									
 			});										
-		} else {										
+		} 
+        else 
+        {										
 			Log("DEBUG") << __FILE__ << ":" << __LINE__;
 			Log("ERROR") << ec.message();					
 			handler(false);									
@@ -53,7 +62,8 @@ step(const std::string& message,
 
 }
 
-MailPkg::~MailPkg() {
+MailPkg::~MailPkg() 
+{
 	if(!connection())
 		return;
 	flushPackage();
@@ -64,7 +74,8 @@ Mail::Mail(boost::asio::io_service& io_service, const std::string& username,
 	const std::string& server, const std::string& port, bool use_ssl)
 	: service_(io_service), username_(username), server_(server), port_(port)
 {
-	if(use_ssl) {
+	if(use_ssl) 
+    {
 		ssl_context_ = new boost::asio::ssl::context(boost::asio::ssl::context::sslv23);
 		ssl_context_->set_default_verify_paths();
 	}
@@ -82,8 +93,7 @@ Mail::~Mail()
 		delete ssl_context_;
 }
 
-void
-Mail::apply()
+void Mail::apply()
 {
 	service_.run();
 	service_.reset();
@@ -98,33 +108,43 @@ do {								\
 	}							\
 } while(0)
 
-Mail&
-Mail::send(const std::string& to_addr, 
+Mail& Mail::send(const std::string& to_addr, 
 	std::function<void(MailPkgPtr)> send_handler, 
 	std::function<void(bool)> handler)
 {
 	ConnectionPtr conn;
-	if(ssl_context_) {
+	if(ssl_context_) 
+    {
 		conn = std::make_shared<SslConnection>(service_, *ssl_context_);
-	} else {
+	} 
+    else 
+    {
 		conn = std::make_shared<TcpConnection>(service_);
 	}
-	conn->asyncConnect(server_, port_, [=](ConnectionPtr conn) {
+
+	conn->asyncConnect(server_, port_, [=](ConnectionPtr conn) 
+    {
 		CHECK(conn);
-		conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {
-			if(ec) {
+		conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
+        {
+			if(ec) 
+            {
 				Log("DEBUG") << __FILE__ << ":" << __LINE__;
 				Log("ERROR") << ec.message();
 				handler(false);
 				return;
 			}
-			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) {
+			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
+            {
 				CHECK(check_response_code(conn->readBuffer(), 220));
-				sayHello(conn, [=](bool good) {
+				sayHello(conn, [=](bool good) 
+                {
 					CHECK(good);
-					rcptTo(to_addr, conn, [=](bool good) {
+					rcptTo(to_addr, conn, [=](bool good) 
+                    {
 						CHECK(good);
-						sendData(conn, send_handler, [=](bool good) {
+						sendData(conn, send_handler, [=](bool good) 
+                        {
 							CHECK(good);
 							step("", 250, conn, handler);
 						});
@@ -136,24 +156,29 @@ Mail::send(const std::string& to_addr,
 	return *this;
 }
 						
-void
-Mail::sayHello(ConnectionPtr conn, std::function<void(bool)> handler)
+void Mail::sayHello(ConnectionPtr conn, std::function<void(bool)> handler)
 {
-	step("HELO " + server_ + "\r\n", 250, conn, [=](bool good) {
-		if(good) {
-			if(password_.size()) {
+	step("HELO " + server_ + "\r\n", 250, conn, [=](bool good) 
+    {
+		if(good) 
+        {
+			if(password_.size()) 
+            {
 				loginRequest(conn, handler);
-			} else {
+			} 
+            else 
+            {
 				mailFrom(conn, handler);	
 			}
-		} else {
+		} 
+        else 
+        {
 			handler(false);
 		}
 	});
 }
 
-void
-Mail::loginRequest(ConnectionPtr conn, std::function<void(bool)> handler)
+void Mail::loginRequest(ConnectionPtr conn, std::function<void(bool)> handler)
 {
 	step("AUTH LOGIN\r\n", 334, conn, [=](bool good) {
 		if(good) {
@@ -164,8 +189,7 @@ Mail::loginRequest(ConnectionPtr conn, std::function<void(bool)> handler)
 	});
 }
 
-void
-Mail::sendUser(ConnectionPtr conn, std::function<void(bool)> handler)
+void Mail::sendUser(ConnectionPtr conn, std::function<void(bool)> handler)
 {
 	step(Base64::encode(username_.substr(0, username_.find('@'))) + "\r\n", 
 			334, conn, [=](bool good) {
@@ -177,8 +201,7 @@ Mail::sendUser(ConnectionPtr conn, std::function<void(bool)> handler)
 	});
 }
 
-void
-Mail::sendPass(ConnectionPtr conn, std::function<void(bool)> handler)
+void Mail::sendPass(ConnectionPtr conn, std::function<void(bool)> handler)
 {
 	step(Base64::encode(password_) + "\r\n", 235, conn, [=](bool good) {
 		if(good) {
@@ -189,20 +212,17 @@ Mail::sendPass(ConnectionPtr conn, std::function<void(bool)> handler)
 	});
 }
 
-void
-Mail::mailFrom(ConnectionPtr conn, std::function<void(bool)> handler)
+void Mail::mailFrom(ConnectionPtr conn, std::function<void(bool)> handler)
 {
 	step("MAIL FROM: <" + username_ + ">\r\n", 250, conn, handler);
 }
 
-void
-Mail::rcptTo(const std::string& to_addr, ConnectionPtr conn, std::function<void(bool)> handler)
+void Mail::rcptTo(const std::string& to_addr, ConnectionPtr conn, std::function<void(bool)> handler)
 {
 	step("RCPT TO: <" + to_addr + ">\r\n", 250, conn, handler);
 }
 
-void
-Mail::sendData(ConnectionPtr conn, 
+void Mail::sendData(ConnectionPtr conn, 
 	std::function<void(MailPkgPtr)> send_handler,
 	std::function<void(bool)> res_handler)
 {

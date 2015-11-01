@@ -10,11 +10,12 @@
 #include <iostream>
 #include "TcpConnection.hh"
 
-namespace ahttpd {
-
+namespace ahttpd 
+{
 class Server;
 
-class SslConnection : public TcpConnection {
+class SslConnection : public TcpConnection 
+{
 private:
 	::boost::asio::ssl::stream<::boost::asio::ip::tcp::socket> socket_;
 	::boost::asio::ip::tcp::resolver resolver_;
@@ -27,18 +28,18 @@ public:
 	explicit SslConnection(::boost::asio::io_service& service, ::boost::asio::ssl::context& context)
   		: TcpConnection(service), socket_(service, context), resolver_(service), ssl_shutdown_timer_(service)
 	{}
-	~SslConnection() {}
+    ~SslConnection() override;
 
 	void stop() override;
 
 	/**
  	 * \note 非线程安全
  	 */ 
-	bool stoped() override { return stoped_; }
+	bool stoped() override;
 	
-	const char* type() override { return "ssl"; }
+	const char* type() override;
 
-	::boost::asio::ip::tcp::socket& nativeSocket() override { return socket_.next_layer(); }
+	::boost::asio::ip::tcp::socket& nativeSocket() override;
 
 	void asyncConnect(const std::string& host, const std::string& port,
 		std::function<void(ConnectionPtr)> handler) override;
@@ -47,20 +48,14 @@ public:
 
 protected:
 	void async_read_until(const std::string& delim, 
-		std::function<void(const ::boost::system::error_code &, size_t)> handler) override {
-		::boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
-	}
+		std::function<void(const ::boost::system::error_code &, size_t)> handler) override;
 
 	void async_read(
 		std::function<size_t(const ::boost::system::error_code &, size_t)> completion,
-		std::function<void(const ::boost::system::error_code &, size_t)> handler) override {
-		::boost::asio::async_read(socket_, readBuffer(), completion, handler);
-	}
+		std::function<void(const ::boost::system::error_code &, size_t)> handler) override;
 
 	void async_write(const std::string& msg,
-		std::function<void(const ::boost::system::error_code&, size_t)> handler) override {
-		::boost::asio::async_write(socket_, ::boost::asio::buffer(msg), handler);
-	}
+		std::function<void(const ::boost::system::error_code&, size_t)> handler) override;
 };
 
 }	/**< namespace ahttpd */

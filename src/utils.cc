@@ -3,11 +3,21 @@
 #include "utils.hh"
 #include "log.hh"
 
-namespace ahttpd {
+namespace ahttpd 
+{
+
+BufferOverflow::~BufferOverflow()
+{
+}
+
+TokenError::~TokenError()
+{
+}
 
 namespace {
 
-struct map_t {
+struct map_t 
+{
 	const char* mchar;
 	const short mint;
 } maps[] = {
@@ -25,18 +35,17 @@ struct map_t {
 	{ "Dec", 12 }
 };
 
-short
-get_int_month(const std::string& char_month)
+short get_int_month(const std::string& char_month)
 {
-	for(const map_t& m : maps) {
+	for(const map_t& m : maps) 
+    {
 		if(strcasecmp(m.mchar, char_month.c_str()) == 0)
 			return m.mint;
 	}
 	return 0;
 }
 
-void
-to_localtime(struct tm* utc_tm)					/**< 将utc的tm结构转换为local时间的tm结构 */
+void to_localtime(struct tm* utc_tm)					/**< 将utc的tm结构转换为local时间的tm结构 */
 {
 	struct tm gmt, local;
 	time_t t = 0;
@@ -49,10 +58,10 @@ to_localtime(struct tm* utc_tm)					/**< 将utc的tm结构转换为local时间�
 
 }
 
-time_t 
-gmtToTime(const std::string& gmt_time)
+time_t gmtToTime(const std::string& gmt_time)
 {
-	try {
+	try 
+    {
 		struct tm timestamp;
 		StringTokenizer st(gmt_time, ' ', ',');
 		if(!st.hasMoreTokens())
@@ -74,60 +83,76 @@ gmtToTime(const std::string& gmt_time)
 		/** 由于mktime参数为local时间而非UTC时间, 因此需要先转换为本地时间 */
 		to_localtime(&timestamp);
 		return mktime(&timestamp);
-	} catch(boost::bad_lexical_cast &e) {
+	} 
+    catch(boost::bad_lexical_cast &e) 
+    {
 		Log("DEBUG") << __FILE__ << ":" << __LINE__;
 		Log("ERROR") << e.what();
 		return 0;
-	} catch(TokenError& e) {
+	} 
+    catch(TokenError& e) 
+    {
 		Log("DEBUG") << __FILE__ << ":" << __LINE__;
 		Log("ERROR") << e;
 		return 0;	
 	}
 }
 
-namespace {
-struct BadUrl : Exception {
+namespace 
+{
+struct BadUrl : Exception 
+{
 	using Exception::Exception;
 };
 
-unsigned char 
-to_hex(unsigned char x)   
+unsigned char to_hex(unsigned char x)   
 {   
 	return  x > 9 ? x + 55 : x + 48;   
 }  
   
-unsigned char 
-from_hex(unsigned char x)   
+unsigned char from_hex(unsigned char x)   
 {   
 	unsigned char y;  
-	if(x >= 'A' && x <= 'F') {
+	if(x >= 'A' && x <= 'F') 
+    {
 		y = x - 'A' + 10;  
-	} else if(x >= 'a' && x <= 'f') {
+	} 
+    else if(x >= 'a' && x <= 'f') 
+    {
 		y = x - 'a' + 10;
-	} else if(x >= '0' && x <= '9') {
+	} 
+    else if(x >= '0' && x <= '9') 
+    {
 		y = x - '0';
-	} else {
+	} 
+    else 
+    {
 		DEBUG_THROW(BadUrl, "Decode url from hex failed");
 	}
 	return y;  
 }  
 }
   
-std::string
-urlEncode(const std::string& str)  
+std::string urlEncode(const std::string& str)  
 {  
 	std::string str_temp = "";  
 	size_t length = str.length();  
-	for(size_t i = 0; i < length; i++) {  
+	for(size_t i = 0; i < length; i++) 
+    {  
 		if(std::isalnum(static_cast<unsigned char>(str[i])) ||   
 			(str[i] == '-') ||  
 			(str[i] == '_') ||   
 			(str[i] == '.') ||   
-			(str[i] == '~')) {
+			(str[i] == '~')) 
+        {
 			str_temp += str[i];
-		} else if(str[i] == ' ') { 
+		} 
+        else if(str[i] == ' ') 
+        { 
  			str_temp += "+";  
-		} else {  
+		} 
+        else 
+        {  
 			str_temp += '%';  
 			str_temp += to_hex(static_cast<unsigned char>(str[i]) >> 4);  
 			str_temp += to_hex(static_cast<unsigned char>(str[i]) % 16);  
@@ -136,27 +161,35 @@ urlEncode(const std::string& str)
 	return str_temp; 
 }  
   
-bool 
-urlDecode(std::string& str)  
+bool urlDecode(std::string& str)  
 {  
 	std::string str_temp = "";  
 	size_t length = str.length();  
-	for(size_t i = 0; i < length; i++) {  
-        	if(str[i] == '+') {
+	for(size_t i = 0; i < length; i++) 
+    {  
+        if(str[i] == '+') 
+        {
 			str_temp += ' ';
-		} else if(str[i] == '%') {  
+		} 
+        else if(str[i] == '%') 
+        {  
 			if(i + 2 >= length)
 				return false;
 			unsigned char high = 0;
 			unsigned char low = 0;
-			try {
+			try 
+            {
 				high = from_hex(static_cast<unsigned char>(str[++i]));  
 				low = from_hex(static_cast<unsigned char>(str[++i]));
-			} catch(BadUrl&) {
+			} 
+            catch(BadUrl&) 
+            {
 				return false;
 			}
 			str_temp += high * 16 + low;
-	        } else {
+        } 
+        else 
+        {
 			str_temp += str[i];  
 		}
 	}  
@@ -164,17 +197,20 @@ urlDecode(std::string& str)
 	return true;
 } 
 
-bool
-isValidIPAddress(const std::string& addr)
+bool isValidIPAddress(const std::string& addr)
 {
-	if(addr.find(':') != addr.npos) {		/**< ipv6 */
+	if(addr.find(':') != addr.npos) 	/**< ipv6 */
+    {
 		const static std::string valid_ipv6_character("0123456789abcdefABCDEF");
 		size_t s_count = 0;			/**< 每个段中的字符数 	*/
 		size_t seg_count = 0;			/**< 段的个数-1		*/
 		bool compress_flag = false;		/**< 是否存在0压缩    	*/
-		for(auto c : addr) {
-			if(c == ':') {
-				if(s_count == 0) {
+		for(auto c : addr) 
+        {
+			if(c == ':') 
+            {
+				if(s_count == 0) 
+                {
 					if(compress_flag)
 						return false;
 					compress_flag = true;	
@@ -188,18 +224,22 @@ isValidIPAddress(const std::string& addr)
 			++s_count;
 			if(s_count > 4)
 				return false;
-		}
+	    }
 		if(s_count == 0 && compress_flag)
 			return false;
 		if(seg_count < 8)
 			return true;
-	} else if(addr.find('.') != addr.npos) {	/**< ipv4 */
+    } 
+    else if(addr.find('.') != addr.npos)    /**< ipv4 */
+    {	
 		const static std::string number("0123456789");
 		size_t s_count = 0;
 		size_t dot_count = 0;
 		std::string ip_seg;
-		for(auto c : addr) {
-			if(c == '.') {
+		for(auto c : addr) 
+        {
+			if(c == '.') 
+            {
 				if(s_count == 0)
 					return false;
 				if(boost::lexical_cast<size_t>(ip_seg) > 255)
@@ -222,8 +262,7 @@ isValidIPAddress(const std::string& addr)
 	return false;
 }
 
-bool
-isDomainMatch(const std::string& url, std::string base)
+bool isDomainMatch(const std::string& url, std::string base)
 {
 	if(base[0] == '.')
 		base = base.substr(1, base.size());
@@ -246,8 +285,7 @@ isDomainMatch(const std::string& url, std::string base)
 	return true;
 }
 
-bool
-isPathMatch(std::string path, std::string base)
+bool isPathMatch(std::string path, std::string base)
 {
 	if(base == "")
 		return true;

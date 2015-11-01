@@ -2,12 +2,14 @@
 
 #include <string>
 
-namespace ahttpd {
+namespace ahttpd 
+{
 
 /**
  * \brief Request或Response中头的键-值对
  */ 
-struct header_t {
+struct header_t 
+{
 	std::string name;
 	std::string value;
 };

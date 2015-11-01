@@ -12,6 +12,10 @@ enqueue##op([=, ptr = shared_from_this()] {							\
 	func(__VA_ARGS__, handle);								\
 })
 
+Connection::~Connection() 
+{
+}
+
 void 
 Connection::asyncRead(std::function<size_t(const error_code &, size_t)> completion,
 	std::function<void(const error_code &, size_t)> handler) 
