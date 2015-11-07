@@ -146,4 +146,4 @@ bool isValidIPAddress(const std::string& addr);
 bool isDomainMatch(const std::string& addr, std::string base);
 bool isPathMatch(std::string path, std::string base);
 
-}	/**< namespace ahttpd */
+}       /**< namespace ahttpd */
