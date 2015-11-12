@@ -1,7 +1,7 @@
 SET(TEST_SOURCES
 	test.cc
 #	request/request.cc
-	connection/connection.cc
+#	connection/connection.cc
 #	client/client.cc
 #	client/client_check_cookie.cc
 #	mime/mime.cc
@@ -19,7 +19,7 @@ SET(TEST_SOURCES
 #	parser/parser.cc
 #	net/net.cc
 #	fcgi/fcgi.cc
-#	mail/mail.cc
+	mail/mail.cc
 )
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../src)

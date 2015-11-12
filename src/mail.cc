@@ -1,5 +1,6 @@
 #include "base64.hh"
 #include "mail.hh"
+#include "AsyncWrapper.hh"
 #include "TcpConnection.hh"
 #include "SslConnection.hh"
 #include <string>
@@ -28,8 +29,7 @@ check_response_code(boost::asio::streambuf& buf, int expected_code)
 	return true;
 }
 
-void 
-step(const std::string& message, 
+void step(const std::string& message, 
 	int expected_code,
 	ConnectionPtr conn, 
 	std::function<void(bool)> handler) 
@@ -99,13 +99,13 @@ void Mail::apply()
 	service_.reset();
 }
 
-#define CHECK(cond)						\
-do {								\
-	if(!(cond)) {						\
+#define CHECK(cond)						                \
+do {								                    \
+	if(!(cond)) {						                \
 		Log("DEBUG") << __FILE__ << ":" << __LINE__;	\
-		handler(false);					\
-		return;						\
-	}							\
+		handler(false);					                \
+		DEBUG_THROW(Exception, "CHECK FAILED");			\
+	}							                        \
 } while(0)
 
 Mail& Mail::send(const std::string& to_addr, 
@@ -122,37 +122,49 @@ Mail& Mail::send(const std::string& to_addr,
 		conn = std::make_shared<TcpConnection>(service_);
 	}
 
-	conn->asyncConnect(server_, port_, [=](ConnectionPtr conn) 
+    try 
     {
-		CHECK(conn);
-		conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
+        asyncWrap([=](auto callback)
         {
-			if(ec) 
+            conn->asyncConnect(server_, port_, callback);
+        }).then([=](auto callback, ConnectionPtr conn) 
+        {
+    		CHECK(conn);
+            conn->asyncReadUntil("\n", callback);
+        }).then([=](auto callback, const boost::system::error_code& ec, size_t) 
+        {
+            if(ec) 
             {
-				Log("DEBUG") << __FILE__ << ":" << __LINE__;
-				Log("ERROR") << ec.message();
-				handler(false);
-				return;
-			}
-			conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
-            {
-				CHECK(check_response_code(conn->readBuffer(), 220));
-				sayHello(conn, [=](bool good) 
-                {
-					CHECK(good);
-					rcptTo(to_addr, conn, [=](bool good) 
-                    {
-						CHECK(good);
-						sendData(conn, send_handler, [=](bool good) 
-                        {
-							CHECK(good);
-							step("", 250, conn, handler);
-						});
-					});
-				});
-			});
-		});
-	});
+                Log("DEBUG") << __FILE__ << ":" << __LINE__;
+                Log("ERROR") << ec.message();
+                handler(false);
+                DEBUG_THROW(Exception, "");
+            }
+
+            conn->asyncReadUntil("\n", callback);
+        }).then([=](auto callback, const boost::system::error_code& ec, size_t) 
+        {
+            CHECK(check_response_code(conn->readBuffer(), 220));
+            this->sayHello(conn, callback);                 /**< WORKAROUND */
+        }).then([=](auto callback, bool good)
+        {
+            CHECK(good);
+            this->rcptTo(to_addr, conn, callback);
+        }).then([=](auto callback, bool good)
+        { 
+            CHECK(good);
+            this->sendData(conn, send_handler, callback);
+        }).then([=](bool good) 
+        {
+            CHECK(good);
+            step("", 250, conn, handler);
+        }).apply();
+    }
+    catch(Exception& e)
+    {
+        Log("ERROR") << e;    
+    }
+
 	return *this;
 }
 						
