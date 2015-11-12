@@ -18,8 +18,7 @@ script:
         - sh gcc-4.8-fix.sh
         - mkdir build; pushd build;
         - cmake -D CMAKE_CXX_FLAGS=--coverage .. && make debug
-#暂时不在CI上跑测试
-#        - make run_test
+        - make run_test
         - popd;
 
 after_success:
