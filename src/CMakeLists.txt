@@ -18,28 +18,32 @@ SET(SHTTPD_SRCS SHARED
     TcpConnection.cc
     exception.cc
 )
+
+INCLUDE_DIRECTORIES(../inc)
 ADD_LIBRARY(ahttpd ${SHTTPD_SRCS})
 TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)
+
 INSTALL(TARGETS ahttpd LIBRARY DESTINATION lib)
 INSTALL(FILES
-	ahttpd.hh
-	log.hh
-	header.hh
-	package.hh
-	ptrs.hh
-	RequestHandler.hh
-	request.hh
-	response.hh
-	server.hh
-	client.hh
-	MimeType.hh
-	ThreadPool.hh
-	base64.hh
-	exception.hh
-	mail.hh
-	cookie.hh
-	utils.hh
-	net.hh
-	fcgi.hh
+	../inc/ahttpd.hh
+	../inc/log.hh
+	../inc/header.hh
+	../inc/package.hh
+	../inc/ptrs.hh
+	../inc/RequestHandler.hh
+	../inc/request.hh
+	../inc/response.hh
+	../inc/server.hh
+	../inc/client.hh
+	../inc/MimeType.hh
+	../inc/ThreadPool.hh
+	../inc/base64.hh
+	../inc/exception.hh
+	../inc/mail.hh
+	../inc/cookie.hh
+	../inc/utils.hh
+	../inc/net.hh
+	../inc/fcgi.hh
 	DESTINATION include/ahttpd
 )
+

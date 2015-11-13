@@ -1,3 +1,3 @@
 ADD_EXECUTABLE(WebServer WebServer.cc)
-INCLUDE_DIRECTORIES(../../src)
+INCLUDE_DIRECTORIES(../../inc)
 TARGET_LINK_LIBRARIES(WebServer ahttpd)

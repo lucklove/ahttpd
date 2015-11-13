@@ -17,12 +17,13 @@ public:
     {
     }
 
-    template <typename FuncT>
-    auto then(FuncT callback)
+    template <typename... FuncTs>
+    auto then(FuncTs... callbacks)
     {
         return asyncWrap([=](auto... ps)
         {
-            async_func_([=](auto... params){ return callback(ps..., params...);});
+            auto callback_wrapper = [=](auto callback){ return [=](auto... params){ return callback(ps..., params...); }; };
+            async_func_(callback_wrapper(callbacks)...);
         });
     }
 

@@ -145,7 +145,7 @@ Mail& Mail::send(const std::string& to_addr,
         }).then([=](auto callback, const boost::system::error_code& ec, size_t) 
         {
             CHECK(check_response_code(conn->readBuffer(), 220));
-            this->sayHello(conn, callback);                 /**< WORKAROUND */
+            this->sayHello(conn, callback);
         }).then([=](auto callback, bool good)
         {
             CHECK(good);

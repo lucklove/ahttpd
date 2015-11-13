@@ -19,9 +19,11 @@ SET(TEST_SOURCES
 #	parser/parser.cc
 #	net/net.cc
 #	fcgi/fcgi.cc
-	mail/mail.cc
+#	mail/mail.cc
+    AsyncWrapper/AsyncWrapper.cc
 )
+
+INCLUDE_DIRECTORIES(../inc)
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
-INCLUDE_DIRECTORIES(../src)
 TARGET_LINK_LIBRARIES(ahttpd_test ahttpd boost_system ssl crypto pthread)
 ADD_CUSTOM_TARGET(run_test COMMAND ${CMAKE_BINARY_DIR}/test/ahttpd_test DEPENDS ahttpd_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
