@@ -32,36 +32,40 @@ const char* TcpConnection::type()
 { 
     return "tcp"; 
 }
-	
+    
 void TcpConnection::asyncConnect(const std::string& host, 
         const std::string& port,
-		std::function<void(ConnectionPtr)> handler)
+        std::function<void(ConnectionPtr)> handler)
 {
     ::boost::asio::ip::tcp::resolver::query query(host, port);
     resolver_.async_resolve(query,
         [=, ptr = shared_from_this()](const ::boost::system::error_code& err,
-            ::boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
-			if(err) {
-				Log("DEBUG") << __FILE__ << ":" << __LINE__;
-				Log("ERROR") << err.message();
-				Log("DEBUG") << "host: " << host << " port: " << port;
-				handler(nullptr);
-			} else {
-				::boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
-				nativeSocket().async_connect(endpoint,
-					std::bind(&TcpConnection::handle_connect, this, std::placeholders::_1, 
-						++endpoint_iterator, handler, ptr));
-			}
-		}
-	);
-}		
+            ::boost::asio::ip::tcp::resolver::iterator endpoint_iterator) 
+    {
+            if(err) 
+            {
+                Log("DEBUG") << __FILE__ << ":" << __LINE__;
+                Log("ERROR") << err.message();
+                Log("DEBUG") << "host: " << host << " port: " << port;
+                handler(nullptr);
+            } 
+            else 
+            {
+                ::boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
+                nativeSocket().async_connect(endpoint,
+                    std::bind(&TcpConnection::handle_connect, this, std::placeholders::_1, 
+                        ++endpoint_iterator, handler, ptr));
+            }
+        }
+    );
+}        
 
 void TcpConnection::async_read_until(const std::string& delim, 
     std::function<void(const ::boost::system::error_code &, size_t)> handler)
 {
     ::boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
 }
-	
+    
 void TcpConnection::async_read(
     std::function<size_t(const ::boost::system::error_code &, size_t)> completion,
     std::function<void(const ::boost::system::error_code &, size_t)> handler)

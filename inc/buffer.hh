@@ -10,4 +10,4 @@ namespace ahttpd
  */ 
 using buffer_t = ::boost::asio::streambuf;
 
-}	/**< namespace ahttpd */
+}    /**< namespace ahttpd */

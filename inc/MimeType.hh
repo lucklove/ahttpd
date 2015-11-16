@@ -10,4 +10,4 @@ namespace ahttpd
  */
 std::string guessMimeType(const std::string& path);
 
-}	/**< namespace ahttpd */
+}    /**< namespace ahttpd */

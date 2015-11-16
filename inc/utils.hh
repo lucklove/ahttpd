@@ -8,33 +8,33 @@
 namespace ahttpd {
 
 struct BufferOverflow : Exception {
-	using Exception::Exception;
+    using Exception::Exception;
     ~BufferOverflow() override;
 };
 
 struct TokenError : Exception {
-	using Exception::Exception;
+    using Exception::Exception;
     ~TokenError() override;
 };
 
 inline std::string
 localTime(time_t t)
 {
-	char lc_time[64] = { 0 };
-	struct tm *lct = localtime(&t);
-	if(!strftime(lc_time, sizeof(lc_time), "%a, %d-%h-%G %H:%M:%S", lct))
-		DEBUG_THROW(BufferOverflow, "while get local time");
-	return lc_time;
+    char lc_time[64] = { 0 };
+    struct tm *lct = localtime(&t);
+    if(!strftime(lc_time, sizeof(lc_time), "%a, %d-%h-%G %H:%M:%S", lct))
+        DEBUG_THROW(BufferOverflow, "while get local time");
+    return lc_time;
 }
 
 inline std::string
 gmtTime(time_t t)
 {
-	char gmt_time[64] = { 0 };
-	struct tm *gmt = gmtime(&t);
-	if(!strftime(gmt_time, sizeof(gmt_time), "%a, %d-%h-%G %H:%M:%S", gmt))
-		DEBUG_THROW(BufferOverflow, "while get gmt time");
-	return gmt_time;
+    char gmt_time[64] = { 0 };
+    struct tm *gmt = gmtime(&t);
+    if(!strftime(gmt_time, sizeof(gmt_time), "%a, %d-%h-%G %H:%M:%S", gmt))
+        DEBUG_THROW(BufferOverflow, "while get gmt time");
+    return gmt_time;
 }
 
 template<typename _type, typename... _tParams>
@@ -87,11 +87,11 @@ template<typename _tContainer, typename _tItem>
 std::vector<_tContainer> 
 explode(_tContainer& c, const _tItem& item, const _tItem& lefts...)
 {
-	for(auto& it : c) {
-		if(it == item)
-			it = peek(lefts);
-	}
-	return explode(c, lefts);	
+    for(auto& it : c) {
+        if(it == item)
+            it = peek(lefts);
+    }
+    return explode(c, lefts);    
 }
 
 /**
@@ -100,29 +100,29 @@ explode(_tContainer& c, const _tItem& item, const _tItem& lefts...)
 class StringTokenizer
 {
 public:
-	StringTokenizer(std::string str, char delim1, char lefts...)
-		:tokens(explode(str, delim1, lefts)) {}
+    StringTokenizer(std::string str, char delim1, char lefts...)
+        :tokens(explode(str, delim1, lefts)) {}
 
-	/**
-	 * \param str The string to be splited.
-	 * \param delim Dest string was splited by this charactor.
-	 */ 
-	StringTokenizer(std::string str, char delim = ' ')
-		:tokens(explode(str, delim)) {}
+    /**
+     * \param str The string to be splited.
+     * \param delim Dest string was splited by this charactor.
+     */ 
+    StringTokenizer(std::string str, char delim = ' ')
+        :tokens(explode(str, delim)) {}
 
         StringTokenizer() = default;
         StringTokenizer(const StringTokenizer &) = default;
 
-	/**
-	 * \brief Check if there are more tokens in the tokenizer.
-	 * \return If have, true, else, false.
-	 */
+    /**
+     * \brief Check if there are more tokens in the tokenizer.
+     * \return If have, true, else, false.
+     */
         bool hasMoreTokens() { return !tokens.empty(); }
 
-	/**
-	 * \brief Get next token in the tokenizer.
-	 * \return Next token.
-	 */
+    /**
+     * \brief Get next token in the tokenizer.
+     * \return Next token.
+     */
         std::string nextToken()
         {
                 if(tokens.empty())

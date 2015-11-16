@@ -10,8 +10,8 @@ namespace ahttpd
  */ 
 struct header_t 
 {
-	std::string name;
-	std::string value;
+    std::string name;
+    std::string value;
 };
 
-}	/**< namespace ahttpd */
+}    /**< namespace ahttpd */

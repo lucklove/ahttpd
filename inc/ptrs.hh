@@ -41,4 +41,4 @@ using ResponsePtr = std::shared_ptr<Response>;
 class MailPkg;
 using MailPkgPtr = std::shared_ptr<MailPkg>;
 
-}	/**< namespace ahttpd */
+}    /**< namespace ahttpd */

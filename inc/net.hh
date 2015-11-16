@@ -15,7 +15,7 @@ namespace ahttpd
  * \param handler 处理函数，接收产生的ConnectionPtr
  */ 
 void TcpConnect(boost::asio::io_service& service, const std::string& host,
-	const std::string& port, std::function<void(ConnectionPtr)> handler);
+    const std::string& port, std::function<void(ConnectionPtr)> handler);
 
 /**
  * \biref SslConnection的工具函数，用于发起ssl连接并生成ConnectionPtr
@@ -25,7 +25,7 @@ void TcpConnect(boost::asio::io_service& service, const std::string& host,
  * \param handler 处理函数，接收产生的ConnectionPtr
  */ 
 void SslConnect(boost::asio::io_service& service, const std::string& host,
-	const std::string& port, std::function<void(ConnectionPtr)> handler);
+    const std::string& port, std::function<void(ConnectionPtr)> handler);
 
 /**
  * \brief 隧道，将两个连接对接在一起，使它们的对端可以直接通讯
@@ -34,4 +34,4 @@ void SslConnect(boost::asio::io_service& service, const std::string& host,
  */ 
 void tunnel(ConnectionPtr conn1, ConnectionPtr conn2);
 
-}	/**< namespace ahttpd */
+}    /**< namespace ahttpd */
