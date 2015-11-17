@@ -47,7 +47,6 @@ void step(const std::string& message,
                 } 
                 else 
                 {                                
-                    Log("DEBUG") << __FILE__ << ":" << __LINE__;            
                     Log("ERROR") << ec.message();                    
                     handler(false);                            
                 }                                    
@@ -55,7 +54,6 @@ void step(const std::string& message,
         } 
         else 
         {                                        
-            Log("DEBUG") << __FILE__ << ":" << __LINE__;
             Log("ERROR") << ec.message();                    
             handler(false);                                    
         }                                            

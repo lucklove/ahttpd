@@ -22,7 +22,14 @@ public:
     {
         return asyncWrap([=](auto... ps)
         {
-            auto callback_wrapper = [=](auto callback){ return [=](auto... params){ return callback(ps..., params...); }; };
+            /** FIXME: internal compiler error in gcc */
+            auto callback_wrapper = [=](auto callback)
+            {   
+                return [=](auto&&... params)
+                { 
+                    return callback(ps..., std::forward<decltype(params)>(params)...); 
+                }; 
+            };
             async_func_(callback_wrapper(callbacks)...);
         });
     }
