@@ -1,4 +1,4 @@
-SET(SHTTPD_SRCS SHARED
+SET(AHTTPD_SRCS SHARED
     package.cc
     connection.cc 
     response.cc 
@@ -20,7 +20,7 @@ SET(SHTTPD_SRCS SHARED
 )
 
 INCLUDE_DIRECTORIES(../inc)
-ADD_LIBRARY(ahttpd ${SHTTPD_SRCS})
+ADD_LIBRARY(ahttpd ${AHTTPD_SRCS})
 TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)
 
 INSTALL(TARGETS ahttpd LIBRARY DESTINATION lib)
