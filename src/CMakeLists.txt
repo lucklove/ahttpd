@@ -21,7 +21,7 @@ SET(AHTTPD_SRCS SHARED
 
 INCLUDE_DIRECTORIES(../inc)
 ADD_LIBRARY(ahttpd ${AHTTPD_SRCS})
-TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system)
+TARGET_LINK_LIBRARIES(ahttpd ssl crypto pthread boost_system boost_regex)
 
 INSTALL(TARGETS ahttpd LIBRARY DESTINATION lib)
 INSTALL(FILES

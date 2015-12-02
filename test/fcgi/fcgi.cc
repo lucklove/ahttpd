@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hh"
 #include "server.hh"
 #include "fcgi.hh"
 #include "client.hh"
@@ -13,7 +13,7 @@ struct FcgiTestServer : RequestHandler {
     Server *server_;
 };
 
-BOOST_AUTO_TEST_CASE(fcgi_test)
+TEST_CASE(fcgi_test)
 {
     std::stringstream config("{\"http port\": \"8888\"}");
     Server server(config);
@@ -22,11 +22,11 @@ BOOST_AUTO_TEST_CASE(fcgi_test)
     Client c(server.service());
     c.request("GET", "localhost:8888/no_such_file.php", 
         [&](ResponsePtr res) {
-            BOOST_CHECK(res->getStatus() == 500);
+            TEST_CHECK(res->getStatus() == 500);
             system("sudo php-fpm");
             c.request("GET", "localhost:8888/no_such_file.php", 
                 [&](ResponsePtr res) {
-                    BOOST_CHECK(res->getStatus() == 404);
+                    TEST_CHECK(res->getStatus() == 404);
                     server.stop();
                     system("sudo killall php-fpm");
                 }

@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hh"
 #include "exception.hh"
 #include "log.hh"
 
@@ -8,7 +8,7 @@ struct TestException : Exception {
     using Exception::Exception;
 };
 
-BOOST_AUTO_TEST_CASE(exception_test)
+TEST_CASE(exception_test)
 {
     try {
         DEBUG_THROW(TestException, "Just test Exception, don't worry, nothing bad");

@@ -1,7 +1,9 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hh"
 #include "client.hh"
 #include "server.hh"
 #include "response.hh"
+
+#include <boost/asio.hpp>
 
 using namespace ahttpd;
 
@@ -23,30 +25,30 @@ struct EchoCookie : RequestHandler {
 
 struct EchoBody : RequestHandler {
     void handleRequest(RequestPtr req, ResponsePtr res) {
-        BOOST_REQUIRE(req->getMethod() == "POST");
+        TEST_REQUIRE(req->getMethod() == "POST");
         res->out() << req->in().rdbuf();
     }
 };
 
-BOOST_AUTO_TEST_CASE(client_request_test)
+TEST_CASE(client_request_test)
 {
     Client c;
     c.request("GET", "http://www.example.com",
         [](ResponsePtr res) {
-            BOOST_REQUIRE(res);
-            BOOST_CHECK(res->getStatus() == Response::Ok);
+            TEST_REQUIRE(res);
+            TEST_CHECK(res->getStatus() == Response::Ok);
         }
     );
     c.request("GET", "https://www.example.com",    
         [](ResponsePtr res) {
-            BOOST_REQUIRE(res);
-            BOOST_CHECK(res->getStatus() == Response::Ok);
+            TEST_REQUIRE(res);
+            TEST_CHECK(res->getStatus() == Response::Ok);
         }
     );
     c.apply();
 }
 
-BOOST_AUTO_TEST_CASE(client_request_chunked_body_test)
+TEST_CASE(client_request_chunked_body_test)
 {
     std::stringstream config("{\"http port\":\"8888\"}");
     Server s(config);
@@ -55,16 +57,16 @@ BOOST_AUTO_TEST_CASE(client_request_chunked_body_test)
     Client c(s.service());
     c.request("POST", "http://localhost:8888/echo",
         [&](ResponsePtr res) {
-            BOOST_REQUIRE(res);
-            BOOST_CHECK(res->getStatus() == Response::Ok);
+            TEST_REQUIRE(res);
+            TEST_CHECK(res->getStatus() == Response::Ok);
             std::stringstream ss;
             ss << res->in().rdbuf();
-            BOOST_CHECK(ss.str() == "this is a chunked body");
+            TEST_CHECK(ss.str() == "this is a chunked body");
             Log("NOTE") << ss.str();
             s.stop();
         },
         [](RequestPtr req) {
-            BOOST_REQUIRE(req);
+            TEST_REQUIRE(req);
             req->out() << "this ";
             req->flush();
             req->out() << "is ";
@@ -80,7 +82,7 @@ BOOST_AUTO_TEST_CASE(client_request_chunked_body_test)
     s.run();
 }
 
-BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
+TEST_CASE(client_cookie_muti_test)
 {
     std::stringstream config("{\"http port\":\"8888\"}");
     Server s(config);
@@ -97,7 +99,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
             std::stringstream ss;
             ss << res->out().rdbuf();
-            BOOST_CHECK(ss.str() == "key1=val1; key2=val2; key3=val3");
+            TEST_CHECK(ss.str() == "key1=val1; key2=val2; key3=val3");
             Log("NOTE") << ss.str();
             s.stop();
         });
@@ -105,7 +107,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_muti_test)
     s.run();
 }
 
-BOOST_AUTO_TEST_CASE(client_cookie_expires_test)
+TEST_CASE(client_cookie_expires_test)
 {
     std::stringstream config("{\"http port\":\"8888\"}");
     Server s(config);
@@ -122,7 +124,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_expires_test)
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
             std::stringstream ss;
             ss << res->out().rdbuf();
-            BOOST_CHECK(ss.str() == "key2=val2");
+            TEST_CHECK(ss.str() == "key2=val2");
             Log("NOTE") << ss.str();
             s.stop();
         });
@@ -130,7 +132,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_expires_test)
     s.run();
 }
 
-BOOST_AUTO_TEST_CASE(client_cookie_path_test)
+TEST_CASE(client_cookie_path_test)
 {
     std::stringstream config("{\"http port\":\"8888\"}");
     Server s(config);
@@ -149,7 +151,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_path_test)
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
             std::stringstream ss;
             ss << res->out().rdbuf();
-            BOOST_CHECK(ss.str() == "key1=val1; key3=val3; key5=val5");
+            TEST_CHECK(ss.str() == "key1=val1; key3=val3; key5=val5");
             Log("NOTE") << ss.str();
             s.stop();
         });
@@ -157,7 +159,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_path_test)
     s.run();
 }
 
-BOOST_AUTO_TEST_CASE(client_cookie_domain_test)
+TEST_CASE(client_cookie_domain_test)
 {
     std::stringstream config("{\"http port\":\"8888\"}");
     Server s(config);
@@ -175,7 +177,7 @@ BOOST_AUTO_TEST_CASE(client_cookie_domain_test)
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
             std::stringstream ss;
             ss << res->out().rdbuf();
-            BOOST_CHECK(ss.str() == "key2=val2; key3=val3");
+            TEST_CHECK(ss.str() == "key2=val2; key3=val3");
             Log("NOTE") << ss.str();
             s.stop();
         });

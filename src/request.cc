@@ -2,7 +2,7 @@
 #include "connection.hh"
 #include "utils.hh"
 #include "base64.hh"
-#include <regex>
+#include <boost/regex.hpp>
 
 namespace ahttpd {
 
@@ -10,9 +10,9 @@ namespace {
 
 std::string auth_info(const std::string auth)
 {
-    static const std::regex basic_auth_reg("[Bb]asic ([[:print:]]*)");
-    std::smatch results;
-    if(std::regex_search(auth, results, basic_auth_reg)) 
+    static const boost::regex basic_auth_reg("[Bb]asic ([[:print:]]*)");
+    boost::smatch results;
+    if(boost::regex_search(auth, results, basic_auth_reg)) 
     {
         return Base64::decode(results.str(1));
     } 

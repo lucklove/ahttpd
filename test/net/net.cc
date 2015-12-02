@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hh"
 #include <boost/asio.hpp>
 #include <mutex>
 #include <queue>
@@ -9,33 +9,33 @@
 
 using namespace ahttpd;
 
-BOOST_AUTO_TEST_CASE(tcp_connect_test)
+TEST_CASE(tcp_connect_test)
 {
     boost::asio::io_service service;
     TcpConnect(service, "www.example.com", "80",
         [](ConnectionPtr conn) {
-            BOOST_REQUIRE(conn);
+            TEST_REQUIRE(conn);
         }
     );
     TcpConnect(service, "localhost", "12345",
         [](ConnectionPtr conn) {
-            BOOST_CHECK(!conn);
+            TEST_CHECK(!conn);
         }
     );
     service.run();
 }
 
-BOOST_AUTO_TEST_CASE(ssl_connect_test)
+TEST_CASE(ssl_connect_test)
 {
     boost::asio::io_service service;
     SslConnect(service, "www.example.com", "443",
         [](ConnectionPtr conn) {
-            BOOST_REQUIRE(conn);
+            TEST_REQUIRE(conn);
         }
     );
     SslConnect(service, "localhost", "12345",
         [](ConnectionPtr conn) {
-            BOOST_CHECK(!conn);
+            TEST_CHECK(!conn);
         }
     );
     service.run();
@@ -47,7 +47,7 @@ struct MockConnection : Connection {
     bool stoped_{};
     void stop() override { stoped_ = true; }
     bool stoped() override { return stoped_; }
-    const char* type() { return "test"; }    
+    const char* type() override { return "test"; }    
 
     void asyncConnect(const std::string& host, const std::string& port,
         std::function<void(ConnectionPtr)> handler) override {
@@ -77,13 +77,13 @@ struct MockConnection : Connection {
             handler(boost::asio::error::broken_pipe, 0);
             return;
         }
-        BOOST_CHECK(msg == recv_queue.front());
+        TEST_CHECK(msg == recv_queue.front());
         recv_queue.pop();
         handler({}, 1);
     }
 };
 
-BOOST_AUTO_TEST_CASE(tunnel_test)
+TEST_CASE(tunnel_test)
 {
     const char *queue[] = { "queue1", "queue2", "queue3", "queue4" };
 

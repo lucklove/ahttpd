@@ -1,10 +1,10 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hh"
 #include "ThreadPool.hh"
 #include "log.hh"
 
 using namespace ahttpd;
 
-BOOST_AUTO_TEST_CASE(thread_pool_test)
+TEST_CASE(thread_pool_test)
 {
     ThreadPool pool(1, []{ 
         Log("NOTE") << "task start(thread pool)";
@@ -15,10 +15,10 @@ BOOST_AUTO_TEST_CASE(thread_pool_test)
     pool.enqueue([&]{ 
         Log("NOTE") << "do task(thread pool)";
         flag = true;    
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     });
-    BOOST_CHECK(pool.size());
+    TEST_CHECK(pool.size());
     Log("NOTE") << "pool.size() = " << pool.size();
-    sleep(3);
-    BOOST_CHECK(flag);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    TEST_CHECK(flag);
 }

@@ -1,10 +1,10 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hh"
 #include "mail.hh"
 #include "utils.hh"
 
 using namespace ahttpd;
 
-BOOST_AUTO_TEST_CASE(mail_test)
+TEST_CASE(mail_test)
 {
     Mail m("ahttpd@163.com", "smtp.163.com", "465", true);
     m.pass("jybhsrapkkjeeddu").send("1041324091@qq.com", 
@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE(mail_test)
         },
         [=](bool good) {
             Log("NOTE") << "check mail result";
-            BOOST_CHECK(good);
+            TEST_CHECK(good);
         }
     ).apply();
 }

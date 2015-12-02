@@ -48,8 +48,6 @@ private:
 
     boost::asio::io_service& service_;
 
-    std::shared_ptr<boost::asio::io_service> service_holder_;
-
     boost::asio::ssl::context* ssl_context_;
 
     std::vector<response_cookie_t> cookie_jar_;

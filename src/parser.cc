@@ -3,7 +3,7 @@
 #include "log.hh"
 #include "utils.hh"
 #include "connection.hh"
-#include <regex>
+#include <boost/regex.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -27,8 +27,8 @@ void parse_headers(Pac_t pac, Handle_t handler)
             handler(nullptr);
             return;
         }
-        static const std::regex key_val_reg("([[:print:]]+): ([[:print:]]*)");
-        std::smatch results;
+        static const boost::regex key_val_reg("([[:print:]]+): ([[:print:]]*)");
+        boost::smatch results;
         std::istream in(&pac->connection()->readBuffer());
         std::string line;
         getline(in, line);
@@ -37,7 +37,7 @@ void parse_headers(Pac_t pac, Handle_t handler)
             handler(pac);
             return;
         }
-        if(std::regex_search(line, results, key_val_reg))
+        if(boost::regex_search(line, results, key_val_reg))
             pac->addHeader(results.str(1), results.str(2));
         parse_headers(pac, handler);
     });                
@@ -257,12 +257,12 @@ void parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)>
             handler(nullptr);
             return;
         }
-        std::smatch results;
-        static const std::regex first_line_reg("([[:print:]]*) ([0-9]*) (((?!\r)[[:print:] ])*)");
+        boost::smatch results;
+        static const boost::regex first_line_reg("([[:print:]]*) ([0-9]*) (((?!\r)[[:print:] ])*)");
         std::istream in(&res->connection()->readBuffer());
         std::string line;
         getline(in, line);
-        if(std::regex_search(line, results, first_line_reg)) 
+        if(boost::regex_search(line, results, first_line_reg)) 
         {
             res->setVersion(results.str(1));
             try 

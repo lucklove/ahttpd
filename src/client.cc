@@ -5,7 +5,7 @@
 #include "SslConnection.hh"
 #include "TcpConnection.hh"
 #include "utils.hh"
-#include <regex>
+#include <boost/regex.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/algorithm/string.hpp> 
 #include <cstdio>
@@ -13,17 +13,26 @@
 namespace ahttpd 
 {
 
+struct ClientImpl
+{
+    static boost::asio::io_service& common_service()
+    {
+        static boost::asio::io_service service;
+        if(service.stopped())
+            service.reset();
+        return service;
+    }
+};
+
 Client::Client(boost::asio::io_service& service)
      :service_(service) 
 {
     ssl_context_ = new boost::asio::ssl::context(boost::asio::ssl::context::sslv23);
     ssl_context_->set_default_verify_paths();
 }
-    
-Client::Client()
-     : Client(*(new boost::asio::io_service()))
+
+Client::Client() : Client(ClientImpl::common_service())
 {
-    service_holder_.reset(&service_);
 }
 
 Client::~Client() { delete ssl_context_; }
@@ -39,10 +48,10 @@ void Client::request(const std::string& method, const std::string& url,
     std::function<void(RequestPtr)> req_handler)
 {
     /** http://user:pass@server:port/path?query */
-    static const std::regex url_reg("(((http|https)://))?((((?!@).)*)@)?"
-        "(((?![/\\?]).)+)(.+)?", std::regex::icase);    
-    std::smatch results;
-    if(std::regex_search(url, results, url_reg)) 
+    static const boost::regex url_reg("(((http|https)://))?((((?!@).)*)@)?"
+        "(((?![/\\?]).)+)(.+)?", boost::regex::icase);    
+    boost::smatch results;
+    if(boost::regex_search(url, results, url_reg)) 
     {
         std::string scheme = "http";
 
@@ -66,8 +75,8 @@ void Client::request(const std::string& method, const std::string& url,
             path = "/" + path;
 
         std::string port = scheme == "https" ? "443" : "80";
-        static const std::regex host_port_reg("(((?!:).)*)(:([0-9]+))?");
-        if(std::regex_search(host, results, host_port_reg)) 
+        static const boost::regex host_port_reg("(((?!:).)*)(:([0-9]+))?");
+        if(boost::regex_search(host, results, host_port_reg)) 
         {
             host = results.str(1);
             if(results[4].matched)

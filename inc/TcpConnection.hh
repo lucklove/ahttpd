@@ -70,7 +70,7 @@ private:
         } 
         else 
         {
-            Log("ERROR") << "connect faild";
+            Log("ERROR") << "connect failed";
             handler(nullptr);
         }
     }

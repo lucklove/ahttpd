@@ -29,8 +29,7 @@ public:
       * \param config流，内容为json格式的配置信息
       * \param thread_pool_size Server内部的线程池大小
       */ 
-    explicit Server(std::istream& config,
-            size_t thread_pool_size = 10);
+    explicit Server(std::istream& config, size_t thread_pool_size = 10);
 
     /**
       * \biref ctor
@@ -39,9 +38,7 @@ public:
       * \param config流，内容为json格式的配置信息
       * \param thread_pool_size Server内部的线程池大小
       */ 
-    explicit Server(boost::asio::io_service& service,
-            std::istream& config,
-            size_t thread_pool_size = 10);
+    explicit Server(boost::asio::io_service& service, std::istream& config, size_t thread_pool_size = 10);
     ~Server();
 
     /**
@@ -106,9 +103,8 @@ public:
     }
 
 private:
-    std::shared_ptr<ServerImpl> pimpl_;
+    std::unique_ptr<ServerImpl> pimpl_;
     boost::asio::io_service& service_;
-    std::shared_ptr<boost::asio::io_service> service_holder_;
     RequestHandler request_handler_;
     size_t thread_pool_size_;
     ThreadPool thread_pool_;
