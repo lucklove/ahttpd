@@ -6,13 +6,15 @@ using namespace ahttpd;
 
 TEST_CASE(thread_pool_test)
 {
-    ThreadPool pool(1, []{ 
+    ThreadPool pool(1, []
+    { 
         Log("NOTE") << "task start(thread pool)";
     }, []{
         Log("NOTE") << "task end(thread pool)";
     });
     bool flag = false;
-    pool.enqueue([&]{ 
+    pool.enqueue([&]
+    { 
         Log("NOTE") << "do task(thread pool)";
         flag = true;    
         std::this_thread::sleep_for(std::chrono::milliseconds(200));

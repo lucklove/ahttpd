@@ -2,7 +2,7 @@
 
 namespace ahttpd 
 {
-using ::boost::system::error_code;
+using boost::system::error_code;
 
 #define ASYNC_APPLY(op, func, handler, ...)                             \
 enqueue##op([=, ptr = shared_from_this()]                               \

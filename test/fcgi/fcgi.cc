@@ -5,9 +5,11 @@
 
 using namespace ahttpd;
 
-struct FcgiTestServer : RequestHandler {
+struct FcgiTestServer : RequestHandler 
+{
     FcgiTestServer(Server *s) : server_(s) {}
-    void handleRequest(RequestPtr req, ResponsePtr res) override {
+    void handleRequest(RequestPtr req, ResponsePtr res) override 
+    {
         fcgi(server_->service(), "localhost", "9000", "/tmp/", req, res);
     }
     Server *server_;
@@ -20,12 +22,15 @@ TEST_CASE(fcgi_test)
     auto test = std::make_shared<FcgiTestServer>(&server);
     server.addHandler("/", test.get());
     Client c(server.service());
+
     c.request("GET", "localhost:8888/no_such_file.php", 
-        [&](ResponsePtr res) {
+        [&](ResponsePtr res) 
+        {
             TEST_CHECK(res->getStatus() == 500);
             system("sudo php-fpm");
             c.request("GET", "localhost:8888/no_such_file.php", 
-                [&](ResponsePtr res) {
+                [&](ResponsePtr res) 
+                {
                     TEST_CHECK(res->getStatus() == 404);
                     server.stop();
                     system("sudo killall php-fpm");

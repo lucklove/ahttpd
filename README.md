@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/lucklove/ahttpd.svg?branch=master)](https://travis-ci.org/lucklove/ahttpd)
-[![Coverage Status](https://coveralls.io/repos/lucklove/ahttpd/badge.svg?branch=master)](https://coveralls.io/r/lucklove/ahttpd?branch=master)
 http框架
 ===================
 

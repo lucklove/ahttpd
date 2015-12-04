@@ -32,7 +32,7 @@ const char* SslConnection::type()
     return "ssl"; 
 }
 
-::boost::asio::ip::tcp::socket& SslConnection::nativeSocket()
+boost::asio::ip::tcp::socket& SslConnection::nativeSocket()
 { 
     return socket_.next_layer(); 
 }
@@ -108,22 +108,22 @@ SslConnection::asyncConnect(const std::string& host, const std::string& port,
 }
 
 void SslConnection::async_read_until(const std::string& delim, 
-    std::function<void(const ::boost::system::error_code &, size_t)> handler)
+    std::function<void(const boost::system::error_code &, size_t)> handler)
 {
-    ::boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
+    boost::asio::async_read_until(socket_, readBuffer(), delim, handler);
 }
 
 void SslConnection::async_read(
-    std::function<size_t(const ::boost::system::error_code &, size_t)> completion,
-    std::function<void(const ::boost::system::error_code &, size_t)> handler)
+    std::function<size_t(const boost::system::error_code &, size_t)> completion,
+    std::function<void(const boost::system::error_code &, size_t)> handler)
 {
-    ::boost::asio::async_read(socket_, readBuffer(), completion, handler);
+    boost::asio::async_read(socket_, readBuffer(), completion, handler);
 }
 
 void SslConnection::async_write(const std::string& msg,
-    std::function<void(const ::boost::system::error_code&, size_t)> handler)
+    std::function<void(const boost::system::error_code&, size_t)> handler)
 {
-    ::boost::asio::async_write(socket_, ::boost::asio::buffer(msg), handler);
+    boost::asio::async_write(socket_, boost::asio::buffer(msg), handler);
 }
 
 }    /**< namespace ahttpd */

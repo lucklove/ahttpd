@@ -5,8 +5,10 @@
 
 using namespace ahttpd;
 
-struct SetCookie : RequestHandler {
-    void handleRequest(RequestPtr req, ResponsePtr res) {
+struct SetCookie : RequestHandler 
+{
+    void handleRequest(RequestPtr req, ResponsePtr res) 
+    {
         for(auto c : cookies)
             res->setCookie(c);    
     }
@@ -15,7 +17,6 @@ struct SetCookie : RequestHandler {
 
 TEST_CASE(client_cookie_simple_test)
 {
-/*
     std::stringstream config("{\"http port\":\"8888\"}");
     Server s(config);
     auto set_cookie = std::make_shared<SetCookie>();
@@ -23,7 +24,8 @@ TEST_CASE(client_cookie_simple_test)
     Client c(s.service());
     c.enableCookie();
     set_cookie->cookies.push_back(response_cookie_t().setKey("key1").setVal("val1"));
-    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
+    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) 
+    {
         auto cookie_jar = c.cookie_jar_;
         TEST_REQUIRE(cookie_jar.size());
         TEST_CHECK(cookie_jar[0].key == "key1");
@@ -36,5 +38,4 @@ TEST_CASE(client_cookie_simple_test)
         s.stop();
     });
     s.run();
-*/
 }

@@ -269,7 +269,7 @@ do                                                                              
     else                                                                        \
     {                                                                           \
         connection()->asyncWrite(version_ + " " +                               \
-            ::boost::lexical_cast<std::string>(status_) + " "                   \
+            boost::lexical_cast<std::string>(status_) + " "                     \
             + version_ + "\r\n");                                               \
     }                                                                           \
 }                                                                               \

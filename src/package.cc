@@ -23,7 +23,7 @@ Package::flushPackage()
         {
             auto h = getHeader("Content-Length");
             if(h == nullptr) 
-                addHeader("Content-Length", ::boost::lexical_cast<std::string>(contentLength()));
+                addHeader("Content-Length", boost::lexical_cast<std::string>(contentLength()));
         }
         for(auto h : getHeaderMap())
             send_buf << h.name << ": " << h.value << "\r\n";

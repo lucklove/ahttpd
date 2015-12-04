@@ -20,7 +20,7 @@ template<typename Pac_t, typename Handle_t>
 void parse_headers(Pac_t pac, Handle_t handler)
 {
     pac->connection()->asyncReadUntil("\n",
-        [=](const ::boost::system::error_code& err, size_t) 
+        [=](const boost::system::error_code& err, size_t) 
     {
         if(err) 
         {
@@ -49,7 +49,7 @@ void read_chunked_body(Pac_t pac, Handle_t handler)
     auto conn = pac->connection();
     if(!conn) return;
     conn->asyncReadUntil("\n",
-        [=](const ::boost::system::error_code& err, size_t) 
+        [=](const boost::system::error_code& err, size_t) 
     {
         if(err) 
         {
@@ -76,8 +76,8 @@ void read_chunked_body(Pac_t pac, Handle_t handler)
         }
         if(need_read > 0) 
         {
-            conn->asyncRead(::boost::asio::transfer_exactly(need_read),
-                [=](const ::boost::system::error_code& err, size_t n) 
+            conn->asyncRead(boost::asio::transfer_exactly(need_read),
+                [=](const boost::system::error_code& err, size_t n) 
             {
                 if(err || static_cast<int>(n) < need_read) 
                 { 
@@ -108,7 +108,7 @@ void read_chunked_body(Pac_t pac, Handle_t handler)
         }
 
         conn->asyncReadUntil("\n",
-            [=](const ::boost::system::error_code& err, size_t n) 
+            [=](const boost::system::error_code& err, size_t n) 
         {
             if(err) 
             {
@@ -154,9 +154,9 @@ void parse_body(Pac_t pac, Handle_t handler)
         size_t length = 0;
         try 
         {
-            length = ::boost::lexical_cast<size_t>(*h);
+            length = boost::lexical_cast<size_t>(*h);
         } 
-        catch(::boost::bad_lexical_cast &e) 
+        catch(boost::bad_lexical_cast &e) 
         {
             Log("DEBUG") << __FILE__ << ":" << __LINE__;
             Log("ERROR") << e.what();
@@ -187,8 +187,8 @@ void parse_body(Pac_t pac, Handle_t handler)
             return;
         }
 
-        pac->connection()->asyncRead(::boost::asio::transfer_exactly(need_read),
-            [=](const ::boost::system::error_code& err, size_t n) 
+        pac->connection()->asyncRead(boost::asio::transfer_exactly(need_read),
+            [=](const boost::system::error_code& err, size_t n) 
         {
             if(err || static_cast<int>(n) != need_read)         /**< 避免警告 */
             {    
@@ -204,7 +204,7 @@ void parse_body(Pac_t pac, Handle_t handler)
 void parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> handler)
 {
     req->connection()->asyncReadUntil("\n", 
-        [req, handler](const ::boost::system::error_code& err, size_t n) 
+        [req, handler](const boost::system::error_code& err, size_t n) 
     {
         if(err) 
         {
@@ -248,7 +248,7 @@ void parse_request_first_line(RequestPtr req, std::function<void(RequestPtr)> ha
 void parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)> handler)
 {
     res->connection()->asyncReadUntil("\n", 
-        [=](const ::boost::system::error_code& err, size_t n) 
+        [=](const boost::system::error_code& err, size_t n) 
     {
         if(err) 
         {
@@ -267,9 +267,9 @@ void parse_response_first_line(ResponsePtr res, std::function<void(ResponsePtr)>
             res->setVersion(results.str(1));
             try 
             {
-                res->setStatus(::boost::lexical_cast<Response::status_t>(results.str(2)));
+                res->setStatus(boost::lexical_cast<Response::status_t>(results.str(2)));
             } 
-            catch(::boost::bad_lexical_cast &e) 
+            catch(boost::bad_lexical_cast &e) 
             {
                 handler(nullptr);
                 return;

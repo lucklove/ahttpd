@@ -4,15 +4,19 @@
 
 using namespace ahttpd;
 
-struct TestException : Exception {
+struct TestException : Exception 
+{
     using Exception::Exception;
 };
 
 TEST_CASE(exception_test)
 {
-    try {
+    try 
+    {
         DEBUG_THROW(TestException, "Just test Exception, don't worry, nothing bad");
-    } catch(Exception& e) {
+    } 
+    catch(Exception& e) 
+    {
         Log("NOTE") << e;
     }
 }

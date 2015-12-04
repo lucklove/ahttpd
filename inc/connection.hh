@@ -39,14 +39,14 @@ public:
         std::function<void(ConnectionPtr)> handler) = 0;
 
     void asyncReadUntil(const std::string& delim, 
-        std::function<void(const ::boost::system::error_code &, size_t)> handler);
+        std::function<void(const boost::system::error_code &, size_t)> handler);
 
-    void asyncRead(std::function<size_t(const ::boost::system::error_code &, size_t)> completion,
-        std::function<void(const ::boost::system::error_code &, size_t)> handler);
+    void asyncRead(std::function<size_t(const boost::system::error_code &, size_t)> completion,
+        std::function<void(const boost::system::error_code &, size_t)> handler);
 
     void asyncWrite(const std::string& msg,
-        std::function<void(const ::boost::system::error_code&, size_t)> handler =
-            [](const ::boost::system::error_code& e, size_t n) 
+        std::function<void(const boost::system::error_code&, size_t)> handler =
+            [](const boost::system::error_code& e, size_t n) 
     {
         if(e) 
         {
@@ -135,14 +135,14 @@ private:
     }
 
     virtual void async_read_until(const std::string& delim, 
-        std::function<void(const ::boost::system::error_code &, size_t)> handler) = 0;
+        std::function<void(const boost::system::error_code &, size_t)> handler) = 0;
 
     virtual void async_read(
-        std::function<size_t(const ::boost::system::error_code &, size_t)> completion,
-        std::function<void(const ::boost::system::error_code &, size_t)> handler) = 0;
+        std::function<size_t(const boost::system::error_code &, size_t)> completion,
+        std::function<void(const boost::system::error_code &, size_t)> handler) = 0;
 
     virtual void async_write(const std::string& msg,
-        std::function<void(const ::boost::system::error_code&, size_t)> handler) = 0;
+        std::function<void(const boost::system::error_code&, size_t)> handler) = 0;
 };
 
 }    /**< namespace ahttpd */

@@ -8,23 +8,28 @@
 using namespace ahttpd;
 
 struct SetCookie : RequestHandler {
-    void handleRequest(RequestPtr req, ResponsePtr res) {
+    void handleRequest(RequestPtr req, ResponsePtr res) 
+    {
         for(auto c : cookies)
             res->setCookie(c);    
     }
     std::vector<response_cookie_t> cookies;
 };
 
-struct EchoCookie : RequestHandler {
-    void handleRequest(RequestPtr req, ResponsePtr res) {
+struct EchoCookie : RequestHandler 
+{
+    void handleRequest(RequestPtr req, ResponsePtr res) 
+    {
         auto cptr = req->getHeader("Cookie");
         if(cptr)
             res->out() << *cptr;
     }
 };
 
-struct EchoBody : RequestHandler {
-    void handleRequest(RequestPtr req, ResponsePtr res) {
+struct EchoBody : RequestHandler 
+{
+    void handleRequest(RequestPtr req, ResponsePtr res) 
+    {
         TEST_REQUIRE(req->getMethod() == "POST");
         res->out() << req->in().rdbuf();
     }
@@ -34,13 +39,15 @@ TEST_CASE(client_request_test)
 {
     Client c;
     c.request("GET", "http://www.example.com",
-        [](ResponsePtr res) {
+        [](ResponsePtr res) 
+        {
             TEST_REQUIRE(res);
             TEST_CHECK(res->getStatus() == Response::Ok);
         }
     );
     c.request("GET", "https://www.example.com",    
-        [](ResponsePtr res) {
+        [](ResponsePtr res) 
+        {
             TEST_REQUIRE(res);
             TEST_CHECK(res->getStatus() == Response::Ok);
         }
@@ -56,7 +63,8 @@ TEST_CASE(client_request_chunked_body_test)
     s.addHandler("/echo", echo_body.get());
     Client c(s.service());
     c.request("POST", "http://localhost:8888/echo",
-        [&](ResponsePtr res) {
+        [&](ResponsePtr res) 
+        {
             TEST_REQUIRE(res);
             TEST_CHECK(res->getStatus() == Response::Ok);
             std::stringstream ss;
@@ -65,7 +73,8 @@ TEST_CASE(client_request_chunked_body_test)
             Log("NOTE") << ss.str();
             s.stop();
         },
-        [](RequestPtr req) {
+        [](RequestPtr req) 
+        {
             TEST_REQUIRE(req);
             req->out() << "this ";
             req->flush();
@@ -95,8 +104,10 @@ TEST_CASE(client_cookie_muti_test)
     set_cookie->cookies.push_back(response_cookie_t().setKey("key3").setVal("val3").setMaxAge(10));
     Client c(s.service());
     c.enableCookie();
-    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
-        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
+    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) 
+    {
+        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
+        {
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key1=val1; key2=val2; key3=val3");
@@ -119,9 +130,11 @@ TEST_CASE(client_cookie_expires_test)
     set_cookie->cookies.push_back(response_cookie_t().setKey("key2").setVal("val2").setMaxAge(10));
     Client c(s.service());
     c.enableCookie();
-    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
+    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) 
+    {
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
+        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
+        {
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key2=val2");
@@ -147,8 +160,10 @@ TEST_CASE(client_cookie_path_test)
     set_cookie->cookies.push_back(response_cookie_t().setKey("key5").setVal("val5").setPath("/echo/").setMaxAge(10));
     Client c(s.service());
     c.enableCookie();
-    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
-        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
+    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) 
+    {
+        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
+        {
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key1=val1; key3=val3; key5=val5");
@@ -173,8 +188,10 @@ TEST_CASE(client_cookie_domain_test)
     set_cookie->cookies.push_back(response_cookie_t().setKey("key4").setVal("val4").setDomain("host").setMaxAge(10));
     Client c(s.service());
     c.enableCookie();
-    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) {
-        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) {
+    c.request("GET", "http://localhost:8888", [&](ResponsePtr res) 
+    {
+        c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
+        {
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key2=val2; key3=val3");

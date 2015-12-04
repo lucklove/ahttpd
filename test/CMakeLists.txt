@@ -18,12 +18,30 @@ SET(TEST_SOURCES
 	exception/exception.cc
 	parser/parser.cc
 	net/net.cc
-	fcgi/fcgi.cc
 	mail/mail.cc
     AsyncWrapper/AsyncWrapper.cc
 )
 
+SET(FCGI_TEST_SOURCES
+    test.cc
+    fcgi/fcgi.cc
+)
+
+SET(HTTPS_TEST_SOURCES
+    test.cc
+    server/https.cc
+)
+
 INCLUDE_DIRECTORIES(../inc .)
+
 ADD_EXECUTABLE(ahttpd_test ${TEST_SOURCES})
 TARGET_LINK_LIBRARIES(ahttpd_test ahttpd)
 ADD_CUSTOM_TARGET(run_test COMMAND ${CMAKE_BINARY_DIR}/test/ahttpd_test DEPENDS ahttpd_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+ADD_EXECUTABLE(fcgi_test ${FCGI_TEST_SOURCES})
+TARGET_LINK_LIBRARIES(fcgi_test ahttpd)
+ADD_CUSTOM_TARGET(run_fcgi_test COMMAND ${CMAKE_BINARY_DIR}/test/fcgi_test DEPENDS fcgi_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+ADD_EXECUTABLE(https_test ${HTTPS_TEST_SOURCES})
+TARGET_LINK_LIBRARIES(https_test ahttpd)
+ADD_CUSTOM_TARGET(run_https_test COMMAND ${CMAKE_BINARY_DIR}/test/https_test DEPENDS https_test WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

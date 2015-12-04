@@ -129,9 +129,9 @@ parseResponseCookie(const std::string& cookie_header)
         {
             try 
             {
-                cookie.expires = time(nullptr) + ::boost::lexical_cast<long>(val);
+                cookie.expires = time(nullptr) + boost::lexical_cast<long>(val);
             } 
-            catch(::boost::bad_lexical_cast &e) 
+            catch(boost::bad_lexical_cast &e) 
             {
                 Log("ERROR") << e.what();
                 cookie.expires = 0;

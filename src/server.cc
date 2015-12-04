@@ -65,10 +65,12 @@ public:
 
     static boost::asio::io_service& common_service()
     {
-        static boost::asio::io_service service;
-        if(service.stopped())
-            service.reset();
-        return service;
+        static std::unique_ptr<boost::asio::io_service> service_ptr = std::make_unique<boost::asio::io_service>();
+        service_ptr->stop();
+        while(!service_ptr->stopped())
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        service_ptr = std::make_unique<boost::asio::io_service>();
+        return *service_ptr;
     }
 
 private:
@@ -244,6 +246,7 @@ void Server::run(size_t thread_number)
 {
     if(!thread_number)
         return;
+
     std::vector<std::thread> threads;
     for(size_t i = 0; i < thread_number; ++i) 
     {
