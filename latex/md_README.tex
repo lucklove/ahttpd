@@ -1,0 +1,82 @@
+\subsection*{当前特性}
+
+
+\begin{DoxyItemize}
+\item http/https server
+\item http/https client
+\item smtp client
+\item cookie
+\end{DoxyItemize}
+
+\subsection*{依赖}
+
+
+\begin{DoxyItemize}
+\item boost
+\item C++1y
+\item libssl(https需要)
+\end{DoxyItemize}
+
+\subsection*{编译-\/安装}
+
+
+\begin{DoxyItemize}
+\item cd ahttpd
+\item mkdir build
+\item cd build
+\item cmake ..
+\item make
+\item sudo make install
+\end{DoxyItemize}
+
+\subsubsection*{注意\+:}
+
+若在运行时出现如下错误\+: error while loading shared libraries\+: libahttpd.\+so\+: cannot open shared object file\+: No such file or directory 请确保libahttpd.\+so所在目录在ld的搜索路径中,对于linux系统, libahttpd.\+so所在的目录一般为/usr/local/lib 若发现改目录不在ld的搜索路径中,以下步骤可让libahttpd.\+so被ld找到\+:
+\begin{DoxyItemize}
+\item 修改/etc/ld.so.\+conf, 加入一行/usr/local/lib
+\item 执行sudo ldconfig更新配置
+\end{DoxyItemize}
+
+\subsubsection*{gcc无法编译：}
+
+
+\begin{DoxyItemize}
+\item 即使在最新版的gcc下编译也会出现internal compiler error, 目前已知的能编译的只有clang
+\item 暂时没有workaround方案
+\end{DoxyItemize}
+
+\#\#示例 
+\begin{DoxyCode}
+1 \{c++\}
+2 #include <ahttpd.hh>
+3 struct TestHandler : public RequestHandler \{
+4     void handleRequest(RequestPtr req, ResponsePtr rep) override \{
+5         rep->out() << "hello world!" << std::endl;
+6     \}
+7 \};
+8 
+9 int
+10 main(int argc, char *argv[])
+11 \{
+12     std::stringstream config("\{\(\backslash\)"http port\(\backslash\)":\(\backslash\)"8888\(\backslash\)"\}");
+13     Server server(config);
+14     server.addHandler("/", new TestHandler());
+15     server.run();
+16 \}
+\end{DoxyCode}
+ \subsection*{example目录中的示例\+:}
+
+\begin{TabularC}{4}
+\hline
+\rowcolor{lightgray}{\bf 名称 }&{\bf 描述 }&{\bf 访问地址 }&{\bf 备注  }\\\cline{1-4}
+Hello\+World &向客户端发送hello world &\href{http://127.0.0.1:8888/HelloWorld}{\tt http\+://127.\+0.\+0.\+1\+:8888/\+Hello\+World} &\\\cline{1-4}
+echo &显示客户端请求包的详细信息 &\href{http://127.0.0.1:8888/echo}{\tt http\+://127.\+0.\+0.\+1\+:8888/echo} &\\\cline{1-4}
+Https\+Test &https的示例 &\href{https://127.0.0.1:9999/HttpsTest}{\tt https\+://127.\+0.\+0.\+1\+:9999/\+Https\+Test} &需要输入创建密钥时的密码 \\\cline{1-4}
+client &异步客户端示例 &&\\\cline{1-4}
+Web\+Server &一个支持php的webserver &\href{http://127.0.0.1:8888/}{\tt http\+://127.\+0.\+0.\+1\+:8888/}\mbox{[}xxx\mbox{]} &\\\cline{1-4}
+mail &使用smtp发送邮件 &&\\\cline{1-4}
+proxy &http/https代理服务器 &\href{http://127.0.0.1:8888}{\tt http\+://127.\+0.\+0.\+1\+:8888} &\\\cline{1-4}
+\end{TabularC}
+http代理服务器地址\+: 115.\+28.\+32.\+115\+:1994
+
+\subsection*{人丑bug多，欢迎找茬}

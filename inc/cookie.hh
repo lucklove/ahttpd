@@ -9,6 +9,12 @@
 namespace ahttpd 
 {
 
+/**
+ *\brief 存放request中的cookie
+ *\example
+ *  request_cookie_t cookie;
+ *  cookie.setKey("key").setVal("val");
+ */
 struct request_cookie_t 
 {
     std::string key;
@@ -25,6 +31,12 @@ struct request_cookie_t
     }
 };
 
+/**
+ * \brief 存放response中的cookie
+ * \example
+ *      response_cookie_t cookie;
+ *      cookie.setKey("key").setVal("val").setExpires(time() + 60);
+ */
 struct response_cookie_t 
 {
     std::string key;

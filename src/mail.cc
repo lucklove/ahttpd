@@ -124,7 +124,8 @@ Mail& Mail::send(const std::string& to_addr,
     {
         conn = std::make_shared<TcpConnection>(service_);
     }
-
+/*
+    FIXME: compiler bug
     try 
     {
         asyncWrap([=](auto callback)
@@ -167,7 +168,38 @@ Mail& Mail::send(const std::string& to_addr,
     {
         Log("ERROR") << e;    
     }
-
+*/
+    conn->asyncConnect(server_, port_, [=](ConnectionPtr conn) 
+    {   
+        CHECK(conn);
+        conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
+        {
+            if(ec) 
+            {
+                Log("DEBUG") << __FILE__ << ":" << __LINE__;
+                Log("ERROR") << ec.message();
+                handler(false);
+                return;
+            }
+            conn->asyncReadUntil("\n", [=](const boost::system::error_code& ec, size_t) 
+            {
+                CHECK(check_response_code(conn->readBuffer(), 220));
+                sayHello(conn, [=](bool good) 
+                {
+                    CHECK(good);
+                    rcptTo(to_addr, conn, [=](bool good) 
+                    {
+                        CHECK(good);
+                        sendData(conn, send_handler, [=](bool good) 
+                        {
+                            CHECK(good);
+                            step("", 250, conn, handler);
+                        });
+                    });
+                });
+            });
+        });
+    }); 
     return *this;
 }
                         

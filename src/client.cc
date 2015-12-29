@@ -5,7 +5,7 @@
 #include "SslConnection.hh"
 #include "TcpConnection.hh"
 #include "utils.hh"
-#include <boost/regex.hpp>
+#include <regex>
 #include <boost/asio/ssl.hpp>
 #include <boost/algorithm/string.hpp> 
 #include <cstdio>
@@ -48,10 +48,10 @@ void Client::request(const std::string& method, const std::string& url,
     std::function<void(RequestPtr)> req_handler)
 {
     /** http://user:pass@server:port/path?query */
-    static const boost::regex url_reg("(((http|https)://))?((((?!@).)*)@)?"
-        "(((?![/\\?]).)+)(.+)?", boost::regex::icase);    
-    boost::smatch results;
-    if(boost::regex_search(url, results, url_reg)) 
+    static const std::regex url_reg("(((http|https)://))?((((?!@).)*)@)?"
+        "(((?![/\\?]).)+)(.+)?", std::regex::icase);    
+    std::smatch results;
+    if(std::regex_search(url, results, url_reg)) 
     {
         std::string scheme = "http";
 
@@ -75,13 +75,15 @@ void Client::request(const std::string& method, const std::string& url,
             path = "/" + path;
 
         std::string port = scheme == "https" ? "443" : "80";
-        static const boost::regex host_port_reg("(((?!:).)*)(:([0-9]+))?");
-        if(boost::regex_search(host, results, host_port_reg)) 
+        static const std::regex host_port_reg("(((?!:).)*)(:([0-9]+))?");
+        std::string tmp = host; 
+        if(std::regex_search(tmp, results, host_port_reg)) 
         {
             host = results.str(1);
             if(results[4].matched)
                 port = results.str(4);
         }
+
         ConnectionPtr connection;
         if(scheme == "http") 
         {
@@ -95,7 +97,6 @@ void Client::request(const std::string& method, const std::string& url,
         {
             assert(false);    
         }
-
         connection->asyncConnect(host, port, [=](ConnectionPtr conn) 
         {
             if(conn) 

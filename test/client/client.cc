@@ -73,9 +73,9 @@ TEST_CASE(client_request_chunked_body_test)
             Log("NOTE") << ss.str();
             s.stop();
         },
-        [](RequestPtr req) 
+        [&](RequestPtr req) 
         {
-            TEST_REQUIRE(req);
+            TEST_REQUIRE(req, [&]{ s.stop(); s.~Server(); });
             req->out() << "this ";
             req->flush();
             req->out() << "is ";
@@ -108,6 +108,7 @@ TEST_CASE(client_cookie_muti_test)
     {
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
         {
+            TEST_REQUIRE(res, [&]{ s.stop(); s.~Server(); });
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key1=val1; key2=val2; key3=val3");
@@ -135,6 +136,7 @@ TEST_CASE(client_cookie_expires_test)
         std::this_thread::sleep_for(std::chrono::seconds(2));
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
         {
+            TEST_REQUIRE(res, [&]{ s.stop(); s.~Server(); });
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key2=val2");
@@ -164,6 +166,7 @@ TEST_CASE(client_cookie_path_test)
     {
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
         {
+            TEST_REQUIRE(res, [&]{ s.stop(); s.~Server(); });
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key1=val1; key3=val3; key5=val5");
@@ -192,6 +195,7 @@ TEST_CASE(client_cookie_domain_test)
     {
         c.request("GET", "http://localhost:8888/echo", [&](ResponsePtr res) 
         {
+            TEST_REQUIRE(res, [&]{ s.stop(); s.~Server(); });
             std::stringstream ss;
             ss << res->out().rdbuf();
             TEST_CHECK(ss.str() == "key2=val2; key3=val3");

@@ -27,7 +27,7 @@ TEST_CASE(client_cookie_simple_test)
     c.request("GET", "http://localhost:8888", [&](ResponsePtr res) 
     {
         auto cookie_jar = c.cookie_jar_;
-        TEST_REQUIRE(cookie_jar.size());
+        TEST_REQUIRE(cookie_jar.size(), [&]{ s.stop(); s.~Server(); });
         TEST_CHECK(cookie_jar[0].key == "key1");
         TEST_CHECK(cookie_jar[0].val == "val1");
         TEST_CHECK(cookie_jar[0].expires == 0);
