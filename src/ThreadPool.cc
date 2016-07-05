@@ -6,8 +6,8 @@ namespace ahttpd
 {
 
 ThreadPool::ThreadPool(size_t n, std::function<void()> on_enter, std::function<void()> on_exit)
-    : workers(n)
 {
+    workers.reserve(n);
     for(size_t i = 0; i < n; ++i)
         workers.emplace_back([=]{
             if(on_enter)
